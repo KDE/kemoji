@@ -1,0 +1,16 @@
+description: Framework to support emojis
+fancyname: KEmoji
+group: frameworks
+subgroup: tier 1
+release: true
+type: functional
+platforms:
+    - name: Linux
+    - name: FreeBSD
+    - name: Android
+    - name: Windows
+    - name: macOS
+public_lib: true
+libraries:
+    - cmake: KF6::KEmoji
+cmakename: KEmoji

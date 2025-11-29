@@ -42,7 +42,7 @@ Kirigami.ApplicationWindow {
             return;
         }
         CopyHelper.copyTextToClipboard(emoji)
-        KEmoji.EmojiDict.addRecentEmoji(emoji);
+        KEmoji.EmojiDict.emojiUsed(emoji);
         window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji))
     }
 

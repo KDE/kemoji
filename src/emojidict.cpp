@@ -11,13 +11,16 @@
 
 #include <KLocalizedString>
 
+#include "emoji.h"
 #include "emojicategory.h"
 #include "emojidict.h"
 #include "kemoji_logging.h"
 
 using namespace Qt::Literals::StringLiterals;
+using namespace KEmoji;
 
 constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
+constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
 
 inline QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
 {
@@ -40,7 +43,7 @@ EmojiDict::EmojiDict(QObject *parent)
     : QObject(parent)
 {
     load();
-    initializeRecentEmojis();
+    initialize();
 }
 
 EmojiDict &EmojiDict::instance()
@@ -64,12 +67,38 @@ const QStringList &EmojiDict::recentEmojis() const
     return m_recentEmojis;
 }
 
+int EmojiDict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
+{
+    return recentEmojiIndex(emoji.unicode);
+}
+
+int EmojiDict::recentEmojiIndex(const QString &emoji) const
+{
+    return m_recentEmojis.indexOf(emoji);
+}
+
+const QHash<QString, int> &EmojiDict::favoriteEmojis() const
+{
+    return m_favouriteEmojis;
+}
+
+int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
+{
+    return timesEmojiUsed(emoji.unicode);
+}
+
+int EmojiDict::timesEmojiUsed(const QString &emoji) const
+{
+    return m_favouriteEmojis.value(emoji, -1);
+}
+
 void EmojiDict::load()
 {
     m_emojis.clear();
     m_categories.clear();
-    m_categories += categoryDict.at("recent"_L1);
-    m_categories += categoryDict.at("all"_L1);
+    m_categories += categoryDict.at(recentCategoryID);
+    m_categories += categoryDict.at(favoriteCategoryID);
+    m_categories += categoryDict.at(allCategoryID);
 
     const QHash<QString, QString> specialCases{{QLatin1String{"zh-TW"}, QLatin1String{"zh_Hant"}}, {QLatin1String{"zh-HK"}, QLatin1String{"zh_Hant_HK"}}};
     QLocale locale;
@@ -144,44 +173,61 @@ void EmojiDict::loadDict(const QString &path)
     }
 }
 
-void EmojiDict::initializeRecentEmojis()
+void EmojiDict::initialize()
 {
     QSettings settings("KDE"_L1, "KEmoji"_L1);
-    auto recentEmojis = settings.value(RecentEmojiKey).toStringList();
+    m_recentEmojis = settings.value(RecentEmojiKey).toStringList();
 
-    for (const auto &emoji : recentEmojis) {
-        const auto index = m_emojis.indexOf(emoji);
-        m_recentEmojis += m_emojis.value(index).unicode;
+    auto favoriteEmojis = settings.value(FavoriteEmojiKey).toHash();
+    for (const auto &key : favoriteEmojis.keys()) {
+        m_favouriteEmojis[key] = favoriteEmojis[key].toInt();
     }
 }
 
-void EmojiDict::addRecentEmoji(const Emoji &emoji)
+void EmojiDict::emojiUsed(const Emoji &emoji)
 {
-    addRecentEmoji(emoji.unicode);
+    emojiUsed(emoji.unicode);
 }
 
-void EmojiDict::addRecentEmoji(const QString &emoji)
+void EmojiDict::emojiUsed(const QString &emoji)
 {
     if (!m_emojis.contains(emoji)) {
         return;
     }
 
     QSettings settings("KDE"_L1, "KEmoji"_L1);
-    auto recentEmojis = settings.value(RecentEmojiKey).toStringList();
-    const auto index = recentEmojis.indexOf(emoji);
 
-    if (index >= 0) {
-        recentEmojis.move(index, 0);
-        m_recentEmojis.move(index, 0);
+    auto recentEmojis = settings.value(RecentEmojiKey).toStringList();
+    const auto recentIndex = recentEmojis.indexOf(emoji);
+    if (recentIndex >= 0) {
+        recentEmojis.move(recentIndex, 0);
+        m_recentEmojis.move(recentIndex, 0);
     } else {
         recentEmojis.prepend(emoji);
         m_recentEmojis.prepend(emoji);
     }
-
     settings.setValue(RecentEmojiKey, recentEmojis);
+
+    auto favoriteEmojisVariant = settings.value(FavoriteEmojiKey).toHash();
+    QHash<QString, int> favoriteEmojis;
+    for (const auto &key : favoriteEmojisVariant.keys()) {
+        favoriteEmojis[key] = favoriteEmojisVariant[key].toInt();
+    }
+    if (favoriteEmojis.contains(emoji)) {
+        ++favoriteEmojis[emoji];
+        favoriteEmojisVariant[emoji] = favoriteEmojisVariant.value(emoji).toInt() + 1;
+        ++m_favouriteEmojis[emoji];
+    } else {
+        favoriteEmojis[emoji] = 1;
+        favoriteEmojisVariant[emoji] = 1;
+        m_favouriteEmojis[emoji] = 1;
+    }
+    settings.setValue(FavoriteEmojiKey, favoriteEmojisVariant);
+
     settings.sync();
 
     Q_EMIT recentEmojisChanged();
+    Q_EMIT favoriteEmojisChanged();
 }
 
 #include "moc_emojidict.cpp"

@@ -11,7 +11,8 @@
 
 #include "emojicategory.h"
 
-using namespace KEmoji;
+namespace KEmoji
+{
 
 struct Emoji {
     QString unicode;
@@ -43,3 +44,4 @@ struct Emoji {
 private:
     QString m_category;
 };
+}

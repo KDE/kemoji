@@ -16,9 +16,10 @@ using namespace KEmoji;
 
 EmojiFilterModel::EmojiFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_currentCategoryId("all"_L1)
+    , m_currentCategoryId(allCategoryID)
 {
     sort(0);
+    connect(&EmojiDict::instance(), &EmojiDict::favoriteEmojisChanged, this, &EmojiFilterModel::invalidate);
 }
 
 QString EmojiFilterModel::searchText() const
@@ -45,7 +46,7 @@ void EmojiFilterModel::setCurrentCategoryId(QString currentCategoryId)
 {
     if (!EmojiDict::instance().categories().contains(currentCategoryId)) {
         qCWarning(KEMOJI) << currentCategoryId << "is not an emoji category in the current dictionary";
-        currentCategoryId = "all"_L1;
+        currentCategoryId = allCategoryID;
     }
 
     if (currentCategoryId == m_currentCategoryId) {
@@ -73,12 +74,14 @@ EmojiCategoryModel *EmojiFilterModel::categoryModel()
 
 bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    if (m_currentCategoryId != "recent"_L1) {
+    if (!(m_currentCategoryId == recentCategoryID || m_currentCategoryId == favoriteCategoryID)) {
         return false;
     }
 
-    const auto rightIndex = source_right.data(EmojiModel::RecentIndexRole).toInt();
-    const auto leftIndex = source_left.data(EmojiModel::RecentIndexRole).toInt();
+    const auto rightIndex =
+        m_currentCategoryId == recentCategoryID ? source_right.data(EmojiModel::RecentIndexRole).toInt() : source_right.data(EmojiModel::TimesUsedRole).toInt();
+    const auto leftIndex =
+        m_currentCategoryId == recentCategoryID ? source_left.data(EmojiModel::RecentIndexRole).toInt() : source_left.data(EmojiModel::TimesUsedRole).toInt();
     if (rightIndex == -1) {
         return false;
     }
@@ -86,7 +89,7 @@ bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelInde
         return true;
     }
 
-    return rightIndex > leftIndex;
+    return m_currentCategoryId == recentCategoryID ? rightIndex > leftIndex : leftIndex > rightIndex;
 }
 
 bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -95,10 +98,12 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
     bool searchFilter = false;
 
     // First if the category is Recent accept based on whether the emoji is a recent emoji.
-    if (m_currentCategoryId == "recent"_L1) {
+    if (m_currentCategoryId == recentCategoryID) {
         categoryFilter = sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::RecentIndexRole).toInt() >= 0;
+    } else if (m_currentCategoryId == favoriteCategoryID) {
+        categoryFilter = sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::TimesUsedRole).toInt() > 0;
     } else {
-        categoryFilter = m_currentCategoryId == "all"_L1
+        categoryFilter = m_currentCategoryId == allCategoryID
             || sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::CategoryRole).view<Category>().id == m_currentCategoryId;
     }
 

@@ -33,28 +33,38 @@ public:
         return &instance();
     }
 
-    const QList<Emoji> &emojis() const;
+    const QList<KEmoji::Emoji> &emojis() const;
 
-    const QList<Category> &categories() const;
+    const QList<KEmoji::Category> &categories() const;
 
     const QStringList &recentEmojis() const;
 
-    void addRecentEmoji(const Emoji &emoji);
+    int recentEmojiIndex(const KEmoji::Emoji &emoji) const;
+    int recentEmojiIndex(const QString &emoji) const;
 
-    Q_INVOKABLE void addRecentEmoji(const QString &emoji);
+    const QHash<QString, int> &favoriteEmojis() const;
+
+    int timesEmojiUsed(const KEmoji::Emoji &emoji) const;
+    int timesEmojiUsed(const QString &emoji) const;
+
+    void emojiUsed(const KEmoji::Emoji &emoji);
+
+    Q_INVOKABLE void emojiUsed(const QString &emoji);
 
 Q_SIGNALS:
     void recentEmojisChanged();
+    void favoriteEmojisChanged();
 
 private:
     explicit EmojiDict(QObject *parent = nullptr);
 
-    QList<Emoji> m_emojis;
-    QList<Category> m_categories;
+    QList<KEmoji::Emoji> m_emojis;
     QStringList m_recentEmojis;
+    QHash<QString, int> m_favouriteEmojis;
+    QList<KEmoji::Category> m_categories;
 
     void load();
     void loadDict(const QString &path);
 
-    void initializeRecentEmojis();
+    void initialize();
 };

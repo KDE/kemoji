@@ -18,6 +18,10 @@ using namespace Qt::Literals::StringLiterals;
 namespace KEmoji
 {
 
+constexpr inline auto allCategoryID = "all"_L1;
+constexpr inline auto recentCategoryID = "recent"_L1;
+constexpr inline auto favoriteCategoryID = "favorite"_L1;
+
 struct KEMOJI_EXPORT Category {
     Q_GADGET
     QML_ELEMENT
@@ -57,17 +61,23 @@ private:
 static const Category emptyCategory = Category();
 
 static const std::unordered_map<QString, Category> categoryDict = {
-    {"all"_L1,
+    {allCategoryID,
      Category{
-         "all"_L1,
+         allCategoryID,
          kli18nc("Emoji Category", "All"),
          "view-list-icons"_L1,
      }},
-    {"recent"_L1,
+    {recentCategoryID,
      Category{
-         "recent"_L1,
+         recentCategoryID,
          kli18nc("Emoji Category", "Recent"),
          "document-open-recent-symbolic"_L1,
+     }},
+    {favoriteCategoryID,
+     Category{
+         favoriteCategoryID,
+         kli18nc("Emoji Category", "Favorite"),
+         "favorite"_L1,
      }},
     {"smileysAndEmotion"_L1,
      Category{
@@ -124,5 +134,4 @@ static const std::unordered_map<QString, Category> categoryDict = {
          "flag"_L1,
      }},
 };
-
 }

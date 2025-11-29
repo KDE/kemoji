@@ -19,8 +19,9 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     if (!checkIndex(index,
                     QAbstractItemModel::CheckIndexOption::IndexIsValid | QAbstractItemModel::CheckIndexOption::ParentIsInvalid
                         | QAbstractItemModel::CheckIndexOption::DoNotUseParent)
-        || index.column() != 0)
+        || index.column() != 0) {
         return {};
+    }
 
     const auto &emoji = EmojiDict::instance().emojis()[index.row()];
     switch (role) {
@@ -35,9 +36,12 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     case FallbackDescriptionRole:
         return emoji.fallbackDescription;
     case RecentIndexRole:
-        return EmojiDict::instance().recentEmojis().indexOf(emoji);
+        return EmojiDict::instance().recentEmojiIndex(emoji);
+    case TimesUsedRole:
+        return EmojiDict::instance().timesEmojiUsed(emoji);
+    default:
+        return {};
     }
-    return {};
 }
 
 int EmojiModel::rowCount(const QModelIndex &parent) const

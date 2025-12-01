@@ -146,7 +146,7 @@ Kirigami.ScrollablePage {
     KEmoji.EmojiGrid {
         id: emojiGrid
         onClicked: emoji => window.report(emoji);
-        onPressAndHold: emoji => {
+        onRightClicked: emoji => {
             const menu = menuComponent.createObject(emojiGrid, {
                 label: emoji,
             });

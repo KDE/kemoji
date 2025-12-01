@@ -18,13 +18,14 @@ GridView {
 
     readonly property real desiredSize: Kirigami.Units.gridUnit * 3
     readonly property int columnsToHave: Math.ceil(width / desiredSize)
-    readonly property int delayInterval: Math.min(300, columnsToHave * 10)
 
     signal clicked(emoji: string)
 
+    signal rightClicked(emoji: string)
+
     signal pressAndHold(emoji: string)
 
-    cellWidth: width / columnsToHave
+    cellWidth: desiredSize
     cellHeight: desiredSize
 
     currentIndex: -1
@@ -37,44 +38,25 @@ GridView {
         }
     }
 
-    delegate: QQC2.ItemDelegate {
-        id: emojiLabel
+    delegate: KEmoji.EmojiDelegate {
+        id: emojiDelegate
+        required property list<KEmoji.Emoji> subEmojis
 
-        required property string unicode
-        required property string description
-
+        hasSubEmojis: subEmojis.length > 0
         width: root.cellWidth
         height: root.cellHeight
 
-        highlighted: GridView.isCurrentItem
-        contentItem: QQC2.Label {
-            font.pointSize: 25
-            font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
-            fontSizeMode: emojiLabel.unicode > 5 ? Text.Fit : Text.FixedSize
-            minimumPointSize: 10
-            text: emojiLabel.unicode
-            textFormat: Text.PlainText
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-
-        Accessible.name: emojiLabel.description
-        Accessible.onPressAction: root.clicked(emojiLabel.unicode)
-
-        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-        QQC2.ToolTip.text: emojiLabel.description
-        QQC2.ToolTip.visible: emojiLabel.hovered
-
-        Keys.onMenuPressed: event => root.pressAndHold(emojiLabel.unicode)
-        Keys.onReturnPressed: event => root.clicked(emojiLabel.unicode)
-
-        onClicked: root.clicked(emojiLabel.unicode)
-
-        onPressAndHold: root.pressAndHold(emojiLabel.unicode)
-
-        TapHandler {
-            acceptedButtons: Qt.RightButton
-            onTapped: (eventPoint, button) => root.pressAndHold(emojiLabel.unicode)
+        onClicked: root.clicked(emojiDelegate.unicode)
+        onRightClicked: root.rightClicked(emojiDelegate.unicode)
+        onPressAndHold: {
+            if (emojiDelegate.subEmojis.length <= 0) {
+                return;
+            }
+            let subPopup = subEmojiPopup.createObject(emojiDelegate, {
+                model: emojiDelegate.subEmojis
+            }) as KEmoji.SubEmojiPopup;
+            subPopup.open();
+            subPopup.forceActiveFocus();
         }
     }
 
@@ -83,5 +65,13 @@ GridView {
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
         text: i18n("No recent Emojis")
         visible: root.count === 0 && root.model.category === "recent"
+    }
+
+    Component {
+        id: subEmojiPopup
+        KEmoji.SubEmojiPopup {
+            onClicked: emoji => root.clicked(emoji)
+            onRightClicked: emoji => root.rightClicked(emoji)
+        }
     }
 }

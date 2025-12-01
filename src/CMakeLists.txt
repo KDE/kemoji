@@ -9,6 +9,7 @@ set_target_properties(KEmoji PROPERTIES
 )
 
 target_sources(KEmoji PRIVATE
+    emoji.cpp
     emojidict.cpp
     emojicategory.h
     emojimodel.cpp

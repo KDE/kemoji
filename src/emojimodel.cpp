@@ -39,6 +39,8 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return EmojiDict::instance().timesEmojiUsed(emoji);
+    case SubEmojisRole:
+        return QVariant::fromValue(emoji.subEmojis);
     default:
         return {};
     }
@@ -57,6 +59,7 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
         {CategoryRole, "category"},
         {AnnotationsRole, "annotations"},
         {FallbackDescriptionRole, "fallbackDescription"},
+        {SubEmojisRole, "subEmojis"},
     };
 }
 

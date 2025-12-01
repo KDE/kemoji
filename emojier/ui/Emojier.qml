@@ -102,10 +102,14 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        if (false) {
-            categoryPage.model.currentCategoryId = "recent";
-        } else {
-            categoryPage.model.currentCategoryId = "all";
+        categoryPage.model.currentCategoryId = "recent";
+        if (categoryPage.model.rowCount() > 0) {
+            return;
         }
+        categoryPage.model.currentCategoryId = "favorite";
+        if (categoryPage.model.rowCount() > 0) {
+            return;
+        }
+        categoryPage.model.currentCategoryId = "all";
     }
 }

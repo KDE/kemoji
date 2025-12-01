@@ -5,6 +5,7 @@
 # SPDX-FileCopyrightText: 2022 Weng Xuetian <wengxt@gmail.com>
 # SPDX-License-Identifier: LGPL-2.0-or-later
 #
+from dataclasses import dataclass
 import collections
 import requests
 import io
@@ -24,9 +25,34 @@ CLDR_URL = f"https://unicode.org/Public/cldr/{CLDR_VERSION.split('.')[0]}/{CLDR_
 CLDR_ANNOTATIONS_DIR = "common/annotations"
 CLDR_ANNOTATIONS_DERIVED_DIR = "common/annotationsDerived"
 
+SUB_EMOJI_IDS = [b"light skin tone", b"medium-light skin tone", b"medium skin tone", b"medium-dark skin tone", b"dark skin tone"]
+
 def toCamelCase(string):
-    parts = string.replace(b" & ", b" and ").split(b" ")
+    parts = string.replace(b" & ", b" and ").replace(b".", b"").split(b" ")
     return parts[0].lower() + b"".join(word.capitalize() for word in parts[1:])
+
+def partsFromEmojiLine(line):
+    segments = line.split(b";")
+    if len(segments) != 2:
+        raise ValueError("Input line is not in the right format, expected format: code points; status # emoji name.", line)
+
+    codePoints = segments[0].strip().split(b" ")
+    unicode = "".join(chr(int(code, 16)) for code in codePoints)
+
+    metadata = segments[1].split(b"#")
+    if len(metadata) != 2:
+        raise ValueError("Input line is not in the right format, expected format: code points; status # emoji name.", line)
+
+    idParts = metadata[1].strip().split(b" E", 1)[1].split(b" ", 1)
+    id = idParts[1]
+
+    return unicode, metadata[0].strip(), id
+
+@dataclass
+class Emoji(object):
+   id: str
+   unqualifiedUnicode: str
+   category: str
 
 class EmojiAnnotation(object):
     def __init__(self):
@@ -40,41 +66,29 @@ class EmojiParser(object):
 
     def parseEmojiTest(self, emojiTestData):
         descriptionMapping = dict()
-        currentGroup = b"";
+        currentCategory = b"";
         GROUP_TAG = b"# group: "
         for line in emojiTestData.split(b"\n"):
             line = line.strip()
             if line.startswith(GROUP_TAG):
-                currentGroup = toCamelCase(line[len(GROUP_TAG):])
+                currentCategory = toCamelCase(line[len(GROUP_TAG):])
                 continue
 
             if line.startswith(b"#"):
                 continue;
 
             # line format: code points; status # emoji name
-            segments = line.split(b";")
-            if len(segments) != 2:
-                continue
-            metadata = segments[1].split(b"#")
-            if len(metadata) != 2:
-                continue;
-            desc = metadata[1].strip().split(b" E", 1)
-            if len(desc) != 2:
-                continue
-            description = desc[1]
-
-            codes = segments[0].strip().split(b" ")
             try:
-                emoji = "".join(chr(int(code, 16)) for code in codes)
-                status = metadata[0].strip()
+                unicode, status, id = partsFromEmojiLine(line)
                 if status == b"fully-qualified":
-                    self.emojis[emoji] = currentGroup
-                    descriptionMapping[description] = emoji
+                    self.emojis[unicode] = Emoji(id, "", currentCategory)
+                    descriptionMapping[id] = unicode
                 else:
-                    fullyQualified = descriptionMapping.get(description, None);
+                    fullyQualified = descriptionMapping.get(id, None);
                     if fullyQualified:
-                        self.variantMapping[emoji] = fullyQualified;
-            except e:
+                        self.emojis[fullyQualified].unqualifiedUnicode = unicode
+                        self.variantMapping[unicode] = fullyQualified;
+            except ValueError as e:
                 pass
 
     def parseCldr(self, cldrList):
@@ -136,7 +150,7 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
         with thezip.open(os.path.join(CLDR_ANNOTATIONS_DIR, langfile)) as annotationsFile, thezip.open(os.path.join(CLDR_ANNOTATIONS_DERIVED_DIR, langfile)) as annotationsDerivedFile:
             annotations = parser.parseCldr([annotationsFile.read(), annotationsDerivedFile.read()])
 
-        filtered_emojis = [(emoji, category) for (emoji, category) in parser.emojis.items() if emoji in annotations and annotations[emoji].description]
+        filtered_emojis = [(unicode, emoji) for (unicode, emoji) in parser.emojis.items() if unicode in annotations and annotations[unicode].description]
         # There's indeed some annotations file with 0 entries.
         if not filtered_emojis:
             print(f"Skipping {dictfilename}")
@@ -151,11 +165,12 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
         stream.setVersion(QDataStream.Qt_5_15)
         stream.setByteOrder(QDataStream.LittleEndian)
         stream.writeUInt32(len(filtered_emojis))
-        for emoji, category in filtered_emojis:
-            stream << QByteArray(emoji.encode("utf-8"))
-            annotation = annotations[emoji]
+        for unicode, emoji in filtered_emojis:
+            stream << QByteArray(unicode.encode("utf-8"))
+            stream << QByteArray(emoji.unqualifiedUnicode.encode("utf-8"))
+            annotation = annotations[unicode]
             stream << QByteArray(annotation.description.encode("utf-8"))
-            stream << QByteArray(category)
+            stream << QByteArray(emoji.category)
             # Write QList<QByteArray>
             stream.writeUInt32(len(annotation.annotations))
             for item in annotation.annotations:

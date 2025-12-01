@@ -25,6 +25,7 @@ public:
         FallbackDescriptionRole,
         RecentIndexRole,
         TimesUsedRole,
+        SubEmojisRole,
     };
 
     explicit EmojiModel(QObject *parent = nullptr);

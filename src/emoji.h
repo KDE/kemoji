@@ -10,38 +10,38 @@
 #include <QStringList>
 
 #include "emojicategory.h"
+#include "kemoji_export.h"
 
 namespace KEmoji
 {
+struct KEMOJI_EXPORT Emoji {
+    Q_GADGET
+    QML_ELEMENT
 
-struct Emoji {
+    Q_PROPERTY(QString unicode MEMBER unicode CONSTANT)
+    Q_PROPERTY(QString description MEMBER description CONSTANT)
+
+public:
     QString unicode;
+    QString unqualifiedUnicode;
+    QString baseUnicode() const;
+
     QString description;
     QString fallbackDescription;
     QStringList annotations;
 
-    const Category &category() const
-    {
-        if (!categoryDict.contains(m_category)) {
-            return emptyCategory;
-        }
-        return categoryDict.at(m_category);
-    }
-    void setCategory(const QString &category)
-    {
-        m_category = category;
-    }
+    QList<Emoji> subEmojis;
+    bool isSubEmoji() const;
 
-    bool operator==(const Emoji &right) const
-    {
-        return unicode == right.unicode;
-    }
-    bool operator==(const QString &right) const
-    {
-        return unicode == right;
-    }
+    const Category &category() const;
+    void setCategory(const QString &category);
+
+    bool operator==(const Emoji &right) const;
+    bool operator==(const QString &right) const;
 
 private:
     QString m_category;
 };
+
+static const Emoji emptyEmoji = {};
 }

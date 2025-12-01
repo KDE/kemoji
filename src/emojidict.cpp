@@ -28,6 +28,8 @@ inline QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
     stream >> buffer;
     emoji.unicode = QString::fromUtf8(buffer);
     stream >> buffer;
+    emoji.unqualifiedUnicode = QString::fromUtf8(buffer);
+    stream >> buffer;
     emoji.description = QString::fromUtf8(buffer);
     stream >> buffer;
     emoji.setCategory(QString::fromUtf8(buffer));
@@ -107,24 +109,26 @@ void EmojiDict::load()
     bcp = specialCases.value(bcp, bcp);
     bcp.replace(QLatin1Char('-'), QLatin1Char('_'));
 
-    const QString dictName = "/kemoji/%1.dict"_L1.arg(bcp);
-    const auto path = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, dictName);
+    const QString dictName = "kemoji/%1.dict"_L1.arg(bcp);
+    const auto path = QStandardPaths::locate(QStandardPaths::GenericDataLocation, dictName);
     if (!path.isEmpty()) {
         dicts << path;
     }
 
     for (qsizetype underscoreIndex = -1; (underscoreIndex = bcp.lastIndexOf(QLatin1Char('_'), underscoreIndex)) != -1; --underscoreIndex) {
-        const QString genericDictName = "/kemoji/%1.dict"_L1.arg(bcp.left(underscoreIndex));
-        const auto genericPath = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, genericDictName);
+        const QString genericDictName = "kemoji/%1.dict"_L1.arg(bcp.left(underscoreIndex));
+        const auto genericPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, genericDictName);
 
-        if (!genericPath.isEmpty()) {
+        if (!genericPath.isEmpty() && !dicts.contains(genericPath)) {
             dicts << genericPath;
         }
     }
 
     // Always fallback to en, because some annotation data only have minimum data.
-    const auto genericPath = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, "kemoji/en.dict"_L1);
-    dicts << genericPath;
+    const auto genericPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kemoji/en.dict"_L1);
+    if (!dicts.contains(genericPath)) {
+        dicts << genericPath;
+    }
 
     if (dicts.isEmpty()) {
         qCWarning(KEMOJI) << "could not find emoji dictionaries." << dictName;
@@ -160,7 +164,23 @@ void EmojiDict::loadDict(const QString &path)
     QList<Emoji> emojis;
     stream >> emojis;
     for (const auto &emoji : emojis) {
-        if (m_emojis.contains(emoji)) {
+        if (emoji.isSubEmoji()) {
+            const auto it = std::find_if(m_emojis.begin(), m_emojis.end(), [emoji](const Emoji &listEmoji) {
+                return emoji.baseUnicode() == listEmoji.unicode || emoji.baseUnicode() == listEmoji.unqualifiedUnicode;
+            });
+            if (it == m_emojis.end()) {
+                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode << emoji.unqualifiedUnicode << emoji.description << emoji.baseUnicode();
+                continue;
+            }
+            if (it->subEmojis.contains(emoji)) {
+                auto &foundEmoji = it->subEmojis[it->subEmojis.indexOf(emoji)];
+                const QString fallbackDescription = foundEmoji.description;
+                foundEmoji = emoji;
+                foundEmoji.fallbackDescription = fallbackDescription;
+            } else {
+                it->subEmojis.append(emoji);
+            }
+        } else if (m_emojis.contains(emoji)) {
             const auto it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
             // Overwrite with new data but keep previous description as fallback.
             auto &foundEmoji = *it;

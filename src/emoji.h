@@ -19,16 +19,16 @@ struct KEMOJI_EXPORT Emoji {
     QML_ELEMENT
 
     Q_PROPERTY(QString unicode MEMBER unicode CONSTANT)
-    Q_PROPERTY(QString description MEMBER description CONSTANT)
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
 
 public:
     QString unicode;
     QString unqualifiedUnicode;
     QString baseUnicode() const;
 
-    QString description;
-    QString fallbackDescription;
-    QStringList annotations;
+    QString name;
+    QString fallbackName;
+    QStringList altNames;
 
     QList<Emoji> subEmojis;
     bool isSubEmoji() const;

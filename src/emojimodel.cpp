@@ -27,14 +27,14 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case UnicodeRole:
         return emoji.unicode;
-    case DescriptionRole:
-        return emoji.description;
+    case NameRole:
+        return emoji.name;
     case CategoryRole:
         return QVariant::fromValue(emoji.category());
-    case AnnotationsRole:
-        return emoji.annotations;
-    case FallbackDescriptionRole:
-        return emoji.fallbackDescription;
+    case AltNamesRole:
+        return emoji.altNames;
+    case FallbackNameRole:
+        return emoji.fallbackName;
     case RecentIndexRole:
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
@@ -55,10 +55,10 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
 {
     return {
         {UnicodeRole, "unicode"},
-        {DescriptionRole, "description"},
+        {NameRole, "name"},
         {CategoryRole, "category"},
-        {AnnotationsRole, "annotations"},
-        {FallbackDescriptionRole, "fallbackDescription"},
+        {AltNamesRole, "altNames"},
+        {FallbackNameRole, "fallbackName"},
         {SubEmojisRole, "subEmojis"},
     };
 }

@@ -56,8 +56,8 @@ class Emoji(object):
 
 class EmojiAnnotation(object):
     def __init__(self):
-        self.description = ""
-        self.annotations = []
+        self.name = ""
+        self.altNames = []
 
 class EmojiParser(object):
     def __init__(self):
@@ -65,7 +65,7 @@ class EmojiParser(object):
         self.emojis = collections.OrderedDict()
 
     def parseEmojiTest(self, emojiTestData):
-        descriptionMapping = dict()
+        nameMapping = dict()
         currentCategory = b"";
         GROUP_TAG = b"# group: "
         for line in emojiTestData.split(b"\n"):
@@ -82,9 +82,9 @@ class EmojiParser(object):
                 unicode, status, id = partsFromEmojiLine(line)
                 if status == b"fully-qualified":
                     self.emojis[unicode] = Emoji(id, "", currentCategory)
-                    descriptionMapping[id] = unicode
+                    nameMapping[id] = unicode
                 else:
-                    fullyQualified = descriptionMapping.get(id, None);
+                    fullyQualified = nameMapping.get(id, None);
                     if fullyQualified:
                         self.emojis[fullyQualified].unqualifiedUnicode = unicode
                         self.variantMapping[unicode] = fullyQualified;
@@ -110,9 +110,9 @@ class EmojiParser(object):
                         annotations[emoji] = EmojiAnnotation()
                     annotation = annotations[emoji]
                     if "type" in annotationNode.attributes and annotationNode.attributes["type"].nodeValue == "tts":
-                        annotation.description = annotationNode.childNodes[0].nodeValue
+                        annotation.name = annotationNode.childNodes[0].nodeValue
                     else:
-                        annotation.annotations = annotationNode.childNodes[0].nodeValue.split(" | ")
+                        annotation.altNames = annotationNode.childNodes[0].nodeValue.split(" | ")
         return annotations
 
 print("Removing old *.dict files")
@@ -150,7 +150,7 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
         with thezip.open(os.path.join(CLDR_ANNOTATIONS_DIR, langfile)) as annotationsFile, thezip.open(os.path.join(CLDR_ANNOTATIONS_DERIVED_DIR, langfile)) as annotationsDerivedFile:
             annotations = parser.parseCldr([annotationsFile.read(), annotationsDerivedFile.read()])
 
-        filtered_emojis = [(unicode, emoji) for (unicode, emoji) in parser.emojis.items() if unicode in annotations and annotations[unicode].description]
+        filtered_emojis = [(unicode, emoji) for (unicode, emoji) in parser.emojis.items() if unicode in annotations and annotations[unicode].name]
         # There's indeed some annotations file with 0 entries.
         if not filtered_emojis:
             print(f"Skipping {dictfilename}")
@@ -169,11 +169,11 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
             stream << QByteArray(unicode.encode("utf-8"))
             stream << QByteArray(emoji.unqualifiedUnicode.encode("utf-8"))
             annotation = annotations[unicode]
-            stream << QByteArray(annotation.description.encode("utf-8"))
+            stream << QByteArray(annotation.name.encode("utf-8"))
             stream << QByteArray(emoji.category)
             # Write QList<QByteArray>
-            stream.writeUInt32(len(annotation.annotations))
-            for item in annotation.annotations:
+            stream.writeUInt32(len(annotation.altNames))
+            for item in annotation.altNames:
                 stream << QByteArray(item.encode("utf-8"))
         compressed = qCompress(buf)
         dictfile.write(compressed)

@@ -13,7 +13,7 @@ QQC2.ItemDelegate {
     id: root
 
     required property string unicode
-    required property string description
+    required property string name
     property bool hasSubEmojis: false
 
     signal rightClicked
@@ -48,11 +48,11 @@ QQC2.ItemDelegate {
         }
     }
 
-    Accessible.name: description
+    Accessible.name: name
     Accessible.onPressAction: root.clicked()
 
     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-    QQC2.ToolTip.text: description
+    QQC2.ToolTip.text: name
     QQC2.ToolTip.visible: hovered
 
     Keys.onMenuPressed: event => root.rightClicked()

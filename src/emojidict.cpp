@@ -30,13 +30,13 @@ inline QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
     stream >> buffer;
     emoji.unqualifiedUnicode = QString::fromUtf8(buffer);
     stream >> buffer;
-    emoji.description = QString::fromUtf8(buffer);
+    emoji.name = QString::fromUtf8(buffer);
     stream >> buffer;
     emoji.setCategory(QString::fromUtf8(buffer));
     QList<QByteArray> annotationBuffers;
     stream >> annotationBuffers;
     for (const auto &annotation : annotationBuffers) {
-        emoji.annotations << QString::fromUtf8(annotation);
+        emoji.altNames << QString::fromUtf8(annotation);
     }
     return stream;
 }
@@ -169,24 +169,24 @@ void EmojiDict::loadDict(const QString &path)
                 return emoji.baseUnicode() == listEmoji.unicode || emoji.baseUnicode() == listEmoji.unqualifiedUnicode;
             });
             if (it == m_emojis.end()) {
-                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode << emoji.unqualifiedUnicode << emoji.description << emoji.baseUnicode();
+                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode << emoji.unqualifiedUnicode << emoji.name << emoji.baseUnicode();
                 continue;
             }
             if (it->subEmojis.contains(emoji)) {
                 auto &foundEmoji = it->subEmojis[it->subEmojis.indexOf(emoji)];
-                const QString fallbackDescription = foundEmoji.description;
+                const QString fallbackName = foundEmoji.name;
                 foundEmoji = emoji;
-                foundEmoji.fallbackDescription = fallbackDescription;
+                foundEmoji.fallbackName = fallbackName;
             } else {
                 it->subEmojis.append(emoji);
             }
         } else if (m_emojis.contains(emoji)) {
             const auto it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
-            // Overwrite with new data but keep previous description as fallback.
+            // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
-            const QString fallbackDescription = foundEmoji.description;
+            const QString fallbackName = foundEmoji.name;
             foundEmoji = emoji;
-            foundEmoji.fallbackDescription = fallbackDescription;
+            foundEmoji.fallbackName = fallbackName;
         } else {
             m_emojis.append(emoji);
         }

@@ -53,4 +53,10 @@ private:
     QString m_currentCategoryId;
 
     QPointer<EmojiCategoryModel> m_categoryModel;
+
+    bool nameContainsSearch(const QModelIndex &index) const;
+    int exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    int exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    int isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    int isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
 };

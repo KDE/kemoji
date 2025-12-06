@@ -35,7 +35,7 @@ Kirigami.ScrollablePage {
             model = emoji
             searchText += /[\x00-\x1F\x7F]/.test(event.text) ? "" : event.text
             text: i18nc("@title:page All emojis", "All")
-            category = ""
+            view.model.currentCategoryId = ""
         }
     }
 
@@ -75,8 +75,8 @@ Kirigami.ScrollablePage {
 
                 // If nothing was found, try again with all emojis
                 if (emojiGrid.currentIndex < 0) {
-                    if (view.model.category != "all") {
-                        view.model.category = "all";
+                    if (view.model.currentCategoryId != "all") {
+                        view.model.currentCategoryId = "all";
                     }
                 }
             }
@@ -134,7 +134,7 @@ Kirigami.ScrollablePage {
             }
             QQC2.MenuItem {
                 icon.name: "edit-copy"
-                text: i18nc("@item:inmenu", "Copy Description")
+                text: i18nc("@item:inmenu", "Copy Name")
                 onClicked: {
                     CopyHelper.copyTextToClipboard(label);
                     window.showPassiveNotification(i18n("%1 copied to the clipboard", label));

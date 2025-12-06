@@ -10,8 +10,6 @@ ecm_add_qml_module(emojier GENERATE_PLUGIN_SOURCE
         copyhelper.cpp
 )
 
-kconfig_add_kcfg_files(emojier emojiersettings.kcfgc GENERATE_MOC)
-
 target_link_libraries(emojier PRIVATE
     Qt::Quick
     Qt::Qml

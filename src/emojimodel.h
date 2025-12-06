@@ -19,10 +19,10 @@ class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
 public:
     enum RoleNames {
         UnicodeRole = Qt::DisplayRole,
-        DescriptionRole = Qt::ToolTipRole,
+        NameRole = Qt::ToolTipRole,
         CategoryRole = Qt::UserRole + 1,
-        AnnotationsRole,
-        FallbackDescriptionRole,
+        AltNamesRole,
+        FallbackNameRole,
         RecentIndexRole,
         TimesUsedRole,
         SubEmojisRole,

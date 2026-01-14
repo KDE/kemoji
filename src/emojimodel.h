@@ -7,7 +7,7 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QQmlEngine>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include "kemoji_export.h"
 

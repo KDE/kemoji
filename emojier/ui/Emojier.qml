@@ -11,7 +11,7 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 import org.kde.config as KConfig
 
-import org.kde.plasma.emoji as KEmoji
+import org.kde.kemoji as KEmoji
 import org.kde.emojier
 
 pragma ComponentBehavior: Bound

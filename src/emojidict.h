@@ -8,7 +8,6 @@
 #pragma once
 
 #include <QObject>
-#include <QQmlEngine>
 
 #include "kemoji_export.h"
 
@@ -22,16 +21,9 @@ struct Category;
 class KEMOJI_EXPORT EmojiDict : public QObject
 {
     Q_OBJECT
-    QML_ELEMENT
-    QML_SINGLETON
 
 public:
     static EmojiDict &instance();
-    static EmojiDict *create(QQmlEngine *engine, QJSEngine *)
-    {
-        engine->setObjectOwnership(&instance(), QQmlEngine::CppOwnership);
-        return &instance();
-    }
 
     const QList<KEmoji::Emoji> &emojis() const;
 
@@ -49,7 +41,7 @@ public:
 
     void emojiUsed(const KEmoji::Emoji &emoji);
 
-    Q_INVOKABLE void emojiUsed(const QString &emoji);
+    void emojiUsed(const QString &emoji);
 
 Q_SIGNALS:
     void recentEmojisChanged();

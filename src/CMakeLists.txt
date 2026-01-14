@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 add_library(KEmoji)
 
 qt_extract_metatypes(KEmoji)
@@ -17,7 +20,9 @@ target_sources(KEmoji PRIVATE
     emojicategorymodel.cpp
 )
 
-add_subdirectory(quick)
+if(KEMOJI_USE_QML)
+    add_subdirectory(quick)
+endif()
 
 ecm_qt_declare_logging_category(KEmoji
     HEADER kemoji_logging.h
@@ -27,23 +32,15 @@ ecm_qt_declare_logging_category(KEmoji
     EXPORT KEMOJI
 )
 
-ecm_generate_export_header(KEmoji
+generate_export_header(KEmoji
     EXPORT_FILE_NAME kemoji_export.h
     BASE_NAME KEmoji
-    GROUP_BASE_NAME KF
-    VERSION ${KF_VERSION}
-    USE_VERSION_HEADER
-    DEPRECATED_BASE_VERSION 0
-    DEPRECATION_VERSIONS
-    EXCLUDE_DEPRECATED_BEFORE_AND_AT ${EXCLUDE_DEPRECATED_BEFORE_AND_AT}
 )
 
 target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KEmoji>")
 
 target_link_libraries(KEmoji PRIVATE
-    Qt::Qml
-    Qt::Gui
-    KF6::ConfigGui
+    Qt::Core
     KF6::I18n
 )
 

@@ -6,6 +6,7 @@
 */
 
 #include <QFile>
+#include <QLocale>
 #include <QSettings>
 #include <QStandardPaths>
 

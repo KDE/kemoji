@@ -21,7 +21,6 @@ target_link_libraries(emojier PRIVATE
     KF6::CoreAddons
     KF6::Crash
     KF6::DBusAddons
-    KF6::IconThemes
     KF6::Kirigami
     KF6::WindowSystem
     KEmoji

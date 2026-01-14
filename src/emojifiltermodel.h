@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <QQmlEngine>
+#include <QPointer>
 #include <QSortFilterProxyModel>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include "kemoji_export.h"
 

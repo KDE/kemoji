@@ -11,10 +11,12 @@
 
 #include "emojicategory.h"
 #include "kemoji_export.h"
+#include "tones.h"
 
 namespace KEmoji
 {
-struct KEMOJI_EXPORT Emoji {
+class KEMOJI_EXPORT Emoji
+{
     Q_GADGET
     QML_ELEMENT
 
@@ -30,7 +32,7 @@ public:
                    const QString &category,
                    const QString &fallbackName = {});
 
-    QString unicode(const QString &defaultTone = {}) const;
+    QString unicode(Tones::Tone defaultTone = Tones::Neutral) const;
     QString unqualifiedUnicode() const;
     QString baseUnicode() const;
 
@@ -38,15 +40,11 @@ public:
     QString fallbackName() const;
     QStringList altNames() const;
 
-    QList<Emoji> subEmojis(const QString &toneFilter = {}) const;
+    QList<Emoji> subEmojis(Tones::Tone toneFilter = Tones::Neutral) const;
     void addSubEmoji(const Emoji &emoji);
     bool isSubEmoji() const;
-    std::optional<Emoji> subEmojiForTone(const QString &tone) const;
 
     Category category() const;
-
-    static QStringList tones();
-    bool isTone(const QString &tone) const;
 
     bool operator==(const Emoji &right) const;
     bool operator==(const QString &right) const;
@@ -60,6 +58,4 @@ private:
     QList<Emoji> m_subEmojis;
     QString m_category;
 };
-
-static const Emoji emptyEmoji = Emoji();
 }

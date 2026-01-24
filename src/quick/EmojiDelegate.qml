@@ -14,6 +14,7 @@ QQC2.ItemDelegate {
 
     required property string unicode
     required property string name
+    property alias emojiPointSize: innerLabel.font.pointSize
     property bool hasSubEmojis: false
 
     signal rightClicked
@@ -29,11 +30,11 @@ QQC2.ItemDelegate {
     highlighted: GridView.isCurrentItem
 
     contentItem: QQC2.Label {
+        id: innerLabel
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
         font.pointSize: 25
-        minimumPointSize: 10
         text: root.unicode
         textFormat: Text.PlainText
 

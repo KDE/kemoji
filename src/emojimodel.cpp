@@ -9,9 +9,31 @@
 #include "emoji.h"
 #include "emojidict.h"
 
+using namespace KEmoji;
+
 EmojiModel::EmojiModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+}
+
+Tones::Tone EmojiModel::defaultTone() const
+{
+    return m_defaultTone;
+}
+
+QString EmojiModel::defaultToneUnicode() const
+{
+    return Tones::exampleEmojiUnicodeForTone(m_defaultTone);
+}
+
+void EmojiModel::setDefaultTone(Tones::Tone defaultTone)
+{
+    if (defaultTone == m_defaultTone) {
+        return;
+    }
+    m_defaultTone = defaultTone;
+    Q_EMIT dataChanged(index(0), index(rowCount() - 1), {UnicodeRole, SubEmojisRole});
+    Q_EMIT defaultToneChanged();
 }
 
 QVariant EmojiModel::data(const QModelIndex &index, int role) const
@@ -26,7 +48,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     const auto &emoji = EmojiDict::instance().emojis()[index.row()];
     switch (role) {
     case UnicodeRole:
-        return emoji.unicode();
+        return emoji.unicode(m_defaultTone);
     case NameRole:
         return emoji.name();
     case CategoryRole:
@@ -39,8 +61,15 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return EmojiDict::instance().timesEmojiUsed(emoji);
-    case SubEmojisRole:
-        return QVariant::fromValue(emoji.subEmojis());
+    case SubEmojisRole: {
+        const auto defaultEmoji = emoji.unicode(m_defaultTone);
+        auto subEmojis = emoji.subEmojis();
+        subEmojis.removeAll(defaultEmoji);
+        if (emoji.unicode() != defaultEmoji) {
+            subEmojis.prepend(emoji);
+        }
+        return QVariant::fromValue(subEmojis);
+    }
     default:
         return {};
     }

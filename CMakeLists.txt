@@ -8,6 +8,8 @@ project(KEmoji VERSION 0.1)
 set(QT_MIN_VERSION 6.7.0)
 set(KF_MIN_VERSION 6.17.0)
 
+set(QT_QML_GENERATE_QMLLS_INI ON)
+
 # ECM setup
 include(FeatureSummary)
 find_package(ECM ${KF_MIN_VERSION} NO_MODULE)

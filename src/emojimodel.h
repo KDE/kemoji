@@ -10,11 +10,16 @@
 #include <QtQmlIntegration/qqmlintegration.h>
 
 #include "kemoji_export.h"
+#include "tones.h"
 
 class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
 {
     Q_OBJECT
     QML_ELEMENT
+
+    Q_PROPERTY(KEmoji::Tones::Tone defaultTone READ defaultTone WRITE setDefaultTone NOTIFY defaultToneChanged)
+
+    Q_PROPERTY(QString defaultToneUnicode READ defaultToneUnicode NOTIFY defaultToneChanged)
 
 public:
     enum RoleNames {
@@ -30,9 +35,19 @@ public:
 
     explicit EmojiModel(QObject *parent = nullptr);
 
+    KEmoji::Tones::Tone defaultTone() const;
+    QString defaultToneUnicode() const;
+    void setDefaultTone(KEmoji::Tones::Tone defaultTone);
+
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QHash<int, QByteArray> roleNames() const override;
+
+Q_SIGNALS:
+    void defaultToneChanged();
+
+private:
+    KEmoji::Tones::Tone m_defaultTone = KEmoji::Tones::Neutral;
 };

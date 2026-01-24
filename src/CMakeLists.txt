@@ -15,9 +15,11 @@ target_sources(KEmoji PRIVATE
     emoji.cpp
     emojidict.cpp
     emojicategory.h
+    tones.cpp
     emojimodel.cpp
     emojifiltermodel.cpp
     emojicategorymodel.cpp
+    tonemodel.cpp
 )
 
 if(KEMOJI_USE_QML)

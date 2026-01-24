@@ -5,15 +5,15 @@
  */
 
 #include "emoji.h"
+#include "tones.h"
 
-#include "kemoji_logging.h"
+#include <KLazyLocalizedString>
 
 using namespace KEmoji;
 
 namespace
 {
-const QList<QString> subEmojiParts = {u"🏻"_s, u"🏼"_s, u"🏽"_s, u"🏾"_s, u"🏿"_s};
-const QHash<QString, QString> specialBaseCases = {
+const QHash<QString, QString> _specialBaseCases = {
     {u"🫱\u200D🫲"_s, u"🤝"_s},
     {u"🕵\u200D♂️"_s, u"🕵️‍♂️"_s},
     {u"🕵\u200D♀️"_s, u"🕵️‍♀️"_s},
@@ -46,10 +46,16 @@ Emoji::Emoji(const QString &unicode,
 {
 }
 
-QString Emoji::unicode(const QString &defaultTone) const
+QString Emoji::unicode(Tones::Tone defaultTone) const
 {
-    if (auto emoji = subEmojiForTone(defaultTone)) {
-        return emoji->unicode();
+    auto toneSubEmojis = subEmojis(defaultTone);
+    if (toneSubEmojis.length() > 0 && defaultTone != Tones::Neutral && defaultTone != Tones::LENGTH) {
+        for (const auto &emoji : toneSubEmojis) {
+            // Where emojis have two tones we want the one where they are the same.
+            if (Tones::tonesForUnicode(emoji.unicode()).length() == 1) {
+                return emoji.unicode();
+            }
+        }
     }
     return m_unicode;
 }
@@ -62,12 +68,12 @@ QString Emoji::unqualifiedUnicode() const
 QString Emoji::baseUnicode() const
 {
     auto baseUnicode = m_unicode;
-    for (const auto &subEmojiPart : subEmojiParts) {
-        baseUnicode.remove(subEmojiPart);
+    for (const auto &tone : Tones::allToneCodePoints()) {
+        baseUnicode.remove(tone);
     }
     baseUnicode.squeeze();
-    if (specialBaseCases.contains(baseUnicode)) {
-        baseUnicode = specialBaseCases[baseUnicode];
+    if (_specialBaseCases.contains(baseUnicode)) {
+        baseUnicode = _specialBaseCases[baseUnicode];
     }
     return baseUnicode;
 }
@@ -87,14 +93,14 @@ QStringList Emoji::altNames() const
     return m_altNames;
 }
 
-QList<Emoji> Emoji::subEmojis(const QString &toneFilter) const
+QList<Emoji> Emoji::subEmojis(Tones::Tone toneFilter) const
 {
-    if (!tones().contains(toneFilter)) {
+    if (toneFilter == Tones::Neutral || toneFilter == Tones::LENGTH) {
         return m_subEmojis;
     }
     QList<Emoji> filteredList;
     for (const auto &emoji : m_subEmojis) {
-        if (emoji.isTone(toneFilter)) {
+        if (Tones::hasTone(emoji.unicode(), toneFilter)) {
             filteredList += emoji;
         }
     }
@@ -108,29 +114,8 @@ void Emoji::addSubEmoji(const Emoji &emoji)
 
 bool Emoji::isSubEmoji() const
 {
-    for (const auto &subEmojiPart : subEmojiParts) {
-        if (m_unicode.contains(subEmojiPart)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-std::optional<Emoji> Emoji::subEmojiForTone(const QString &tone) const
-{
-    if (tone.isEmpty()) {
-        return std::nullopt;
-    }
-    if (m_subEmojis.isEmpty() || !tones().contains(tone)) {
-        qCWarning(KEMOJI) << Q_FUNC_INFO << "No sub emojis or invalid tone (" << tone << ")";
-        return std::nullopt;
-    }
-    for (auto &emoji : m_subEmojis) {
-        if (emoji.unicode().contains(tone)) {
-            return emoji;
-        }
-    }
-    return std::nullopt;
+    const auto foundTones = Tones::tonesForUnicode(m_unicode);
+    return foundTones.length() > 0 && !foundTones.contains(Tones::Neutral);
 }
 
 Category Emoji::category() const
@@ -139,21 +124,6 @@ Category Emoji::category() const
         return emptyCategory;
     }
     return categoryDict.at(m_category);
-}
-
-QStringList Emoji::tones()
-{
-    static QStringList toneList = {u"🏻"_s, u"🏼"_s, u"🏽"_s, u"🏾"_s, u"🏿"_s};
-    return toneList;
-}
-
-bool Emoji::isTone(const QString &tone) const
-{
-    if (!tones().contains(tone)) {
-        qCWarning(KEMOJI) << Q_FUNC_INFO << "Invalid tone: " << tone;
-        return false;
-    }
-    return m_unicode.contains(tone);
 }
 
 bool Emoji::operator==(const Emoji &right) const

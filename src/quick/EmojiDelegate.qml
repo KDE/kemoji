@@ -34,7 +34,6 @@ QQC2.ItemDelegate {
         font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
         font.pointSize: 25
         minimumPointSize: 10
-        // fontSizeMode: Text.Fit
         text: root.unicode
         textFormat: Text.PlainText
 

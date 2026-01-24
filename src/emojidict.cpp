@@ -27,18 +27,20 @@ inline QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
 {
     QByteArray buffer;
     stream >> buffer;
-    emoji.unicode = QString::fromUtf8(buffer);
+    const auto unicode = QString::fromUtf8(buffer);
     stream >> buffer;
-    emoji.unqualifiedUnicode = QString::fromUtf8(buffer);
+    const auto unqualifiedUnicode = QString::fromUtf8(buffer);
     stream >> buffer;
-    emoji.name = QString::fromUtf8(buffer);
+    const auto name = QString::fromUtf8(buffer);
     stream >> buffer;
-    emoji.setCategory(QString::fromUtf8(buffer));
+    const auto category = QString::fromUtf8(buffer);
     QList<QByteArray> annotationBuffers;
     stream >> annotationBuffers;
+    QStringList altNames;
     for (const auto &annotation : annotationBuffers) {
-        emoji.altNames << QString::fromUtf8(annotation);
+        altNames << QString::fromUtf8(annotation);
     }
+    emoji = Emoji(unicode, unqualifiedUnicode, name, altNames, category);
     return stream;
 }
 
@@ -72,7 +74,7 @@ const QStringList &EmojiDict::recentEmojis() const
 
 int EmojiDict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
-    return recentEmojiIndex(emoji.unicode);
+    return recentEmojiIndex(emoji.unicode());
 }
 
 int EmojiDict::recentEmojiIndex(const QString &emoji) const
@@ -87,7 +89,7 @@ const QHash<QString, int> &EmojiDict::favoriteEmojis() const
 
 int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 {
-    return timesEmojiUsed(emoji.unicode);
+    return timesEmojiUsed(emoji.unicode());
 }
 
 int EmojiDict::timesEmojiUsed(const QString &emoji) const
@@ -167,27 +169,25 @@ void EmojiDict::loadDict(const QString &path)
     for (const auto &emoji : emojis) {
         if (emoji.isSubEmoji()) {
             const auto it = std::find_if(m_emojis.begin(), m_emojis.end(), [emoji](const Emoji &listEmoji) {
-                return emoji.baseUnicode() == listEmoji.unicode || emoji.baseUnicode() == listEmoji.unqualifiedUnicode;
+                return emoji.baseUnicode() == listEmoji.unicode() || emoji.baseUnicode() == listEmoji.unqualifiedUnicode();
             });
             if (it == m_emojis.end()) {
-                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode << emoji.unqualifiedUnicode << emoji.name << emoji.baseUnicode();
+                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << emoji.baseUnicode();
                 continue;
             }
-            if (it->subEmojis.contains(emoji)) {
-                auto &foundEmoji = it->subEmojis[it->subEmojis.indexOf(emoji)];
-                const QString fallbackName = foundEmoji.name;
-                foundEmoji = emoji;
-                foundEmoji.fallbackName = fallbackName;
+            if (it->subEmojis().contains(emoji)) {
+                auto &foundEmoji = it->subEmojis()[it->subEmojis().indexOf(emoji)];
+                const QString fallbackName = foundEmoji.name();
+                foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
             } else {
-                it->subEmojis.append(emoji);
+                it->addSubEmoji(emoji);
             }
         } else if (m_emojis.contains(emoji)) {
             const auto it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
-            const QString fallbackName = foundEmoji.name;
-            foundEmoji = emoji;
-            foundEmoji.fallbackName = fallbackName;
+            const QString fallbackName = foundEmoji.name();
+            foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
         } else {
             m_emojis.append(emoji);
         }
@@ -207,7 +207,7 @@ void EmojiDict::initialize()
 
 void EmojiDict::emojiUsed(const Emoji &emoji)
 {
-    emojiUsed(emoji.unicode);
+    emojiUsed(emoji.unicode());
 }
 
 void EmojiDict::emojiUsed(const QString &emoji)

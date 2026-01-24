@@ -25,8 +25,6 @@ CLDR_URL = f"https://unicode.org/Public/cldr/{CLDR_VERSION.split('.')[0]}/{CLDR_
 CLDR_ANNOTATIONS_DIR = "common/annotations"
 CLDR_ANNOTATIONS_DERIVED_DIR = "common/annotationsDerived"
 
-SUB_EMOJI_IDS = [b"light skin tone", b"medium-light skin tone", b"medium skin tone", b"medium-dark skin tone", b"dark skin tone"]
-
 def toCamelCase(string):
     parts = string.replace(b" & ", b" and ").replace(b".", b"").split(b" ")
     return parts[0].lower() + b"".join(word.capitalize() for word in parts[1:])

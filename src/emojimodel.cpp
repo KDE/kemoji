@@ -26,21 +26,21 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     const auto &emoji = EmojiDict::instance().emojis()[index.row()];
     switch (role) {
     case UnicodeRole:
-        return emoji.unicode;
+        return emoji.unicode();
     case NameRole:
-        return emoji.name;
+        return emoji.name();
     case CategoryRole:
         return QVariant::fromValue(emoji.category());
     case AltNamesRole:
-        return emoji.altNames;
+        return emoji.altNames();
     case FallbackNameRole:
-        return emoji.fallbackName;
+        return emoji.fallbackName();
     case RecentIndexRole:
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return EmojiDict::instance().timesEmojiUsed(emoji);
     case SubEmojisRole:
-        return QVariant::fromValue(emoji.subEmojis);
+        return QVariant::fromValue(emoji.subEmojis());
     default:
         return {};
     }

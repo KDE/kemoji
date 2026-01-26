@@ -181,4 +181,21 @@ QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
     return stream;
 }
 
+QDebug operator<<(QDebug debug, const KEmoji::Emoji &emoji)
+{
+    QDebugStateSaver saver(debug);
+    debug.nospace() << "Emoji(Unicode: " << emoji.unicode();
+    if (emoji.baseUnicode() != emoji.unicode()) {
+        debug.nospace() << ", Base Unicode: " << emoji.baseUnicode();
+    }
+    debug.nospace() << ", Name: " << emoji.name() << ')';
+    if (emoji.subEmojis().length() > 0) {
+        for (const auto &subEmoji : emoji.subEmojis()) {
+            debug.nospace() << ", Sub-Emoji: " << subEmoji;
+        }
+    }
+
+    return debug;
+}
+
 #include "moc_emoji.cpp"

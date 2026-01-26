@@ -136,4 +136,49 @@ bool Emoji::operator==(const QString &right) const
     return m_unicode == right;
 }
 
+bool FavoriteEmoji::operator==(const FavoriteEmoji &right) const
+{
+    return emoji == right.emoji;
+}
+
+bool FavoriteEmoji::operator==(const Emoji &right) const
+{
+    return emoji == right;
+}
+
+bool FavoriteEmoji::operator==(const QString &right) const
+{
+    return emoji == right;
+}
+
+QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji)
+{
+    stream << emoji.unicode().toUtf8() << emoji.unqualifiedUnicode().toUtf8() << emoji.name().toUtf8() << emoji.category().name().toUtf8();
+    for (const auto &name : emoji.altNames()) {
+        stream << name.toUtf8();
+    }
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
+{
+    QByteArray buffer;
+    stream >> buffer;
+    const auto unicode = QString::fromUtf8(buffer);
+    stream >> buffer;
+    const auto unqualifiedUnicode = QString::fromUtf8(buffer);
+    stream >> buffer;
+    const auto name = QString::fromUtf8(buffer);
+    stream >> buffer;
+    const auto category = QString::fromUtf8(buffer);
+    QList<QByteArray> annotationBuffers;
+    stream >> annotationBuffers;
+    QStringList altNames;
+    for (const auto &annotation : annotationBuffers) {
+        altNames << QString::fromUtf8(annotation);
+    }
+    emoji = Emoji(unicode, unqualifiedUnicode, name, altNames, category);
+    return stream;
+}
+
 #include "moc_emoji.cpp"

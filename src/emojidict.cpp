@@ -23,27 +23,6 @@ using namespace KEmoji;
 constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
 constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
 
-inline QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
-{
-    QByteArray buffer;
-    stream >> buffer;
-    const auto unicode = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto unqualifiedUnicode = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto name = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto category = QString::fromUtf8(buffer);
-    QList<QByteArray> annotationBuffers;
-    stream >> annotationBuffers;
-    QStringList altNames;
-    for (const auto &annotation : annotationBuffers) {
-        altNames << QString::fromUtf8(annotation);
-    }
-    emoji = Emoji(unicode, unqualifiedUnicode, name, altNames, category);
-    return stream;
-}
-
 EmojiDict::EmojiDict(QObject *parent)
     : QObject(parent)
 {
@@ -67,34 +46,45 @@ const QList<Category> &EmojiDict::categories() const
     return m_categories;
 }
 
-const QStringList &EmojiDict::recentEmojis() const
+const QList<KEmoji::Emoji> &EmojiDict::recentEmojis() const
 {
     return m_recentEmojis;
 }
 
 int EmojiDict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
-    return recentEmojiIndex(emoji.unicode());
+    auto index = m_recentEmojis.indexOf(emoji);
+    if (index == -1) {
+        for (const auto &subEmoji : emoji.subEmojis()) {
+            index = m_recentEmojis.indexOf(subEmoji);
+            if (index != -1) {
+                break;
+            }
+        }
+    }
+    return index;
 }
 
-int EmojiDict::recentEmojiIndex(const QString &emoji) const
-{
-    return m_recentEmojis.indexOf(emoji);
-}
-
-const QHash<QString, int> &EmojiDict::favoriteEmojis() const
+const QList<KEmoji::FavoriteEmoji> &EmojiDict::favoriteEmojis() const
 {
     return m_favouriteEmojis;
 }
 
 int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 {
-    return timesEmojiUsed(emoji.unicode());
-}
-
-int EmojiDict::timesEmojiUsed(const QString &emoji) const
-{
-    return m_favouriteEmojis.value(emoji, -1);
+    auto index = m_favouriteEmojis.indexOf(emoji);
+    if (index == -1) {
+        for (const auto &subEmoji : emoji.subEmojis()) {
+            index = m_favouriteEmojis.indexOf(subEmoji);
+            if (index != -1) {
+                break;
+            }
+        }
+    }
+    if (index == -1) {
+        return -1;
+    }
+    return m_favouriteEmojis[index].timesUsed;
 }
 
 void EmojiDict::load()
@@ -197,53 +187,61 @@ void EmojiDict::loadDict(const QString &path)
 void EmojiDict::initialize()
 {
     QSettings settings("KDE"_L1, "KEmoji"_L1);
-    m_recentEmojis = settings.value(RecentEmojiKey).toStringList();
 
-    auto favoriteEmojis = settings.value(FavoriteEmojiKey).toHash();
-    for (const auto &key : favoriteEmojis.keys()) {
-        m_favouriteEmojis[key] = favoriteEmojis[key].toInt();
+    auto size = settings.beginReadArray(RecentEmojiKey);
+    for (qsizetype i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        m_recentEmojis += settings.value("emoji").value<Emoji>();
     }
+    settings.endArray();
+
+    size = settings.beginReadArray(FavoriteEmojiKey);
+    for (qsizetype i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        const auto emoji = settings.value("emoji").value<Emoji>();
+        const auto timesUsed = settings.value("timesUsed").toInt();
+        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = timesUsed};
+    }
+    settings.endArray();
 }
 
 void EmojiDict::emojiUsed(const Emoji &emoji)
 {
-    emojiUsed(emoji.unicode());
-}
-
-void EmojiDict::emojiUsed(const QString &emoji)
-{
-    if (!m_emojis.contains(emoji)) {
+    if (!m_emojis.contains(emoji) && !m_emojis.contains(emoji.baseUnicode())) {
         return;
     }
 
+    const auto unicode = emoji.unicode();
     QSettings settings("KDE"_L1, "KEmoji"_L1);
 
-    auto recentEmojis = settings.value(RecentEmojiKey).toStringList();
-    const auto recentIndex = recentEmojis.indexOf(emoji);
+    const auto recentIndex = m_recentEmojis.indexOf(emoji);
     if (recentIndex >= 0) {
-        recentEmojis.move(recentIndex, 0);
         m_recentEmojis.move(recentIndex, 0);
     } else {
-        recentEmojis.prepend(emoji);
         m_recentEmojis.prepend(emoji);
     }
-    settings.setValue(RecentEmojiKey, recentEmojis);
 
-    auto favoriteEmojisVariant = settings.value(FavoriteEmojiKey).toHash();
-    QHash<QString, int> favoriteEmojis;
-    for (const auto &key : favoriteEmojisVariant.keys()) {
-        favoriteEmojis[key] = favoriteEmojisVariant[key].toInt();
+    settings.beginWriteArray(RecentEmojiKey);
+    for (qsizetype i = 0; i < m_recentEmojis.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("emoji", QVariant::fromValue(m_recentEmojis[i]));
     }
-    if (favoriteEmojis.contains(emoji)) {
-        ++favoriteEmojis[emoji];
-        favoriteEmojisVariant[emoji] = favoriteEmojisVariant.value(emoji).toInt() + 1;
-        ++m_favouriteEmojis[emoji];
+    settings.endArray();
+
+    const auto favoriteIndex = m_favouriteEmojis.indexOf(emoji);
+    if (favoriteIndex >= 0) {
+        ++m_favouriteEmojis[favoriteIndex].timesUsed;
     } else {
-        favoriteEmojis[emoji] = 1;
-        favoriteEmojisVariant[emoji] = 1;
-        m_favouriteEmojis[emoji] = 1;
+        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = 1};
     }
-    settings.setValue(FavoriteEmojiKey, favoriteEmojisVariant);
+
+    settings.beginWriteArray(FavoriteEmojiKey);
+    for (qsizetype i = 0; i < m_favouriteEmojis.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("emoji", QVariant::fromValue(m_favouriteEmojis[i].emoji));
+        settings.setValue("timesUsed", m_favouriteEmojis[i].timesUsed);
+    }
+    settings.endArray();
 
     settings.sync();
 

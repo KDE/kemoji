@@ -70,6 +70,8 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         }
         return QVariant::fromValue(subEmojis);
     }
+    case EmojiRole:
+        return QVariant::fromValue(emoji);
     default:
         return {};
     }
@@ -89,6 +91,7 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
         {AltNamesRole, "altNames"},
         {FallbackNameRole, "fallbackName"},
         {SubEmojisRole, "subEmojis"},
+        {EmojiRole, "emoji"},
     };
 }
 

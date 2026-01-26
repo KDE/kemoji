@@ -37,13 +37,13 @@ Kirigami.ApplicationWindow {
         configGroupName: "MainWindow"
     }
 
-    function report(emoji: string): void {
+    function report(emoji: KEmoji.Emoji): void {
         if (!visible) {
             return;
         }
-        CopyHelper.copyTextToClipboard(emoji)
+        CopyHelper.copyTextToClipboard(emoji.unicode)
         KEmoji.EmojiDict.emojiUsed(emoji);
-        window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji))
+        window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji.unicode))
     }
 
     globalDrawer: Kirigami.GlobalDrawer {

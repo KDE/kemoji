@@ -10,6 +10,8 @@ import QtQuick.Controls as QQC2
 import org.kde.kirigami as Kirigami
 import org.kde.kemoji as KEmoji
 
+pragma ComponentBehavior: Bound
+
 QQC2.Popup {
     id: root
 
@@ -17,11 +19,11 @@ QQC2.Popup {
 
     property real delegateSize: Kirigami.Units.gridUnit * 3
 
-    signal clicked(emoji: string)
+    signal clicked(emoji: KEmoji.Emoji)
 
-    signal rightClicked(emoji: string)
+    signal rightClicked(emoji: KEmoji.Emoji)
 
-    signal pressAndHold(emoji: string)
+    signal pressAndHold(emoji: KEmoji.Emoji)
 
     padding: 0
     width: delegateSize * Math.min(model.length, 5) + leftPadding + rightPadding
@@ -41,14 +43,18 @@ QQC2.Popup {
 
         delegate: KEmoji.EmojiDelegate {
             id: emojiDelegate
+            required property KEmoji.Emoji modelData
+
             width: list.cellWidth
             height: list.cellHeight
 
+            emoji: modelData
+
             onClicked: {
-                root.clicked(emojiDelegate.unicode)
+                root.clicked(modelData)
                 root.close()
             }
-            onRightClicked: root.rightClicked(emojiDelegate.unicode)
+            onRightClicked: root.rightClicked(modelData)
         }
     }
 }

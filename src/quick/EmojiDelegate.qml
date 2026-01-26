@@ -9,11 +9,12 @@ import QtQuick.Controls as QQC2
 
 import org.kde.kirigami as Kirigami
 
+import org.kde.kemoji as KEmoji
+
 QQC2.ItemDelegate {
     id: root
 
-    required property string unicode
-    required property string name
+    required property KEmoji.Emoji emoji
     property alias emojiPointSize: innerLabel.font.pointSize
     property bool hasSubEmojis: false
 
@@ -35,7 +36,7 @@ QQC2.ItemDelegate {
         verticalAlignment: Text.AlignVCenter
         font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
         font.pointSize: 25
-        text: root.unicode
+        text: root.emoji.unicode
         textFormat: Text.PlainText
 
         Kirigami.Icon {
@@ -48,11 +49,11 @@ QQC2.ItemDelegate {
         }
     }
 
-    Accessible.name: name
+    Accessible.name: emoji.name
     Accessible.onPressAction: root.clicked()
 
     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-    QQC2.ToolTip.text: name
+    QQC2.ToolTip.text: emoji.name
     QQC2.ToolTip.visible: hovered
 
     Keys.onMenuPressed: event => root.rightClicked()

@@ -24,7 +24,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QString name READ name CONSTANT)
 
 public:
-    explicit Emoji() = default;
+    Emoji() = default;
     explicit Emoji(const QString &unicode,
                    const QString &unqualifiedUnicode,
                    const QString &name,
@@ -58,4 +58,18 @@ private:
     QList<Emoji> m_subEmojis;
     QString m_category;
 };
+
+struct FavoriteEmoji {
+    Emoji emoji;
+    int timesUsed;
+
+    bool operator==(const FavoriteEmoji &right) const;
+    bool operator==(const Emoji &right) const;
+    bool operator==(const QString &right) const;
+};
 }
+
+Q_DECLARE_METATYPE(KEmoji::FavoriteEmoji);
+
+KEMOJI_EXPORT QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji);
+KEMOJI_EXPORT QDataStream &operator>>(QDataStream &stream, KEmoji::Emoji &emoji);

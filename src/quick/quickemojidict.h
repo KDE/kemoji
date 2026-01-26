@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
+#include "emoji.h"
 #include "kemoji_export.h"
 
 #include "emojidict.h"
@@ -25,7 +26,7 @@ public:
     {
     }
 
-    Q_INVOKABLE void emojiUsed(const QString &emoji)
+    Q_INVOKABLE void emojiUsed(const KEmoji::Emoji &emoji)
     {
         EmojiDict::instance().emojiUsed(emoji);
     }

@@ -18,11 +18,11 @@ GridView {
     readonly property real desiredSize: Kirigami.Units.gridUnit * 3
     readonly property int columnsToHave: Math.ceil(width / desiredSize)
 
-    signal clicked(emoji: string)
+    signal clicked(emoji: KEmoji.Emoji)
 
-    signal rightClicked(emoji: string)
+    signal rightClicked(emoji: KEmoji.Emoji)
 
-    signal pressAndHold(emoji: string)
+    signal pressAndHold(emoji: KEmoji.Emoji)
 
     cellWidth: desiredSize
     cellHeight: desiredSize
@@ -45,8 +45,8 @@ GridView {
         width: root.cellWidth
         height: root.cellHeight
 
-        onClicked: root.clicked(emojiDelegate.unicode)
-        onRightClicked: root.rightClicked(emojiDelegate.unicode)
+        onClicked: root.clicked(emojiDelegate.emoji)
+        onRightClicked: root.rightClicked(emojiDelegate.emoji)
         onPressAndHold: {
             if (emojiDelegate.subEmojis.length <= 0) {
                 return;

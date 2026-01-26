@@ -31,6 +31,7 @@ public:
         RecentIndexRole,
         TimesUsedRole,
         SubEmojisRole,
+        EmojiRole,
     };
 
     explicit EmojiModel(QObject *parent = nullptr);

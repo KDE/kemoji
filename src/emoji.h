@@ -9,7 +9,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "emojicategory.h"
+#include "category.h"
 #include "kemoji_export.h"
 #include "tones.h"
 

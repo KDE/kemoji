@@ -5,6 +5,8 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
+#include "emojidict.h"
+
 #include <QFile>
 #include <QLocale>
 #include <QSettings>
@@ -12,9 +14,8 @@
 
 #include <KLocalizedString>
 
+#include "category.h"
 #include "emoji.h"
-#include "emojicategory.h"
-#include "emojidict.h"
 #include "kemoji_logging.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -91,9 +92,9 @@ void EmojiDict::load()
 {
     m_emojis.clear();
     m_categories.clear();
-    m_categories += categoryDict.at(recentCategoryID);
-    m_categories += categoryDict.at(favoriteCategoryID);
-    m_categories += categoryDict.at(allCategoryID);
+    m_categories += categoryDict.value(recentCategoryID);
+    m_categories += categoryDict.value(favoriteCategoryID);
+    m_categories += categoryDict.value(allCategoryID);
 
     const QHash<QString, QString> specialCases{{QLatin1String{"zh-TW"}, QLatin1String{"zh_Hant"}}, {QLatin1String{"zh-HK"}, QLatin1String{"zh_Hant_HK"}}};
     QLocale locale;

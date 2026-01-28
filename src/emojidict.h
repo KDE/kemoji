@@ -15,7 +15,7 @@
 
 namespace KEmoji
 {
-struct Category;
+class Category;
 }
 
 class KEMOJI_EXPORT EmojiDict : public QObject

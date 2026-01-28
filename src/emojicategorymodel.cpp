@@ -23,14 +23,14 @@ QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
         || index.column() != 0)
         return {};
 
-    const auto category = EmojiDict::instance().categories()[index.row()];
+    const auto &category = EmojiDict::instance().categories()[index.row()];
     switch (role) {
     case NameRole:
         return category.name();
     case IdRole:
-        return category.id;
+        return category.id();
     case IconNameRole:
-        return category.iconName;
+        return category.iconName();
     }
     return {};
 }

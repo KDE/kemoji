@@ -12,7 +12,7 @@
 
 #include "kemoji_export.h"
 
-#include "emojicategory.h"
+#include "category.h"
 #include "emojicategorymodel.h"
 
 class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel

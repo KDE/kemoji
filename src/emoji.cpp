@@ -123,7 +123,7 @@ Category Emoji::category() const
     if (!categoryDict.contains(m_category)) {
         return emptyCategory;
     }
-    return categoryDict.at(m_category);
+    return categoryDict.value(m_category);
 }
 
 bool Emoji::operator==(const Emoji &right) const

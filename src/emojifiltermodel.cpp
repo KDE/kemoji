@@ -6,7 +6,6 @@
 
 #include "emojifiltermodel.h"
 
-#include "emojicategory.h"
 #include "emojidict.h"
 #include "emojimodel.h"
 #include "kemoji_logging.h"
@@ -109,7 +108,7 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
         categoryFilter = sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::TimesUsedRole).toInt() > 0;
     } else {
         categoryFilter = m_currentCategoryId == allCategoryID
-            || sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::CategoryRole).view<Category>().id == m_currentCategoryId;
+            || sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::CategoryRole).view<Category>().id() == m_currentCategoryId;
     }
 
     const auto idx = sourceModel()->index(source_row, 0, source_parent);

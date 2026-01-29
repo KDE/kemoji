@@ -17,13 +17,20 @@
 class KEMOJI_EXPORT QuickEmojiDict : public QObject
 {
     Q_OBJECT
-    QML_NAMED_ELEMENT(EmojiDict)
+    QML_NAMED_ELEMENT(Dict)
     QML_SINGLETON
+
+    Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis CONSTANT)
 
 public:
     QuickEmojiDict(QObject *parent = nullptr)
         : QObject(parent)
     {
+    }
+
+    const QList<KEmoji::Emoji> &emojis() const
+    {
+        return EmojiDict::instance().emojis();
     }
 
     Q_INVOKABLE void emojiUsed(const KEmoji::Emoji &emoji)

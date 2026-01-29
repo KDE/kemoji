@@ -49,7 +49,7 @@ Emoji::Emoji(const QString &unicode,
 QString Emoji::unicode(Tones::Tone defaultTone) const
 {
     auto toneSubEmojis = subEmojis(defaultTone);
-    if (toneSubEmojis.length() > 0 && defaultTone != Tones::Neutral && defaultTone != Tones::LENGTH) {
+    if (toneSubEmojis.length() > 0 && defaultTone != Tones::Neutral) {
         for (const auto &emoji : toneSubEmojis) {
             // Where emojis have two tones we want the one where they are the same.
             if (Tones::tonesForUnicode(emoji.unicode()).length() == 1) {

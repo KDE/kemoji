@@ -31,6 +31,11 @@ QString Category::iconName() const
     return m_iconName;
 }
 
+bool Category::isEmpty() const
+{
+    return m_id.isEmpty();
+}
+
 bool Category::operator==(const Category &right) const
 {
     return m_id == right.id();

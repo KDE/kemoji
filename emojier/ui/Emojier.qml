@@ -37,12 +37,12 @@ Kirigami.ApplicationWindow {
         configGroupName: "MainWindow"
     }
 
-    function report(emoji: KEmoji.Emoji): void {
+    function report(emoji: KEmoji.emoji): void {
         if (!visible) {
             return;
         }
         CopyHelper.copyTextToClipboard(emoji.unicode)
-        KEmoji.EmojiDict.emojiUsed(emoji);
+        KEmoji.Dict.emojiUsed(emoji);
         window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji.unicode))
     }
 
@@ -82,17 +82,15 @@ Kirigami.ApplicationWindow {
         Instantiator {
             id: instantiator
 
-            model: categoryPage.model.categoryModel
+            model: KEmoji.EmojiCategoryModel {}
             delegate: Kirigami.Action {
-                required property string name
-                required property string id
-                required property string iconName
+                required property KEmoji.Category category
 
-                checked: categoryPage.model.currentCategoryId === id
-                text: i18ndc("org.kde.plasma.emojier", "Emoji Category", name)
-                icon.name: iconName
+                checked: categoryPage.model.currentCategory.id === category.id
+                text: i18ndc("org.kde.plasma.emojier", "Emoji Category", category.name)
+                icon.name: category.iconName
 
-                onTriggered: categoryPage.model.currentCategoryId = id
+                onTriggered: categoryPage.model.currentCategory = category
             }
 
             onObjectAdded: (index, object) => {
@@ -102,14 +100,14 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        categoryPage.model.currentCategoryId = "recent";
+        categoryPage.model.setCurrentCategory("recent");
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.currentCategoryId = "favorite";
+        categoryPage.model.setCurrentCategory("favorite");
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.currentCategoryId = "all";
+        categoryPage.model.setCurrentCategory("all");
     }
 }

@@ -15,18 +15,18 @@ pragma ComponentBehavior: Bound
 QQC2.Popup {
     id: root
 
-    property alias model: list.model
+    property alias emojis: emojiModel.emojis
 
-    property real delegateSize: Kirigami.Units.gridUnit * 3
+    property real emojiPointSize
 
-    signal clicked(emoji: KEmoji.Emoji)
+    signal clicked(emoji: KEmoji.emoji)
 
-    signal rightClicked(emoji: KEmoji.Emoji)
+    signal rightClicked(emoji: KEmoji.emoji)
 
-    signal pressAndHold(emoji: KEmoji.Emoji)
+    signal pressAndHold(emoji: KEmoji.emoji)
 
     padding: 0
-    width: delegateSize * Math.min(model.length, 5) + leftPadding + rightPadding
+    width: list.cellWidth * Math.min(list.count, 5) + leftPadding + rightPadding
     height: list.contentHeight
     y: -height
     modal: true
@@ -35,26 +35,25 @@ QQC2.Popup {
     GridView {
         id: list
         anchors.fill: parent
-        cellWidth: root.delegateSize
-        cellHeight: root.delegateSize
+        cellWidth: count > 0 ? itemAtIndex(0).implicitWidth : 0
+        cellHeight: count > 0 ? itemAtIndex(0).implicitHeight : 0
 
         currentIndex: -1
         reuseItems: true
 
+        model: KEmoji.EmojiModel {
+            id: emojiModel
+        }
         delegate: KEmoji.EmojiDelegate {
             id: emojiDelegate
-            required property KEmoji.Emoji modelData
-
-            width: list.cellWidth
-            height: list.cellHeight
-
-            emoji: modelData
+            emojiPointSize: root.emojiPointSize
+            showSubEmojis: false
 
             onClicked: {
-                root.clicked(modelData)
+                root.clicked(emoji)
                 root.close()
             }
-            onRightClicked: root.rightClicked(modelData)
+            onRightClicked: root.rightClicked(emoji)
         }
     }
 }

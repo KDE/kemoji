@@ -8,6 +8,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 #include "category.h"
 #include "kemoji_export.h"
@@ -18,10 +19,11 @@ namespace KEmoji
 class KEMOJI_EXPORT Emoji
 {
     Q_GADGET
-    QML_ELEMENT
+    QML_VALUE_TYPE(emoji)
 
-    Q_PROPERTY(QString unicode READ unicode CONSTANT)
-    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString unicode READ unicode)
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QList<Emoji> subEmojis READ subEmojis)
 
 public:
     Emoji() = default;

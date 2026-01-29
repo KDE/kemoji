@@ -15,17 +15,14 @@ pragma ComponentBehavior: Bound
 GridView {
     id: root
 
-    readonly property real desiredSize: Kirigami.Units.gridUnit * 3
-    readonly property int columnsToHave: Math.ceil(width / desiredSize)
+    property real emojiPointSize
 
-    signal clicked(emoji: KEmoji.Emoji)
+    signal clicked(emoji: KEmoji.emoji)
 
-    signal rightClicked(emoji: KEmoji.Emoji)
+    signal rightClicked(emoji: KEmoji.emoji)
 
-    signal pressAndHold(emoji: KEmoji.Emoji)
-
-    cellWidth: desiredSize
-    cellHeight: desiredSize
+    cellWidth: count > 0 && itemAtIndex(0) ? itemAtIndex(0).implicitWidth : 0
+    cellHeight: count > 0 && itemAtIndex(0) ? itemAtIndex(0).implicitHeight : 0
 
     currentIndex: -1
     reuseItems: true
@@ -34,16 +31,13 @@ GridView {
         id: categoryFilterModel
         sourceModel: KEmoji.EmojiModel {
             id: emojiModel
+            emojis: KEmoji.Dict.emojis
         }
     }
 
     delegate: KEmoji.EmojiDelegate {
         id: emojiDelegate
-        required property list<KEmoji.Emoji> subEmojis
-
-        hasSubEmojis: subEmojis.length > 0
-        width: root.cellWidth
-        height: root.cellHeight
+        emojiPointSize: root.emojiPointSize
 
         onClicked: root.clicked(emojiDelegate.emoji)
         onRightClicked: root.rightClicked(emojiDelegate.emoji)
@@ -51,9 +45,12 @@ GridView {
             if (emojiDelegate.subEmojis.length <= 0) {
                 return;
             }
-            let subPopup = subEmojiPopup.createObject(emojiDelegate, {
-                model: emojiDelegate.subEmojis
+            let subPopup = Qt.createComponent('org.kde.kemoji', 'SubEmojiPopup').createObject(emojiDelegate, {
+                emojis: emojiDelegate.subEmojis,
+                emojiPointSize: root.emojiPointSize
             }) as KEmoji.SubEmojiPopup;
+            subPopup.clicked.connect(emoji => root.clicked(emoji));
+            subPopup.rightClicked.connect(emoji => root.rightClicked(emoji));
             subPopup.open();
             subPopup.forceActiveFocus();
         }
@@ -62,8 +59,8 @@ GridView {
     Kirigami.PlaceholderMessage {
         anchors.centerIn: parent
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
-        text: i18n("No recent Emojis")
-        visible: root.count === 0 && root.model.category === "recent"
+        text: categoryFilterModel.currentCategory.id === "recent" ? i18n("No recent Emojis") : i18n("No favorite Emojis")
+        visible: root.count === 0 && (categoryFilterModel.currentCategory.id === "recent" || categoryFilterModel.currentCategory.id === "favorite")
     }
 
     Component {

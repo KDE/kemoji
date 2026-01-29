@@ -16,6 +16,22 @@ EmojiModel::EmojiModel(QObject *parent)
 {
 }
 
+QList<KEmoji::Emoji> EmojiModel::emojis() const
+{
+    return m_emojis;
+}
+
+void EmojiModel::setEmojis(const QList<KEmoji::Emoji> &emojis)
+{
+    if (emojis == m_emojis) {
+        return;
+    }
+    m_emojis = emojis;
+    beginResetModel();
+    endResetModel();
+    Q_EMIT emojisChanged();
+}
+
 Tones::Tone EmojiModel::defaultTone() const
 {
     return m_defaultTone;
@@ -45,7 +61,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return {};
     }
 
-    const auto &emoji = EmojiDict::instance().emojis()[index.row()];
+    const auto &emoji = m_emojis[index.row()];
     switch (role) {
     case UnicodeRole:
         return emoji.unicode(m_defaultTone);
@@ -61,6 +77,8 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return EmojiDict::instance().timesEmojiUsed(emoji);
+    case EmojiRole:
+        return QVariant::fromValue(emoji);
     case SubEmojisRole: {
         const auto defaultEmoji = emoji.unicode(m_defaultTone);
         auto subEmojis = emoji.subEmojis();
@@ -70,8 +88,6 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         }
         return QVariant::fromValue(subEmojis);
     }
-    case EmojiRole:
-        return QVariant::fromValue(emoji);
     default:
         return {};
     }
@@ -79,7 +95,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
 
 int EmojiModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : EmojiDict::instance().emojis().size();
+    return parent.isValid() ? 0 : m_emojis.length();
 }
 
 QHash<int, QByteArray> EmojiModel::roleNames() const
@@ -90,8 +106,8 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
         {CategoryRole, "category"},
         {AltNamesRole, "altNames"},
         {FallbackNameRole, "fallbackName"},
-        {SubEmojisRole, "subEmojis"},
         {EmojiRole, "emoji"},
+        {SubEmojisRole, "subEmojis"},
     };
 }
 

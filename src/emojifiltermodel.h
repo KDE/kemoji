@@ -13,7 +13,6 @@
 #include "kemoji_export.h"
 
 #include "category.h"
-#include "emojicategorymodel.h"
 
 class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel
 {
@@ -22,11 +21,7 @@ class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel
 
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
-    Q_PROPERTY(QString currentCategoryId READ currentCategoryId WRITE setCurrentCategoryId NOTIFY categoryChanged)
-
-    Q_PROPERTY(KEmoji::Category currentCategory READ currentCategory NOTIFY categoryChanged)
-
-    Q_PROPERTY(EmojiCategoryModel *categoryModel READ categoryModel CONSTANT)
+    Q_PROPERTY(KEmoji::Category currentCategory READ currentCategory WRITE setCurrentCategory NOTIFY categoryChanged)
 
 public:
     explicit EmojiFilterModel(QObject *parent = nullptr);
@@ -34,11 +29,9 @@ public:
     QString searchText() const;
     void setSearchText(const QString &searchText);
 
-    QString currentCategoryId() const;
-    void setCurrentCategoryId(QString currentCategoryId);
     KEmoji::Category currentCategory() const;
-
-    EmojiCategoryModel *categoryModel();
+    Q_INVOKABLE void setCurrentCategory(const QString &category);
+    void setCurrentCategory(const KEmoji::Category &category);
 
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
@@ -51,9 +44,7 @@ Q_SIGNALS:
 private:
     QString m_searchText = {};
 
-    QString m_currentCategoryId;
-
-    QPointer<EmojiCategoryModel> m_categoryModel;
+    KEmoji::Category m_currentCategory;
 
     bool nameContainsSearch(const QModelIndex &index) const;
     int exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;

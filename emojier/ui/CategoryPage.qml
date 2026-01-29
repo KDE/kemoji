@@ -123,7 +123,7 @@ Kirigami.ScrollablePage {
             }
 
             down: pressed || skinToneMenu.visible
-            visible: emojiGrid.model.currentCategoryId === "all" || emojiGrid.model.currentCategoryId === "peopleAndBody"
+            visible: emojiGrid.model.currentCategory.id === "all" || emojiGrid.model.currentCategory.id === "peopleAndBody"
 
             Accessible.name: label
             Accessible.role: Accessible.ButtonMenu
@@ -193,6 +193,7 @@ Kirigami.ScrollablePage {
         id: menuComponent
 
         QQC2.Menu {
+            id: emojiMenu
             required property string label
 
             onClosed: destroy()
@@ -201,16 +202,16 @@ Kirigami.ScrollablePage {
                 icon.name: "edit-copy"
                 text: i18nc("@item:inmenu", "Copy Character")
                 onClicked: {
-                    CopyHelper.copyTextToClipboard(label);
-                    window.showPassiveNotification(i18n("%1 copied to the clipboard", label));
+                    CopyHelper.copyTextToClipboard(emojiMenu.label);
+                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.label));
                 }
             }
             QQC2.MenuItem {
                 icon.name: "edit-copy"
                 text: i18nc("@item:inmenu", "Copy Name")
                 onClicked: {
-                    CopyHelper.copyTextToClipboard(label);
-                    window.showPassiveNotification(i18n("%1 copied to the clipboard", label));
+                    CopyHelper.copyTextToClipboard(emojiMenu.label);
+                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.label));
                 }
             }
         }
@@ -218,6 +219,7 @@ Kirigami.ScrollablePage {
 
     KEmoji.EmojiGrid {
         id: emojiGrid
+        emojiPointSize: 25
         onClicked: emoji => Window.window.report(emoji);
         onRightClicked: emoji => {
             const menu = menuComponent.createObject(emojiGrid, {

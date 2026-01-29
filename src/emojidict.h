@@ -26,6 +26,7 @@ public:
     static EmojiDict &instance();
 
     const QList<KEmoji::Emoji> &emojis() const;
+    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Category category) const;
 
     const QList<KEmoji::Category> &categories() const;
 

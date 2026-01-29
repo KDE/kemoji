@@ -42,6 +42,15 @@ const QList<Emoji> &EmojiDict::emojis() const
     return m_emojis;
 }
 
+const QList<KEmoji::Emoji> EmojiDict::emojisForCategory(KEmoji::Category category) const
+{
+    QList<Emoji> emojis;
+    std::copy_if(m_emojis.begin(), m_emojis.end(), std::back_inserter(emojis), [category](Emoji emoji) {
+        return emoji.category() == category;
+    });
+    return emojis;
+}
+
 const QList<Category> &EmojiDict::categories() const
 {
     return m_categories;

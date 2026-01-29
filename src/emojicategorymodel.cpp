@@ -31,6 +31,8 @@ QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
         return category.id();
     case IconNameRole:
         return category.iconName();
+    case CategoryRole:
+        return QVariant::fromValue(category);
     }
     return {};
 }
@@ -46,6 +48,7 @@ QHash<int, QByteArray> EmojiCategoryModel::roleNames() const
         {NameRole, "name"},
         {IdRole, "id"},
         {IconNameRole, "iconName"},
+        {CategoryRole, "category"},
     };
 }
 

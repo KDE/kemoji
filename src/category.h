@@ -38,6 +38,8 @@ public:
     QString name() const;
     QString iconName() const;
 
+    bool isEmpty() const;
+
     bool operator==(const Category &right) const;
     bool operator==(const QString &right) const;
 

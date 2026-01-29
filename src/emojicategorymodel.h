@@ -21,6 +21,7 @@ public:
         NameRole = Qt::DisplayRole,
         IdRole = Qt::UserRole + 1,
         IconNameRole,
+        CategoryRole,
     };
 
     explicit EmojiCategoryModel(QObject *parent = nullptr);

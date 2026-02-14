@@ -17,7 +17,7 @@ QQC2.Popup {
 
     property alias emojis: emojiModel.emojis
 
-    property real emojiPointSize
+    property real emojiPixelSize
 
     signal clicked(emoji: KEmoji.emoji)
 
@@ -27,7 +27,7 @@ QQC2.Popup {
 
     padding: 0
     width: list.cellWidth * Math.min(list.count, 5) + leftPadding + rightPadding
-    height: list.contentHeight
+    height: list.cellHeight * Math.max(list.count / 5, 1) + topPadding + bottomPadding
     y: -height
     modal: true
     popupType: QQC2.Popup.Native
@@ -45,8 +45,7 @@ QQC2.Popup {
             id: emojiModel
         }
         delegate: KEmoji.EmojiDelegate {
-            id: emojiDelegate
-            emojiPointSize: root.emojiPointSize
+            emojiPixelSize: root.emojiPixelSize
             showSubEmojis: false
 
             onClicked: {
@@ -54,6 +53,11 @@ QQC2.Popup {
                 root.close()
             }
             onRightClicked: root.rightClicked(emoji)
+        }
+
+        FontMetrics {
+            id: metrics
+            font.pixelSize: root.emojiPixelSize
         }
     }
 }

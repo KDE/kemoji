@@ -18,16 +18,24 @@ QQC2.ItemDelegate {
     required property string name
     required property list<KEmoji.emoji> subEmojis
     required property KEmoji.emoji emoji
-    property alias emojiPointSize: innerLabel.font.pointSize
+    property alias emojiPixelSize: innerLabel.font.pixelSize
     property bool showSubEmojis: true
 
     signal rightClicked
 
+    implicitWidth: metrics.height + leftPadding + rightPadding
+    implicitHeight: metrics.height + leftPadding + rightPadding
     leftPadding: Kirigami.Units.mediumSpacing
     rightPadding: Kirigami.Units.mediumSpacing
     topPadding: Kirigami.Units.mediumSpacing
     bottomPadding: Kirigami.Units.mediumSpacing
-    highlighted: GridView.isCurrentItem
+    spacing: 0
+    highlighted: GridView.isCurrentItem || ListView.isCurrentItem
+
+    FontMetrics {
+        id: metrics
+        font.pixelSize: root.emojiPixelSize
+    }
 
     contentItem: QQC2.Label {
         id: innerLabel

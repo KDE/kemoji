@@ -15,7 +15,7 @@ pragma ComponentBehavior: Bound
 GridView {
     id: root
 
-    property real emojiPointSize
+    property real emojiPixelSize: Kirigami.Units.iconSizes.small
 
     signal clicked(emoji: KEmoji.emoji)
 
@@ -37,7 +37,9 @@ GridView {
 
     delegate: KEmoji.EmojiDelegate {
         id: emojiDelegate
-        emojiPointSize: root.emojiPointSize
+        property bool subPopupOpen: false
+        emojiPixelSize: root.emojiPixelSize
+        highlighted: GridView.isCurrentItem || ListView.isCurrentItem || subPopupOpen
 
         onClicked: root.clicked(emojiDelegate.emoji)
         onRightClicked: root.rightClicked(emojiDelegate.emoji)
@@ -47,10 +49,12 @@ GridView {
             }
             let subPopup = Qt.createComponent('org.kde.kemoji', 'SubEmojiPopup').createObject(emojiDelegate, {
                 emojis: emojiDelegate.subEmojis,
-                emojiPointSize: root.emojiPointSize
+                emojiPixelSize: root.emojiPixelSize
             }) as KEmoji.SubEmojiPopup;
-            subPopup.clicked.connect(emoji => root.clicked(emoji));
+            subPopup.clicked.connect(emoji => {root.clicked(emoji)});
             subPopup.rightClicked.connect(emoji => root.rightClicked(emoji));
+            subPopup.closed.connect(emoji => emojiDelegate.subPopupOpen = false);
+            emojiDelegate.subPopupOpen = true;
             subPopup.open();
             subPopup.forceActiveFocus();
         }
@@ -61,13 +65,5 @@ GridView {
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
         text: categoryFilterModel.currentCategory.id === "recent" ? i18n("No recent Emojis") : i18n("No favorite Emojis")
         visible: root.count === 0 && (categoryFilterModel.currentCategory.id === "recent" || categoryFilterModel.currentCategory.id === "favorite")
-    }
-
-    Component {
-        id: subEmojiPopup
-        KEmoji.SubEmojiPopup {
-            onClicked: emoji => root.clicked(emoji)
-            onRightClicked: emoji => root.rightClicked(emoji)
-        }
     }
 }

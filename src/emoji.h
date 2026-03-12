@@ -43,6 +43,7 @@ public:
     QStringList altNames() const;
 
     QList<Emoji> subEmojis(Tones::Tone toneFilter = Tones::Neutral) const;
+    int indexForSubEmoji(const Emoji &subEmoji) const;
     void addSubEmoji(const Emoji &emoji);
     bool isSubEmoji() const;
 
@@ -50,6 +51,11 @@ public:
 
     bool operator==(const Emoji &right) const;
     bool operator==(const QString &right) const;
+
+    /*!
+     * \brief Whether the given emoji has the same KEmoji::Emoji::baseUnicode().
+     */
+    bool baseEqual(const Emoji &right) const;
 
 private:
     QString m_unicode;
@@ -61,17 +67,22 @@ private:
     QString m_category;
 };
 
+struct RecentEmoji {
+    Emoji emoji;
+    int subEmojiIndex = -1;
+
+    bool operator==(const RecentEmoji &right) const;
+    bool operator==(const Emoji &right) const;
+};
+
 struct FavoriteEmoji {
     Emoji emoji;
     int timesUsed;
 
     bool operator==(const FavoriteEmoji &right) const;
     bool operator==(const Emoji &right) const;
-    bool operator==(const QString &right) const;
 };
 }
-
-Q_DECLARE_METATYPE(KEmoji::FavoriteEmoji);
 
 KEMOJI_EXPORT QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji);
 KEMOJI_EXPORT QDataStream &operator>>(QDataStream &stream, KEmoji::Emoji &emoji);

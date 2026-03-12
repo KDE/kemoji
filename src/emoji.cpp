@@ -107,6 +107,14 @@ QList<Emoji> Emoji::subEmojis(Tones::Tone toneFilter) const
     return filteredList;
 }
 
+int Emoji::indexForSubEmoji(const Emoji &subEmoji) const
+{
+    if (!m_subEmojis.contains(subEmoji)) {
+        return -1;
+    }
+    return m_subEmojis.indexOf(subEmoji);
+}
+
 void Emoji::addSubEmoji(const Emoji &emoji)
 {
     m_subEmojis += emoji;
@@ -128,12 +136,27 @@ Category Emoji::category() const
 
 bool Emoji::operator==(const Emoji &right) const
 {
-    return m_unicode == right.unicode();
+    return m_unicode == right.unicode() || m_unqualifiedUnicode == right.unicode();
 }
 
 bool Emoji::operator==(const QString &right) const
 {
-    return m_unicode == right;
+    return m_unicode == right || m_unqualifiedUnicode == right;
+}
+
+bool Emoji::baseEqual(const Emoji &right) const
+{
+    return baseUnicode() == right.baseUnicode();
+}
+
+bool RecentEmoji::operator==(const RecentEmoji &right) const
+{
+    return emoji.baseEqual(right.emoji);
+}
+
+bool RecentEmoji::operator==(const Emoji &right) const
+{
+    return emoji.baseEqual(right);
 }
 
 bool FavoriteEmoji::operator==(const FavoriteEmoji &right) const
@@ -146,13 +169,9 @@ bool FavoriteEmoji::operator==(const Emoji &right) const
     return emoji == right;
 }
 
-bool FavoriteEmoji::operator==(const QString &right) const
-{
-    return emoji == right;
-}
-
 QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji)
 {
+    stream << emoji.unicode().toUtf8() << emoji.unqualifiedUnicode().toUtf8() << emoji.name().toUtf8() << emoji.category().name().toUtf8();
     stream << emoji.unicode().toUtf8() << emoji.unqualifiedUnicode().toUtf8() << emoji.name().toUtf8() << emoji.category().name().toUtf8();
     for (const auto &name : emoji.altNames()) {
         stream << name.toUtf8();

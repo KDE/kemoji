@@ -26,11 +26,11 @@ public:
     static EmojiDict &instance();
 
     const QList<KEmoji::Emoji> &emojis() const;
-    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Category category) const;
 
     const QList<KEmoji::Category> &categories() const;
+    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Category category) const;
 
-    const QList<KEmoji::Emoji> &recentEmojis() const;
+    const QList<KEmoji::RecentEmoji> &recentEmojis() const;
 
     int recentEmojiIndex(const KEmoji::Emoji &emoji) const;
 
@@ -48,7 +48,7 @@ private:
     explicit EmojiDict(QObject *parent = nullptr);
 
     QList<KEmoji::Emoji> m_emojis;
-    QList<KEmoji::Emoji> m_recentEmojis;
+    QList<KEmoji::RecentEmoji> m_recentEmojis;
     QList<KEmoji::FavoriteEmoji> m_favouriteEmojis;
     QList<KEmoji::Category> m_categories;
 

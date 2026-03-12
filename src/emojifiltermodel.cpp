@@ -67,6 +67,47 @@ void EmojiFilterModel::setCurrentCategory(const KEmoji::Category &category)
     Q_EMIT categoryChanged();
 }
 
+QVariant EmojiFilterModel::data(const QModelIndex &index, int role) const
+{
+    if (!checkIndex(index,
+                    QAbstractItemModel::CheckIndexOption::IndexIsValid | QAbstractItemModel::CheckIndexOption::ParentIsInvalid
+                        | QAbstractItemModel::CheckIndexOption::DoNotUseParent)
+        || index.column() != 0) {
+        return {};
+    }
+
+    if (m_currentCategory.id() != recentCategoryID || (role != EmojiModel::UnicodeRole && role != EmojiModel::SubEmojisRole)) {
+        return sourceModel()->data(mapToSource(index), role);
+    }
+
+    const auto emoji = index.data(EmojiModel::EmojiRole).value<Emoji>();
+    const auto recentIndex = EmojiDict::instance().recentEmojiIndex(emoji);
+    if (recentIndex < 0) {
+        return {};
+    }
+    const auto recentEmoji = EmojiDict::instance().recentEmojis()[recentIndex];
+    if (role == EmojiModel::UnicodeRole) {
+        if (recentEmoji.subEmojiIndex > -1) {
+            return emoji.subEmojis()[recentEmoji.subEmojiIndex].unicode();
+        }
+        return recentEmoji.emoji.unicode();
+    }
+    if (role == EmojiModel::SubEmojisRole) {
+        if (recentEmoji.subEmojiIndex > -1) {
+            const auto defaultEmoji = emoji.subEmojis()[recentEmoji.subEmojiIndex].unicode();
+            auto subEmojis = emoji.subEmojis();
+            subEmojis.removeAll(defaultEmoji);
+            if (recentEmoji.emoji.unicode() != defaultEmoji) {
+                subEmojis.prepend(recentEmoji.emoji);
+            }
+            return QVariant::fromValue(subEmojis);
+        }
+        return QVariant::fromValue(emoji.subEmojis());
+    }
+
+    return {};
+}
+
 bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     int result = isRecentMatch(source_left, source_right);

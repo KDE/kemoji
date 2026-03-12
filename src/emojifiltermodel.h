@@ -33,6 +33,8 @@ public:
     Q_INVOKABLE void setCurrentCategory(const QString &category);
     void setCurrentCategory(const KEmoji::Category &category);
 
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;

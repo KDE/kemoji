@@ -14,10 +14,8 @@ import org.kde.kemoji as KEmoji
 QQC2.ItemDelegate {
     id: root
 
-    required property string unicode
-    required property string name
-    required property list<KEmoji.emoji> subEmojis
     required property KEmoji.emoji emoji
+    required property list<KEmoji.emoji> subEmojis
     property alias emojiPixelSize: innerLabel.font.pixelSize
     property bool showSubEmojis: true
 
@@ -42,7 +40,7 @@ QQC2.ItemDelegate {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
-        text: root.unicode
+        text: root.emoji.toString(Qt.RichText)
         textFormat: Text.PlainText
 
         Kirigami.Icon {
@@ -55,11 +53,11 @@ QQC2.ItemDelegate {
         }
     }
 
-    Accessible.name: name
+    Accessible.name: root.emoji.name
     Accessible.onPressAction: root.clicked()
 
     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-    QQC2.ToolTip.text: name
+    QQC2.ToolTip.text: root.emoji.name
     QQC2.ToolTip.visible: hovered
 
     Keys.onMenuPressed: event => root.rightClicked()

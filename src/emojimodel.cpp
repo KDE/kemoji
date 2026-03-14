@@ -8,6 +8,7 @@
 
 #include "emoji.h"
 #include "emojidict.h"
+#include "tones.h"
 
 using namespace KEmoji;
 
@@ -32,26 +33,6 @@ void EmojiModel::setEmojis(const QList<KEmoji::Emoji> &emojis)
     Q_EMIT emojisChanged();
 }
 
-Tones::Tone EmojiModel::defaultTone() const
-{
-    return m_defaultTone;
-}
-
-QString EmojiModel::defaultToneUnicode() const
-{
-    return Tones::exampleEmojiUnicodeForTone(m_defaultTone);
-}
-
-void EmojiModel::setDefaultTone(Tones::Tone defaultTone)
-{
-    if (defaultTone == m_defaultTone) {
-        return;
-    }
-    m_defaultTone = defaultTone;
-    Q_EMIT dataChanged(index(0), index(rowCount() - 1), {UnicodeRole, SubEmojisRole});
-    Q_EMIT defaultToneChanged();
-}
-
 QVariant EmojiModel::data(const QModelIndex &index, int role) const
 {
     if (!checkIndex(index,
@@ -63,30 +44,23 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
 
     const auto &emoji = m_emojis[index.row()];
     switch (role) {
-    case UnicodeRole:
-        return emoji.unicode(m_defaultTone);
-    case NameRole:
-        return emoji.name();
-    case CategoryRole:
-        return QVariant::fromValue(emoji.category());
-    case AltNamesRole:
-        return emoji.altNames();
-    case FallbackNameRole:
-        return emoji.fallbackName();
+    case EmojiRole:
+        return QVariant::fromValue(emoji);
     case RecentIndexRole:
         return EmojiDict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return EmojiDict::instance().timesEmojiUsed(emoji);
-    case EmojiRole:
-        return QVariant::fromValue(emoji);
     case SubEmojisRole: {
-        const auto defaultEmoji = emoji.unicode(m_defaultTone);
-        auto subEmojis = emoji.subEmojis();
-        subEmojis.removeAll(defaultEmoji);
-        if (emoji.unicode() != defaultEmoji) {
-            subEmojis.prepend(emoji);
+        auto familyGroup = EmojiDict::instance().familyGroupForEmoji(emoji);
+        if (familyGroup.isEmpty()) {
+            familyGroup = EmojiDict::instance().familyGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
         }
-        return QVariant::fromValue(subEmojis);
+        if (familyGroup.isEmpty()) {
+            return QVariant::fromValue(QList<Emoji>());
+        }
+        return QVariant::fromValue(familyGroup.filtered([emoji](const Emoji &familyEmoji) {
+            return emoji != familyEmoji;
+        }));
     }
     default:
         return {};
@@ -101,11 +75,6 @@ int EmojiModel::rowCount(const QModelIndex &parent) const
 QHash<int, QByteArray> EmojiModel::roleNames() const
 {
     return {
-        {UnicodeRole, "unicode"},
-        {NameRole, "name"},
-        {CategoryRole, "category"},
-        {AltNamesRole, "altNames"},
-        {FallbackNameRole, "fallbackName"},
         {EmojiRole, "emoji"},
         {SubEmojisRole, "subEmojis"},
     };

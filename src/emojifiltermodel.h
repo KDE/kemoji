@@ -13,6 +13,7 @@
 #include "kemoji_export.h"
 
 #include "category.h"
+#include "tones.h"
 
 class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel
 {
@@ -22,6 +23,10 @@ class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
     Q_PROPERTY(KEmoji::Category currentCategory READ currentCategory WRITE setCurrentCategory NOTIFY categoryChanged)
+
+    Q_PROPERTY(KEmoji::Tones::Tone defaultTone READ defaultTone WRITE setDefaultTone NOTIFY defaultToneChanged)
+
+    Q_PROPERTY(QString defaultToneUnicode READ defaultToneUnicode NOTIFY defaultToneChanged)
 
 public:
     explicit EmojiFilterModel(QObject *parent = nullptr);
@@ -33,7 +38,9 @@ public:
     Q_INVOKABLE void setCurrentCategory(const QString &category);
     void setCurrentCategory(const KEmoji::Category &category);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    KEmoji::Tones::Tone defaultTone() const;
+    QString defaultToneUnicode() const;
+    void setDefaultTone(KEmoji::Tones::Tone defaultTone);
 
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
 
@@ -42,11 +49,13 @@ public:
 Q_SIGNALS:
     void searchTextChanged();
     void categoryChanged();
+    void defaultToneChanged();
 
 private:
     QString m_searchText = {};
 
     KEmoji::Category m_currentCategory;
+    KEmoji::Tones::Tone m_defaultTone = KEmoji::Tones::Neutral;
 
     bool nameContainsSearch(const QModelIndex &index) const;
     int exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;

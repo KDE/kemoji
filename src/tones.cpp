@@ -10,6 +10,7 @@
 
 #include <KLazyLocalizedString>
 
+#include "emoji.h"
 #include "kemoji_logging.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -51,6 +52,24 @@ const QHash<Tones::Tone, KLazyLocalizedString> _toneToNameMap = {
     {Tones::Medium, kli18nc("Emoji with a medium skin tone", "Medium")},
     {Tones::MediumDark, kli18nc("Emoji with a medium-dark skin tone", "Medium-Dark")},
     {Tones::Dark, kli18nc("Emoji with a dark skin tone", "Dark")},
+};
+
+// The cases where removing the tone code points doesn't result in the correct neutral emoji.
+const QHash<QString, QString> _specialBaseCases = {
+    {u"🫱\u200D🫲"_s, u"🤝"_s},
+    {u"🕵\u200D♂️"_s, u"🕵️‍♂️"_s},
+    {u"🕵\u200D♀️"_s, u"🕵️‍♀️"_s},
+    {u"🏌\u200D♂️"_s, u"🏌️‍♂️"_s},
+    {u"🏌\u200D♀️"_s, u"🏌️‍♀️"_s},
+    {u"⛹\u200D♂️"_s, u"⛹️‍♂️"_s},
+    {u"⛹\u200D♀️"_s, u"⛹️‍♀️"_s},
+    {u"🏋\u200D♂️"_s, u"🏋️‍♂️"_s},
+    {u"🏋\u200D♀️"_s, u"🏋️‍♀️"_s},
+    {u"👩\u200D🤝\u200D👩"_s, u"👭"_s},
+    {u"👩\u200D🤝\u200D👨"_s, u"👫"_s},
+    {u"👨\u200D🤝\u200D👨"_s, u"👬"_s},
+    {u"🧑\u200D❤️\u200D💋\u200D🧑"_s, u"💏"_s},
+    {u"🧑\u200D❤️\u200D🧑"_s, u"💑"_s},
 };
 }
 
@@ -133,6 +152,23 @@ QList<Tones::Tone> Tones::tonesForUnicode(const QString &unicode)
         foundTones += Tones::Neutral;
     }
     return foundTones;
+}
+
+Emoji Tones::removeTonesFromEmoji(Emoji emoji)
+{
+    if (!emoji.isValid() || emoji.isCustom()) {
+        return emoji;
+    }
+    auto unicode = emoji.unicode();
+    std::ranges::for_each(_allTonesCodePoints, [&unicode](const QString &toneCodePoint) {
+        unicode.remove(toneCodePoint);
+    });
+    unicode.squeeze();
+    if (_specialBaseCases.contains(unicode)) {
+        unicode = _specialBaseCases[unicode];
+    }
+    emoji.setUnicode(unicode);
+    return emoji;
 }
 
 #include "moc_tones.cpp"

@@ -11,7 +11,6 @@
 
 #include "emoji.h"
 #include "kemoji_export.h"
-#include "tones.h"
 
 class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
 {
@@ -20,20 +19,11 @@ class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
 
     Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis WRITE setEmojis NOTIFY emojisChanged)
 
-    Q_PROPERTY(KEmoji::Tones::Tone defaultTone READ defaultTone WRITE setDefaultTone NOTIFY defaultToneChanged)
-
-    Q_PROPERTY(QString defaultToneUnicode READ defaultToneUnicode NOTIFY defaultToneChanged)
-
 public:
     enum RoleNames {
-        UnicodeRole = Qt::DisplayRole,
-        NameRole = Qt::ToolTipRole,
-        CategoryRole = Qt::UserRole + 1,
-        AltNamesRole,
-        FallbackNameRole,
+        EmojiRole = Qt::UserRole + 1,
         RecentIndexRole,
         TimesUsedRole,
-        EmojiRole,
         SubEmojisRole,
     };
 
@@ -41,10 +31,6 @@ public:
 
     QList<KEmoji::Emoji> emojis() const;
     void setEmojis(const QList<KEmoji::Emoji> &emojis);
-
-    KEmoji::Tones::Tone defaultTone() const;
-    QString defaultToneUnicode() const;
-    void setDefaultTone(KEmoji::Tones::Tone defaultTone);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -54,9 +40,7 @@ public:
 
 Q_SIGNALS:
     void emojisChanged();
-    void defaultToneChanged();
 
 private:
     QList<KEmoji::Emoji> m_emojis;
-    KEmoji::Tones::Tone m_defaultTone = KEmoji::Tones::Neutral;
 };

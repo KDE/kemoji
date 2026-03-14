@@ -9,7 +9,6 @@
 #include "category.h"
 #include "emojidict.h"
 #include "emojimodel.h"
-#include "kemoji_logging.h"
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -67,45 +66,25 @@ void EmojiFilterModel::setCurrentCategory(const KEmoji::Category &category)
     Q_EMIT categoryChanged();
 }
 
-QVariant EmojiFilterModel::data(const QModelIndex &index, int role) const
+Tones::Tone EmojiFilterModel::defaultTone() const
 {
-    if (!checkIndex(index,
-                    QAbstractItemModel::CheckIndexOption::IndexIsValid | QAbstractItemModel::CheckIndexOption::ParentIsInvalid
-                        | QAbstractItemModel::CheckIndexOption::DoNotUseParent)
-        || index.column() != 0) {
-        return {};
-    }
+    return m_defaultTone;
+}
 
-    if (m_currentCategory.id() != recentCategoryID || (role != EmojiModel::UnicodeRole && role != EmojiModel::SubEmojisRole)) {
-        return sourceModel()->data(mapToSource(index), role);
-    }
+QString EmojiFilterModel::defaultToneUnicode() const
+{
+    return Tones::exampleEmojiUnicodeForTone(m_defaultTone);
+}
 
-    const auto emoji = index.data(EmojiModel::EmojiRole).value<Emoji>();
-    const auto recentIndex = EmojiDict::instance().recentEmojiIndex(emoji);
-    if (recentIndex < 0) {
-        return {};
+void EmojiFilterModel::setDefaultTone(Tones::Tone defaultTone)
+{
+    if (defaultTone == m_defaultTone) {
+        return;
     }
-    const auto recentEmoji = EmojiDict::instance().recentEmojis()[recentIndex];
-    if (role == EmojiModel::UnicodeRole) {
-        if (recentEmoji.subEmojiIndex > -1) {
-            return emoji.subEmojis()[recentEmoji.subEmojiIndex].unicode();
-        }
-        return recentEmoji.emoji.unicode();
-    }
-    if (role == EmojiModel::SubEmojisRole) {
-        if (recentEmoji.subEmojiIndex > -1) {
-            const auto defaultEmoji = emoji.subEmojis()[recentEmoji.subEmojiIndex].unicode();
-            auto subEmojis = emoji.subEmojis();
-            subEmojis.removeAll(defaultEmoji);
-            if (recentEmoji.emoji.unicode() != defaultEmoji) {
-                subEmojis.prepend(recentEmoji.emoji);
-            }
-            return QVariant::fromValue(subEmojis);
-        }
-        return QVariant::fromValue(emoji.subEmojis());
-    }
-
-    return {};
+    m_defaultTone = defaultTone;
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+    Q_EMIT defaultToneChanged();
 }
 
 bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
@@ -137,57 +116,71 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
 {
     bool categoryFilter = false;
     bool searchFilter = false;
-
-    // First if the category is Recent accept based on whether the emoji is a recent emoji.
-    if (m_currentCategory.id() == recentCategoryID) {
-        categoryFilter = sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::RecentIndexRole).toInt() >= 0;
-    } else if (m_currentCategory.id() == favoriteCategoryID) {
-        categoryFilter = sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::TimesUsedRole).toInt() > 0;
-    } else {
-        categoryFilter = m_currentCategory.id() == allCategoryID
-            || sourceModel()->index(source_row, 0, source_parent).data(EmojiModel::CategoryRole).view<Category>().id() == m_currentCategory.id();
-    }
+    bool toneFilter = false;
 
     const auto idx = sourceModel()->index(source_row, 0, source_parent);
-    searchFilter = nameContainsSearch(idx) || !idx.data(EmojiModel::AltNamesRole).toStringList().filter(m_searchText, Qt::CaseInsensitive).isEmpty();
 
-    return categoryFilter && searchFilter;
+    // First if the category is Recent accept based on whether the emoji is a recent emoji, then favorite.
+    if (m_currentCategory.id() == recentCategoryID) {
+        categoryFilter = idx.data(EmojiModel::RecentIndexRole).toInt() >= 0;
+    } else if (m_currentCategory.id() == favoriteCategoryID) {
+        categoryFilter = idx.data(EmojiModel::TimesUsedRole).toInt() > 0;
+    } else {
+        categoryFilter = m_currentCategory.id() == allCategoryID || idx.data(EmojiModel::EmojiRole).view<Emoji>().category().id() == m_currentCategory.id();
+    }
+
+    searchFilter = nameContainsSearch(idx);
+
+    const auto tones = Tones::tonesForUnicode(idx.data(EmojiModel::EmojiRole).view<Emoji>().unicode());
+    toneFilter = tones.length() == 1 && tones.contains(m_defaultTone);
+
+    return categoryFilter && searchFilter && (toneFilter || m_currentCategory == recentCategoryID || m_currentCategory == favoriteCategoryID);
 }
 
 bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
 {
-    const auto name = index.data(EmojiModel::NameRole).toString();
-    const auto fallbackName = index.data(EmojiModel::FallbackNameRole).toString();
+    const auto emoji = index.data(EmojiModel::EmojiRole).view<Emoji>();
 
     const auto searchParts = m_searchText.split(u' ');
 
     int nameMatches = 0;
     int fallbackNameMatches = 0;
+    QHash<QString, int> altNameMatches;
     for (const auto &part : searchParts) {
-        if (name.contains(part)) {
+        if (emoji.name().contains(part)) {
             ++nameMatches;
         }
-        if (fallbackName.contains(part)) {
+        if (emoji.fallbackName().contains(part)) {
             ++fallbackNameMatches;
         }
+        std::ranges::for_each(emoji.altNames(), [&altNameMatches, part](const QString &altName) {
+            if (!altNameMatches.contains(altName)) {
+                altNameMatches[altName] = 0;
+            }
+            if (altName.contains(part)) {
+                ++altNameMatches[altName];
+            }
+        });
     }
 
-    return nameMatches == searchParts.size() || fallbackNameMatches == searchParts.size();
+    return nameMatches == searchParts.size() || fallbackNameMatches == searchParts.size() || std::ranges::any_of(altNameMatches, [searchParts](int matches) {
+               return matches == searchParts.size();
+           });
 }
 
 int EmojiFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    const auto leftMatch =
-        source_left.data(EmojiModel::NameRole).toString() == m_searchText || source_left.data(EmojiModel::FallbackNameRole).toString() == m_searchText;
-    const auto rightMatch =
-        source_right.data(EmojiModel::NameRole).toString() == m_searchText || source_right.data(EmojiModel::FallbackNameRole).toString() == m_searchText;
+    const auto leftEmoji = source_left.data(EmojiModel::EmojiRole).view<Emoji>();
+    const auto leftMatch = leftEmoji.name() == m_searchText || leftEmoji.fallbackName() == m_searchText;
+    const auto rightEmoji = source_right.data(EmojiModel::EmojiRole).view<Emoji>();
+    const auto rightMatch = rightEmoji.name() == m_searchText || rightEmoji.fallbackName() == m_searchText;
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
 int EmojiFilterModel::exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    const auto leftMatch = source_left.data(EmojiModel::AltNamesRole).toStringList().contains(m_searchText);
-    const auto rightMatch = source_right.data(EmojiModel::AltNamesRole).toStringList().contains(m_searchText);
+    const auto leftMatch = source_left.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText);
+    const auto rightMatch = source_right.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText);
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 

@@ -13,12 +13,14 @@
 
 namespace KEmoji
 {
+class Emoji;
+
 /**
  * \class Tones
  *
  * \brief This class is designed to define the Tone enumeration.
  *
- * There are also numerous helper funtions for working with tones and displaying
+ * There are also numerous helper functions for working with tones and displaying
  * them in a UI.
  */
 class KEMOJI_EXPORT Tones : public QObject
@@ -66,7 +68,7 @@ public:
     /*!
      * \brief Return the Tones::Tone of the given code point.
      *
-     * returns Tones::Tone::Neutral for any string that isn't a tone code point.
+     * Returns Tones::Tone::Neutral for any string that isn't a tone code point.
      */
     static Tone toneForCodePoint(const QString &unicode);
 
@@ -115,5 +117,12 @@ public:
      * If there are none a list containing only Tones::Tone::Neutral will be returned.
      */
     static QList<Tones::Tone> tonesForUnicode(const QString &unicode);
+
+    /*!
+     * \brief Return an emoji with any tone code points removed from the given emoji.
+     *
+     * If the emoji has no tone code points the same emoji is returned.
+     */
+    static Emoji removeTonesFromEmoji(Emoji emoji);
 };
 };

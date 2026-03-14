@@ -13,6 +13,7 @@
 #include <QStandardPaths>
 
 #include <KLocalizedString>
+#include <qnamespace.h>
 
 #include "category.h"
 #include "emoji.h"
@@ -43,6 +44,14 @@ const QList<Emoji> &EmojiDict::emojis() const
     return m_emojis;
 }
 
+const KEmoji::EmojiGroup &EmojiDict::familyGroupForEmoji(const KEmoji::Emoji &emoji) const
+{
+    if (!m_emojiFamilyGroups.contains(emoji.toString(Qt::RichText))) {
+        return emptyGroup;
+    }
+    return m_emojiFamilyGroups.at(emoji.toString(Qt::RichText));
+}
+
 const QList<Category> &EmojiDict::categories() const
 {
     return m_categories;
@@ -57,23 +66,14 @@ const QList<KEmoji::Emoji> EmojiDict::emojisForCategory(KEmoji::Category categor
     return emojis;
 }
 
-const QList<KEmoji::RecentEmoji> &EmojiDict::recentEmojis() const
+const QList<KEmoji::Emoji> &EmojiDict::recentEmojis() const
 {
     return m_recentEmojis;
 }
 
 int EmojiDict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
-    auto index = m_recentEmojis.indexOf(emoji);
-    if (index == -1) {
-        for (const auto &subEmoji : emoji.subEmojis()) {
-            index = m_recentEmojis.indexOf(subEmoji);
-            if (index != -1) {
-                break;
-            }
-        }
-    }
-    return index;
+    return m_recentEmojis.indexOf(emoji);
 }
 
 const QList<KEmoji::FavoriteEmoji> &EmojiDict::favoriteEmojis() const
@@ -85,15 +85,7 @@ int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 {
     auto index = m_favouriteEmojis.indexOf(emoji);
     if (index == -1) {
-        for (const auto &subEmoji : emoji.subEmojis()) {
-            index = m_favouriteEmojis.indexOf(subEmoji);
-            if (index != -1) {
-                break;
-            }
-        }
-    }
-    if (index == -1) {
-        return -1;
+        return 0;
     }
     return m_favouriteEmojis[index].timesUsed;
 }
@@ -141,9 +133,9 @@ void EmojiDict::load()
 
     // We load in reverse order, because we want to preserve the order in en.dict.
     // en.dict almost always gives complete set of data.
-    for (auto iter = dicts.crbegin(); iter != dicts.crend(); ++iter) {
-        loadDict(*iter);
-    }
+    std::ranges::for_each(dicts.crbegin(), dicts.crend(), [this](const QString &path) {
+        loadDict(path);
+    });
     for (const auto &emoji : m_emojis) {
         if (!m_categories.contains(emoji.category())) {
             m_categories += emoji.category();
@@ -167,32 +159,39 @@ void EmojiDict::loadDict(const QString &path)
     stream.setByteOrder(QDataStream::LittleEndian);
     QList<Emoji> emojis;
     stream >> emojis;
-    for (const auto &emoji : emojis) {
-        if (emoji.isSubEmoji()) {
-            const auto it = std::find_if(m_emojis.begin(), m_emojis.end(), [emoji](const Emoji &listEmoji) {
-                return emoji.baseUnicode() == listEmoji.unicode() || emoji.baseUnicode() == listEmoji.unqualifiedUnicode();
-            });
-            if (it == m_emojis.end()) {
-                qCWarning(KEMOJI) << "Sub emoji parent not found" << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << emoji.baseUnicode();
-                continue;
-            }
-            if (it->subEmojis().contains(emoji)) {
-                auto &foundEmoji = it->subEmojis()[it->subEmojis().indexOf(emoji)];
-                const QString fallbackName = foundEmoji.name();
-                foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
-            } else {
-                it->addSubEmoji(emoji);
-            }
-        } else if (m_emojis.contains(emoji)) {
-            const auto it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
+
+    if (m_emojis.capacity() < emojis.size()) {
+        m_emojis.reserve(emojis.size());
+    }
+
+    std::ranges::for_each(emojis, [this](const Emoji &emoji) {
+        QList<Emoji>::iterator it;
+        if (m_emojis.contains(emoji)) {
+            it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
             foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
         } else {
-            m_emojis.append(emoji);
+            it = m_emojis.insert(m_emojis.size(), emoji);
         }
-    }
+
+        const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
+        if (tonelessEmoji == emoji) {
+            return;
+        }
+        if (m_emojiFamilyGroups.contains(tonelessEmoji.toString(Qt::RichText))) {
+            auto &group = m_emojiFamilyGroups[tonelessEmoji.toString(Qt::RichText)];
+            auto e = emoji;
+            group += *it;
+        } else {
+            const auto baseIt = std::find(m_emojis.begin(), m_emojis.end(), tonelessEmoji);
+            EmojiGroup group;
+            group += *baseIt;
+            group += *it;
+            m_emojiFamilyGroups[baseIt->toString(Qt::RichText)] = group;
+        }
+    });
 }
 
 void EmojiDict::initialize()
@@ -202,9 +201,7 @@ void EmojiDict::initialize()
     auto size = settings.beginReadArray(RecentEmojiKey);
     for (qsizetype i = 0; i < size; ++i) {
         settings.setArrayIndex(i);
-        const auto emoji = settings.value("emoji").value<Emoji>();
-        const auto subEmojiIndex = settings.value("subEmojiIndex").toInt();
-        m_recentEmojis += RecentEmoji{.emoji = emoji, .subEmojiIndex = subEmojiIndex};
+        m_recentEmojis += settings.value("emoji").value<Emoji>();
     }
     settings.endArray();
 
@@ -220,7 +217,7 @@ void EmojiDict::initialize()
 
 void EmojiDict::emojiUsed(const Emoji &emoji)
 {
-    if (!m_emojis.contains(emoji) && !m_emojis.contains(emoji.baseUnicode())) {
+    if (!m_emojis.contains(emoji)) {
         return;
     }
 
@@ -228,25 +225,15 @@ void EmojiDict::emojiUsed(const Emoji &emoji)
 
     const auto recentIndex = m_recentEmojis.indexOf(emoji);
     if (recentIndex >= 0) {
-        m_recentEmojis[recentIndex].subEmojiIndex = m_recentEmojis[recentIndex].emoji.indexForSubEmoji(emoji);
         m_recentEmojis.move(recentIndex, 0);
     } else {
-        RecentEmoji newRecent{.emoji = emoji};
-        if (emoji.isSubEmoji()) {
-            const auto baseIndex = m_emojis.indexOf(emoji.baseUnicode());
-            if (baseIndex > -1) {
-                newRecent.emoji = m_emojis[baseIndex];
-                newRecent.subEmojiIndex = newRecent.emoji.indexForSubEmoji(emoji);
-            }
-        }
-        m_recentEmojis.prepend(newRecent);
+        m_recentEmojis.prepend(emoji);
     }
 
     settings.beginWriteArray(RecentEmojiKey);
     for (qsizetype i = 0; i < m_recentEmojis.size(); ++i) {
         settings.setArrayIndex(i);
-        settings.setValue("emoji", QVariant::fromValue(m_recentEmojis[i].emoji));
-        settings.setValue("subEmojiIndex", m_recentEmojis[i].subEmojiIndex);
+        settings.setValue("emoji", QVariant::fromValue(m_recentEmojis[i]));
     }
     settings.endArray();
 

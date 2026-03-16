@@ -6,6 +6,8 @@
 
 #include "emoji.h"
 
+#include <QTextBoundaryFinder>
+
 #include <KLazyLocalizedString>
 
 using namespace KEmoji;
@@ -57,7 +59,45 @@ QString Emoji::unicode() const
 
 void Emoji::setUnicode(const QString &unicode)
 {
+    if (!m_source.isEmpty()) {
+        m_source.clear();
+    }
+
+    // If the QString is not a single unicode emoji invalidate the Emoji.
+    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, unicode);
+    qsizetype nextBoundary = finder.toNextBoundary();
+    if (nextBoundary == -1) {
+        // If here the string is empty.
+        m_unicode.clear();
+        m_source.clear();
+    }
+    nextBoundary = finder.toNextBoundary();
+    if (nextBoundary != -1) {
+        // If here there is more than 1 Grapheme.
+        m_unicode.clear();
+        m_source.clear();
+    }
+
     m_unicode = unicode;
+}
+
+QUrl Emoji::source() const
+{
+    return m_source;
+}
+
+void Emoji::setSource(const QUrl &source)
+{
+    if (!m_unicode.isEmpty()) {
+        m_unicode.clear();
+    }
+
+    if (!source.isValid() || !source.isLocalFile()) {
+        m_unicode.clear();
+        m_source.clear();
+    }
+
+    m_source = source;
 }
 
 QString Emoji::unqualifiedUnicode() const

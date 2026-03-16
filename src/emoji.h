@@ -66,17 +66,17 @@ class KEMOJI_EXPORT Emoji
     /*!
      * \brief The fallback name of the emoji.
      */
-    Q_PROPERTY(QString fallbackName READ name)
+    Q_PROPERTY(QString fallbackName READ fallbackName)
 
     /*!
      * \brief The list of alternate names for the emoji.
      */
-    Q_PROPERTY(QStringList altNames READ name)
+    Q_PROPERTY(QStringList altNames READ altNames)
 
     /*!
      * \brief The category of the emoji.
      */
-    Q_PROPERTY(Category category READ name)
+    Q_PROPERTY(Category category READ category)
 
 public:
     Emoji() = default;

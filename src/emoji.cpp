@@ -6,15 +6,22 @@
 
 #include "emoji.h"
 
+#include <QMimeDatabase>
 #include <QTextBoundaryFinder>
 
 #include <KLazyLocalizedString>
+#include <qnamespace.h>
 
 using namespace KEmoji;
 
-Emoji::Emoji(const QString &unicode)
-    : m_unicode(unicode)
+namespace
 {
+const QString _invalidUnicode = u"�"_s;
+};
+
+Emoji::Emoji(const QString &unicode)
+{
+    setUnicode(unicode);
 }
 
 Emoji::Emoji(const QString &unicode,
@@ -23,18 +30,18 @@ Emoji::Emoji(const QString &unicode,
              const QStringList &altNames,
              const QString &category,
              const QString &fallbackName)
-    : m_unicode(unicode)
-    , m_unqualifiedUnicode(unqualifiedUnicode)
+    : m_unqualifiedUnicode(unqualifiedUnicode)
     , m_name(name)
     , m_fallbackName(fallbackName)
     , m_altNames(altNames)
     , m_category(category)
 {
+    setUnicode(unicode);
 }
 
 Emoji::Emoji(const QUrl &source)
-    : m_source(source)
 {
+    setSource(source);
 }
 
 Emoji::Emoji(const QUrl &source,
@@ -43,17 +50,20 @@ Emoji::Emoji(const QUrl &source,
              const QStringList &altNames,
              const QString &category,
              const QString &fallbackName)
-    : m_source(source)
-    , m_unqualifiedUnicode(unqualifiedUnicode)
+    : m_unqualifiedUnicode(unqualifiedUnicode)
     , m_name(name)
     , m_fallbackName(fallbackName)
     , m_altNames(altNames)
     , m_category(category)
 {
+    setSource(source);
 }
 
 QString Emoji::unicode() const
 {
+    if (!isValid() || !isUnicode()) {
+        return _invalidUnicode;
+    }
     return m_unicode;
 }
 
@@ -68,14 +78,16 @@ void Emoji::setUnicode(const QString &unicode)
     qsizetype nextBoundary = finder.toNextBoundary();
     if (nextBoundary == -1) {
         // If here the string is empty.
-        m_unicode.clear();
+        m_unicode = _invalidUnicode;
         m_source.clear();
+        return;
     }
     nextBoundary = finder.toNextBoundary();
     if (nextBoundary != -1) {
         // If here there is more than 1 Grapheme.
         m_unicode.clear();
         m_source.clear();
+        return;
     }
 
     m_unicode = unicode;
@@ -95,6 +107,14 @@ void Emoji::setSource(const QUrl &source)
     if (!source.isValid() || !source.isLocalFile()) {
         m_unicode.clear();
         m_source.clear();
+        return;
+    }
+    QMimeDatabase db;
+    QMimeType mime = db.mimeTypeForUrl(source);
+    if (!mime.isValid() || !mime.name().contains(u"image"_s)) {
+        m_unicode.clear();
+        m_source.clear();
+        return;
     }
 
     m_source = source;
@@ -145,6 +165,9 @@ Category Emoji::category() const
 
 QString Emoji::toString(Qt::TextFormat textFormat) const
 {
+    if (!isValid() || (textFormat == Qt::PlainText && isCustom())) {
+        return _invalidUnicode;
+    }
     if (!m_unicode.isEmpty() || textFormat == Qt::PlainText) {
         return m_unicode;
     }

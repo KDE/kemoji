@@ -68,6 +68,10 @@ set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KEmoji")
 add_subdirectory(data)
 add_subdirectory(src)
 
+if (BUILD_TESTING)
+    add_subdirectory(autotests)
+endif()
+
 if(KEMOJI_BUILD_EMOJIER)
     find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui QuickControls2 Widgets)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons Crash DBusAddons WindowSystem)

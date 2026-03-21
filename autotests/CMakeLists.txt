@@ -14,3 +14,9 @@ ecm_add_test(
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
     TEST_NAME emojitest
 )
+
+ecm_add_test(
+    tonestest.cpp
+    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
+    TEST_NAME tonestest
+)

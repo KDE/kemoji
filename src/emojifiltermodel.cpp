@@ -131,7 +131,7 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
 
     searchFilter = nameContainsSearch(idx);
 
-    const auto tones = Tones::tonesForUnicode(idx.data(EmojiModel::EmojiRole).view<Emoji>().unicode());
+    const auto tones = Tones::tonesForEmoji(idx.data(EmojiModel::EmojiRole).view<Emoji>());
     toneFilter = tones.length() == 1 && tones.contains(m_defaultTone);
 
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == recentCategoryID || m_currentCategory == favoriteCategoryID);

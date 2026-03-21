@@ -15,7 +15,7 @@ target_sources(KEmoji PRIVATE
     emoji.cpp
     emojidict.cpp
     category.cpp
-    tones.cpp
+    tones.h
     emojimodel.cpp
     emojifiltermodel.cpp
     emojicategorymodel.cpp

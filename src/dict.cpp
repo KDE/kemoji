@@ -7,6 +7,7 @@
 
 #include "dict.h"
 
+#include <QDir>
 #include <QFile>
 #include <QLocale>
 #include <QSettings>
@@ -122,8 +123,13 @@ void Dict::load()
 
     // Always fallback to en, because some annotation data only have minimum data.
     const auto genericPath = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "kemoji/en.dict"_L1);
-    if (!dicts.contains(genericPath)) {
+    if (!dicts.contains(genericPath) && !genericPath.isEmpty()) {
         dicts << genericPath;
+    }
+
+    // In case we're running tests.'
+    if (dicts.isEmpty()) {
+        dicts << u"../data/en.dict"_s;
     }
 
     if (dicts.isEmpty()) {

@@ -25,12 +25,12 @@ void EmojiModelTest::populate()
 
     QCOMPARE(model->rowCount(), 0);
 
-    model->setEmojis({u"😀"_s, u"🤚🏿"_s, u"🧠"_s, u"🧏🏼"_s, u"⚽"_s});
+    model->setEmojis({u"😀"_s, u"🤚🏿"_s, u"🧠"_s, u"🫱🏼‍🫲🏿"_s, u"⚽"_s});
     QCOMPARE(model->rowCount(), 5);
     QCOMPARE(model->data(model->index(0), EmojiModel::EmojiRole).view<Emoji>(), u"😀"_s);
     QCOMPARE(model->data(model->index(1), EmojiModel::EmojiRole).view<Emoji>(), u"🤚🏿"_s);
     QCOMPARE(model->data(model->index(2), EmojiModel::EmojiRole).view<Emoji>(), u"🧠"_s);
-    QCOMPARE(model->data(model->index(3), EmojiModel::EmojiRole).view<Emoji>(), u"🧏🏼"_s);
+    QCOMPARE(model->data(model->index(3), EmojiModel::EmojiRole).view<Emoji>(), u"🫱🏼‍🫲🏿"_s);
     QCOMPARE(model->data(model->index(4), EmojiModel::EmojiRole).view<Emoji>(), u"⚽"_s);
     QCOMPARE(model->data(model->index(0), EmojiModel::RecentIndexRole).toInt(), -1);
     QCOMPARE(model->data(model->index(1), EmojiModel::RecentIndexRole).toInt(), -1);
@@ -42,6 +42,37 @@ void EmojiModelTest::populate()
     QCOMPARE(model->data(model->index(2), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(3), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(4), EmojiModel::TimesUsedRole).toInt(), 0);
+    QCOMPARE(model->data(model->index(0), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
+    QCOMPARE(model->data(model->index(1), EmojiModel::SubEmojisRole).value<QList<Emoji>>(),
+             QList<Emoji>({u"🤚"_s, u"🤚🏻"_s, u"🤚🏼"_s, u"🤚🏽"_s, u"🤚🏾"_s}));
+    QCOMPARE(model->data(model->index(2), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
+    QCOMPARE(model->data(model->index(3), EmojiModel::SubEmojisRole).value<QList<Emoji>>(),
+             QList<Emoji>({u"🤝"_s,
+                           u"🤝🏻"_s,
+                           u"🤝🏼"_s,
+                           u"🤝🏽"_s,
+                           u"🤝🏾"_s,
+                           u"🤝🏿"_s,
+                           u"🫱🏻‍🫲🏼"_s,
+                           u"🫱🏻‍🫲🏽"_s,
+                           u"🫱🏻‍🫲🏾"_s,
+                           u"🫱🏻‍🫲🏿"_s,
+                           u"🫱🏼‍🫲🏻"_s,
+                           u"🫱🏼‍🫲🏽"_s,
+                           u"🫱🏼‍🫲🏾"_s,
+                           u"🫱🏽‍🫲🏻"_s,
+                           u"🫱🏽‍🫲🏼"_s,
+                           u"🫱🏽‍🫲🏾"_s,
+                           u"🫱🏽‍🫲🏿"_s,
+                           u"🫱🏾‍🫲🏻"_s,
+                           u"🫱🏾‍🫲🏼"_s,
+                           u"🫱🏾‍🫲🏽"_s,
+                           u"🫱🏾‍🫲🏿"_s,
+                           u"🫱🏿‍🫲🏻"_s,
+                           u"🫱🏿‍🫲🏼"_s,
+                           u"🫱🏿‍🫲🏽"_s,
+                           u"🫱🏿‍🫲🏾"_s}));
+    QCOMPARE(model->data(model->index(4), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
 }
 
 QTEST_GUILESS_MAIN(EmojiModelTest)

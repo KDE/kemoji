@@ -7,7 +7,7 @@
 #include "emojifiltermodel.h"
 
 #include "category.h"
-#include "emojidict.h"
+#include "dict.h"
 #include "emojimodel.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -18,7 +18,7 @@ EmojiFilterModel::EmojiFilterModel(QObject *parent)
     , m_currentCategory(categoryDict[allCategoryID])
 {
     sort(0);
-    connect(&EmojiDict::instance(), &EmojiDict::favoriteEmojisChanged, this, &EmojiFilterModel::invalidate);
+    connect(&Dict::instance(), &Dict::favoriteEmojisChanged, this, &EmojiFilterModel::invalidate);
     connect(this, &EmojiFilterModel::sourceModelChanged, this, &EmojiFilterModel::invalidate);
     connect(this, &EmojiFilterModel::sourceModelChanged, this, [this]() {
         if (sourceModel()) {

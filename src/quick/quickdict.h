@@ -12,9 +12,9 @@
 #include "emoji.h"
 #include "kemoji_export.h"
 
-#include "emojidict.h"
+#include "dict.h"
 
-class KEMOJI_EXPORT QuickEmojiDict : public QObject
+class KEMOJI_EXPORT QuickDict : public QObject
 {
     Q_OBJECT
     QML_NAMED_ELEMENT(Dict)
@@ -23,18 +23,18 @@ class KEMOJI_EXPORT QuickEmojiDict : public QObject
     Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis CONSTANT)
 
 public:
-    QuickEmojiDict(QObject *parent = nullptr)
+    QuickDict(QObject *parent = nullptr)
         : QObject(parent)
     {
     }
 
     const QList<KEmoji::Emoji> &emojis() const
     {
-        return EmojiDict::instance().emojis();
+        return KEmoji::Dict::instance().emojis();
     }
 
     Q_INVOKABLE void emojiUsed(const KEmoji::Emoji &emoji)
     {
-        EmojiDict::instance().emojiUsed(emoji);
+        KEmoji::Dict::instance().emojiUsed(emoji);
     }
 };

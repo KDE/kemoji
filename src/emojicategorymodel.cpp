@@ -6,7 +6,7 @@
 
 #include "emojicategorymodel.h"
 
-#include "emojidict.h"
+#include "dict.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -23,7 +23,7 @@ QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
         || index.column() != 0)
         return {};
 
-    const auto &category = EmojiDict::instance().categories()[index.row()];
+    const auto &category = KEmoji::Dict::instance().categories()[index.row()];
     switch (role) {
     case NameRole:
         return category.name();
@@ -39,7 +39,7 @@ QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
 
 int EmojiCategoryModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : EmojiDict::instance().categories().size();
+    return parent.isValid() ? 0 : KEmoji::Dict::instance().categories().size();
 }
 
 QHash<int, QByteArray> EmojiCategoryModel::roleNames() const

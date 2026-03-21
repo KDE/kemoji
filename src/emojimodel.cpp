@@ -6,8 +6,8 @@
 
 #include "emojimodel.h"
 
+#include "dict.h"
 #include "emoji.h"
-#include "emojidict.h"
 #include "tones.h"
 
 using namespace KEmoji;
@@ -47,13 +47,13 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     case EmojiRole:
         return QVariant::fromValue(emoji);
     case RecentIndexRole:
-        return EmojiDict::instance().recentEmojiIndex(emoji);
+        return Dict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
-        return EmojiDict::instance().timesEmojiUsed(emoji);
+        return Dict::instance().timesEmojiUsed(emoji);
     case SubEmojisRole: {
-        auto familyGroup = EmojiDict::instance().familyGroupForEmoji(emoji);
+        auto familyGroup = Dict::instance().familyGroupForEmoji(emoji);
         if (familyGroup.isEmpty()) {
-            familyGroup = EmojiDict::instance().familyGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
+            familyGroup = Dict::instance().familyGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
         }
         if (familyGroup.isEmpty()) {
             return QVariant::fromValue(QList<Emoji>());

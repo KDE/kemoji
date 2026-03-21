@@ -16,14 +16,13 @@
 namespace KEmoji
 {
 class Category;
-}
 
-class KEMOJI_EXPORT EmojiDict : public QObject
+class KEMOJI_EXPORT Dict : public QObject
 {
     Q_OBJECT
 
 public:
-    static EmojiDict &instance();
+    static Dict &instance();
 
     const QList<KEmoji::Emoji> &emojis() const;
     const KEmoji::EmojiGroup &familyGroupForEmoji(const KEmoji::Emoji &emoji) const;
@@ -46,7 +45,7 @@ Q_SIGNALS:
     void favoriteEmojisChanged();
 
 private:
-    explicit EmojiDict(QObject *parent = nullptr);
+    explicit Dict(QObject *parent = nullptr);
 
     QList<KEmoji::Emoji> m_emojis;
     std::unordered_map<QString, KEmoji::EmojiGroup> m_emojiFamilyGroups;
@@ -59,3 +58,5 @@ private:
 
     void initialize();
 };
+
+}

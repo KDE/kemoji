@@ -13,7 +13,7 @@ set_target_properties(KEmoji PROPERTIES
 
 target_sources(KEmoji PRIVATE
     emoji.cpp
-    emojidict.cpp
+    dict.cpp
     category.cpp
     tones.h
     emojimodel.cpp
@@ -48,7 +48,7 @@ target_link_libraries(KEmoji PRIVATE
 
 ecm_generate_headers(KEmoji_HEADERS
   HEADER_NAMES
-    EmojiDict
+    Dict
     EmojiModel
     EmojiFilterModel
     EmojiCategoryModel

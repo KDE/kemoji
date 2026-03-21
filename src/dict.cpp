@@ -5,7 +5,7 @@
     SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#include "emojidict.h"
+#include "dict.h"
 
 #include <QFile>
 #include <QLocale>
@@ -26,25 +26,25 @@ using namespace KEmoji;
 constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
 constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
 
-EmojiDict::EmojiDict(QObject *parent)
+Dict::Dict(QObject *parent)
     : QObject(parent)
 {
     load();
     initialize();
 }
 
-EmojiDict &EmojiDict::instance()
+Dict &Dict::instance()
 {
-    static EmojiDict _instance;
+    static Dict _instance;
     return _instance;
 }
 
-const QList<Emoji> &EmojiDict::emojis() const
+const QList<Emoji> &Dict::emojis() const
 {
     return m_emojis;
 }
 
-const KEmoji::EmojiGroup &EmojiDict::familyGroupForEmoji(const KEmoji::Emoji &emoji) const
+const KEmoji::EmojiGroup &Dict::familyGroupForEmoji(const KEmoji::Emoji &emoji) const
 {
     if (!m_emojiFamilyGroups.contains(emoji.toString(Qt::RichText))) {
         return emptyGroup;
@@ -52,12 +52,12 @@ const KEmoji::EmojiGroup &EmojiDict::familyGroupForEmoji(const KEmoji::Emoji &em
     return m_emojiFamilyGroups.at(emoji.toString(Qt::RichText));
 }
 
-const QList<Category> &EmojiDict::categories() const
+const QList<Category> &Dict::categories() const
 {
     return m_categories;
 }
 
-const QList<KEmoji::Emoji> EmojiDict::emojisForCategory(KEmoji::Category category) const
+const QList<KEmoji::Emoji> Dict::emojisForCategory(KEmoji::Category category) const
 {
     QList<Emoji> emojis;
     std::copy_if(m_emojis.begin(), m_emojis.end(), std::back_inserter(emojis), [category](Emoji emoji) {
@@ -66,22 +66,22 @@ const QList<KEmoji::Emoji> EmojiDict::emojisForCategory(KEmoji::Category categor
     return emojis;
 }
 
-const QList<KEmoji::Emoji> &EmojiDict::recentEmojis() const
+const QList<KEmoji::Emoji> &Dict::recentEmojis() const
 {
     return m_recentEmojis;
 }
 
-int EmojiDict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
+int Dict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
     return m_recentEmojis.indexOf(emoji);
 }
 
-const QList<KEmoji::FavoriteEmoji> &EmojiDict::favoriteEmojis() const
+const QList<KEmoji::FavoriteEmoji> &Dict::favoriteEmojis() const
 {
     return m_favouriteEmojis;
 }
 
-int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
+int Dict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 {
     auto index = m_favouriteEmojis.indexOf(emoji);
     if (index == -1) {
@@ -90,7 +90,7 @@ int EmojiDict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
     return m_favouriteEmojis[index].timesUsed;
 }
 
-void EmojiDict::load()
+void Dict::load()
 {
     m_emojis.clear();
     m_categories.clear();
@@ -143,7 +143,7 @@ void EmojiDict::load()
     }
 }
 
-void EmojiDict::loadDict(const QString &path)
+void Dict::loadDict(const QString &path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -194,7 +194,7 @@ void EmojiDict::loadDict(const QString &path)
     });
 }
 
-void EmojiDict::initialize()
+void Dict::initialize()
 {
     QSettings settings("KDE"_L1, "KEmoji"_L1);
 
@@ -215,7 +215,7 @@ void EmojiDict::initialize()
     settings.endArray();
 }
 
-void EmojiDict::emojiUsed(const Emoji &emoji)
+void Dict::emojiUsed(const Emoji &emoji)
 {
     if (!m_emojis.contains(emoji)) {
         return;
@@ -258,4 +258,4 @@ void EmojiDict::emojiUsed(const Emoji &emoji)
     Q_EMIT favoriteEmojisChanged();
 }
 
-#include "moc_emojidict.cpp"
+#include "moc_dict.cpp"

@@ -16,7 +16,7 @@
 
 namespace KEmoji
 {
-/**
+/*!
  * \class Emoji
  *
  * \brief A class to represent a single emoji.

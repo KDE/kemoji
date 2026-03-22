@@ -52,6 +52,11 @@ public:
     static Dict &instance();
 
     /*!
+     * \brief Whether the dictionary data has been loaded.
+     */
+    bool loaded() const;
+
+    /*!
      * \brief Return the full list of \c KEmoji::Emoji.
      *
      * The list is returned as a const reference.
@@ -142,6 +147,13 @@ public:
 
 Q_SIGNALS:
     /*!
+     * \brief Emitted whenever loaded changes.
+     *
+     * \sa ::loaded()
+     */
+    void loadedChanged();
+
+    /*!
      * \brief Emitted whenever the list of recent emojis is changed.
      */
     void recentEmojisChanged();
@@ -154,6 +166,9 @@ Q_SIGNALS:
 private:
     explicit Dict(QObject *parent = nullptr);
 
+    void initialize();
+    bool m_loaded = false;
+
     QList<KEmoji::Emoji> m_emojis;
     std::unordered_map<QString, KEmoji::EmojiGroup> m_emojiFamilyGroups;
     QList<KEmoji::Emoji> m_recentEmojis;
@@ -162,8 +177,6 @@ private:
 
     void load();
     void loadDict(const QString &path);
-
-    void initialize();
 };
 
 }

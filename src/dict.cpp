@@ -12,6 +12,7 @@
 #include <QLocale>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QtConcurrentRun>
 
 #include <KLocalizedString>
 #include <qnamespace.h>
@@ -30,7 +31,6 @@ constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
 Dict::Dict(QObject *parent)
     : QObject(parent)
 {
-    load();
     initialize();
 }
 
@@ -38,6 +38,43 @@ Dict &Dict::instance()
 {
     static Dict _instance;
     return _instance;
+}
+
+void Dict::initialize()
+{
+    m_emojis.clear();
+    m_categories.clear();
+    m_categories += categoryDict.value(recentCategoryID);
+    m_categories += categoryDict.value(favoriteCategoryID);
+    m_categories += categoryDict.value(allCategoryID);
+
+    QFuture<void> future = QtConcurrent::run(&Dict::load, this).then([this]() {
+        m_loaded = true;
+        Q_EMIT loadedChanged();
+    });
+
+    QSettings settings("KDE"_L1, "KEmoji"_L1);
+
+    auto size = settings.beginReadArray(RecentEmojiKey);
+    for (qsizetype i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        m_recentEmojis += settings.value("emoji").value<Emoji>();
+    }
+    settings.endArray();
+
+    size = settings.beginReadArray(FavoriteEmojiKey);
+    for (qsizetype i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        const auto emoji = settings.value("emoji").value<Emoji>();
+        const auto timesUsed = settings.value("timesUsed").toInt();
+        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = timesUsed};
+    }
+    settings.endArray();
+}
+
+bool Dict::loaded() const
+{
+    return m_loaded;
 }
 
 const QList<Emoji> &Dict::emojis() const
@@ -93,12 +130,6 @@ int Dict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 
 void Dict::load()
 {
-    m_emojis.clear();
-    m_categories.clear();
-    m_categories += categoryDict.value(recentCategoryID);
-    m_categories += categoryDict.value(favoriteCategoryID);
-    m_categories += categoryDict.value(allCategoryID);
-
     const QHash<QString, QString> specialCases{{QLatin1String{"zh-TW"}, QLatin1String{"zh_Hant"}}, {QLatin1String{"zh-HK"}, QLatin1String{"zh_Hant_HK"}}};
     QLocale locale;
     QStringList dicts;
@@ -198,27 +229,6 @@ void Dict::loadDict(const QString &path)
             m_emojiFamilyGroups[baseIt->toString(Qt::RichText)] = group;
         }
     });
-}
-
-void Dict::initialize()
-{
-    QSettings settings("KDE"_L1, "KEmoji"_L1);
-
-    auto size = settings.beginReadArray(RecentEmojiKey);
-    for (qsizetype i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        m_recentEmojis += settings.value("emoji").value<Emoji>();
-    }
-    settings.endArray();
-
-    size = settings.beginReadArray(FavoriteEmojiKey);
-    for (qsizetype i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        const auto emoji = settings.value("emoji").value<Emoji>();
-        const auto timesUsed = settings.value("timesUsed").toInt();
-        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = timesUsed};
-    }
-    settings.endArray();
 }
 
 void Dict::emojiUsed(const Emoji &emoji)

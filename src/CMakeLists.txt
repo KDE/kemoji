@@ -43,6 +43,7 @@ target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_I
 
 target_link_libraries(KEmoji PRIVATE
     Qt::Core
+    Qt::Concurrent
     KF6::I18n
 )
 

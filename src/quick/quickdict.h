@@ -20,12 +20,13 @@ class KEMOJI_EXPORT QuickDict : public QObject
     QML_NAMED_ELEMENT(Dict)
     QML_SINGLETON
 
-    Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis CONSTANT)
+    Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis NOTIFY emojisChanged)
 
 public:
     QuickDict(QObject *parent = nullptr)
         : QObject(parent)
     {
+        connect(&KEmoji::Dict::instance(), &KEmoji::Dict::loadedChanged, this, &QuickDict::emojisChanged);
     }
 
     const QList<KEmoji::Emoji> &emojis() const
@@ -37,4 +38,7 @@ public:
     {
         KEmoji::Dict::instance().emojiUsed(emoji);
     }
+
+Q_SIGNALS:
+    void emojisChanged();
 };

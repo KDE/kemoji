@@ -81,8 +81,9 @@ Kirigami.ApplicationWindow {
 
         Instantiator {
             id: instantiator
-
-            model: KEmoji.EmojiCategoryModel {}
+            model: KEmoji.EmojiCategoryModel {
+                onModelReset: drawer.actions = []
+            }
             delegate: Kirigami.Action {
                 required property KEmoji.Category category
 

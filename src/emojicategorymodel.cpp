@@ -13,6 +13,10 @@ using namespace Qt::Literals::StringLiterals;
 EmojiCategoryModel::EmojiCategoryModel(QObject *parent)
     : QAbstractListModel(parent)
 {
+    connect(&KEmoji::Dict::instance(), &KEmoji::Dict::loadedChanged, this, [this]() {
+        beginResetModel();
+        endResetModel();
+    });
 }
 
 QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
@@ -39,7 +43,8 @@ QVariant EmojiCategoryModel::data(const QModelIndex &index, int role) const
 
 int EmojiCategoryModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : KEmoji::Dict::instance().categories().size();
+    const auto &dict = KEmoji::Dict::instance();
+    return parent.isValid() ? 0 : dict.categories().size();
 }
 
 QHash<int, QByteArray> EmojiCategoryModel::roleNames() const

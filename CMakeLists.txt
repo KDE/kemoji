@@ -48,7 +48,7 @@ ecm_setup_version(PROJECT
 option(KEMOJI_USE_QML "Build components using Qt6Qml" ON)
 option(KEMOJI_BUILD_EMOJIER "Build components using Qt6Qml" ON)
 
-find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core)
+find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Concurrent)
 
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS I18n)
 

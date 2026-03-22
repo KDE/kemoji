@@ -204,10 +204,14 @@ int EmojiFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QMod
 
 bool EmojiFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    const auto &dict = Dict::instance();
+    const auto source = dynamic_cast<EmojiModel *>(sourceModel());
+    if (!source) {
+        return false;
+    }
+    const auto &group = source->emojis();
     const auto leftEmoji = source_left.data(EmojiModel::EmojiRole).view<Emoji>();
     const auto rightEmoji = source_right.data(EmojiModel::EmojiRole).view<Emoji>();
-    return dict.indexForEmoji(leftEmoji) < dict.indexForEmoji(rightEmoji);
+    return group.indexForEmoji(leftEmoji) < group.indexForEmoji(rightEmoji);
 }
 
 #include "moc_emojifiltermodel.cpp"

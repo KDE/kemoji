@@ -15,7 +15,6 @@
 #include <QtConcurrentRun>
 
 #include <KLocalizedString>
-#include <qnamespace.h>
 
 #include "category.h"
 #include "emoji.h"
@@ -77,17 +76,12 @@ bool Dict::loaded() const
     return m_loaded;
 }
 
-const QList<Emoji> &Dict::emojis() const
+const Group &Dict::emojis() const
 {
-    return m_emojis;
+    return m_completeGroup;
 }
 
-int Dict::indexForEmoji(const KEmoji::Emoji &emoji) const
-{
-    return m_emojiIndicies.at(emoji.toString(Qt::RichText));
-}
-
-const KEmoji::EmojiGroup &Dict::familyGroupForEmoji(const KEmoji::Emoji &emoji) const
+const Group &Dict::familyGroupForEmoji(const Emoji &emoji) const
 {
     if (!m_emojiFamilyGroups.contains(emoji.toString(Qt::RichText))) {
         return emptyGroup;
@@ -202,21 +196,17 @@ void Dict::loadDict(const QString &path)
     QList<Emoji> emojis;
     stream >> emojis;
 
-    if (m_emojis.capacity() < emojis.size()) {
-        m_emojis.reserve(emojis.size());
-    }
-
     std::ranges::for_each(emojis, [this](const Emoji &emoji) {
-        QList<Emoji>::iterator it;
-        if (m_emojis.contains(emoji)) {
-            it = std::find(m_emojis.begin(), m_emojis.end(), emoji);
+        Group::EmojiIt it;
+        if (m_completeGroup.contains(emoji)) {
+            it = *m_completeGroup.m_emojiIts[emoji.toString(Qt::RichText)];
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
             foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
         } else {
-            it = m_emojis.insert(m_emojis.size(), emoji);
-            m_emojiIndicies[emoji.toString(Qt::RichText)] = std::distance(m_emojis.begin(), it);
+            it = m_emojis.insert(m_emojis.end(), emoji);
+            m_completeGroup.add(it);
         }
 
         const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
@@ -225,13 +215,12 @@ void Dict::loadDict(const QString &path)
         }
         if (m_emojiFamilyGroups.contains(tonelessEmoji.toString(Qt::RichText))) {
             auto &group = m_emojiFamilyGroups[tonelessEmoji.toString(Qt::RichText)];
-            auto e = emoji;
-            group += *it;
+            group.add(it);
         } else {
             const auto baseIt = std::find(m_emojis.begin(), m_emojis.end(), tonelessEmoji);
-            EmojiGroup group;
-            group += *baseIt;
-            group += *it;
+            Group group;
+            group.add(baseIt);
+            group.add(it);
             m_emojiFamilyGroups[baseIt->toString(Qt::RichText)] = group;
         }
     });
@@ -239,7 +228,7 @@ void Dict::loadDict(const QString &path)
 
 void Dict::emojiUsed(const Emoji &emoji)
 {
-    if (!m_emojis.contains(emoji)) {
+    if (!m_completeGroup.contains(emoji)) {
         return;
     }
 

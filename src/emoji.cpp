@@ -10,7 +10,6 @@
 #include <QTextBoundaryFinder>
 
 #include <KLazyLocalizedString>
-#include <qnamespace.h>
 
 using namespace KEmoji;
 
@@ -182,30 +181,6 @@ bool Emoji::operator==(const Emoji &right) const
 bool Emoji::operator==(const QString &right) const
 {
     return m_unicode == right || m_unqualifiedUnicode == right;
-}
-
-QList<Emoji> EmojiGroup::filtered(std::function<bool(const Emoji &)> filter) const
-{
-    QList<Emoji> filteredEmojis;
-    if (!filter) {
-        std::ranges::for_each(m_emojiRefs, [&filteredEmojis](EmojiRef emojiRef) {
-            filteredEmojis += emojiRef.get();
-        });
-        return filteredEmojis;
-    }
-
-    std::copy_if(m_emojiRefs.begin(), m_emojiRefs.end(), std::back_inserter(filteredEmojis), filter);
-    return filteredEmojis;
-}
-
-bool EmojiGroup::isEmpty() const
-{
-    return m_emojiRefs.isEmpty();
-}
-
-QList<EmojiRef> &EmojiGroup::operator+=(EmojiRef emojiRef)
-{
-    return m_emojiRefs += emojiRef;
 }
 
 bool FavoriteEmoji::operator==(const FavoriteEmoji &right) const

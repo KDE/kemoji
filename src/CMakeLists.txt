@@ -14,6 +14,7 @@ set_target_properties(KEmoji PROPERTIES
 target_sources(KEmoji PRIVATE
     emoji.cpp
     dict.cpp
+    group.cpp
     category.cpp
     tones.h
     emojimodel.cpp

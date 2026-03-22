@@ -194,39 +194,6 @@ private:
     QString m_category;
 };
 
-using EmojiRef = std::reference_wrapper<Emoji>;
-
-/**
- * \class EmojiGroup
- *
- * \brief A class to represent a group of emojis.
- *
- * Emojis can be grouped for any reason but a common example would be supporting the
- * relationship between an emoji and its tones.
- */
-class KEMOJI_EXPORT EmojiGroup
-{
-public:
-    /*!
-     * \brief Return a filtered list of the emojis.
-     *
-     * If no valid filter is set a list containing all emojis is returned.
-     */
-    QList<Emoji> filtered(std::function<bool(const Emoji &)> filter = {}) const;
-
-    /*!
-     * \brief Whether the \c KEmoji::EmojiGroup is empty.
-     */
-    bool isEmpty() const;
-
-    QList<EmojiRef> &operator+=(EmojiRef emojiRef);
-
-private:
-    QList<EmojiRef> m_emojiRefs;
-};
-
-static EmojiGroup emptyGroup;
-
 struct FavoriteEmoji {
     Emoji emoji;
     int timesUsed;

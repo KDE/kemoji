@@ -9,7 +9,7 @@
 #include <QAbstractListModel>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "emoji.h"
+#include "group.h"
 #include "kemoji_export.h"
 
 class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
@@ -17,7 +17,7 @@ class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
     Q_OBJECT
     QML_ELEMENT
 
-    Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis WRITE setEmojis NOTIFY emojisChanged)
+    Q_PROPERTY(KEmoji::Group emojis READ emojis WRITE setEmojis NOTIFY emojisChanged)
 
 public:
     enum RoleNames {
@@ -29,8 +29,8 @@ public:
 
     explicit EmojiModel(QObject *parent = nullptr);
 
-    QList<KEmoji::Emoji> emojis() const;
-    void setEmojis(const QList<KEmoji::Emoji> &emojis);
+    const KEmoji::Group &emojis() const;
+    void setEmojis(const KEmoji::Group &emojis);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -42,5 +42,5 @@ Q_SIGNALS:
     void emojisChanged();
 
 private:
-    QList<KEmoji::Emoji> m_emojis;
+    KEmoji::Group m_emojis;
 };

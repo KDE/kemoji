@@ -8,6 +8,7 @@
 
 #include "dict.h"
 #include "emoji.h"
+#include "group.h"
 #include "tones.h"
 
 using namespace KEmoji;
@@ -17,12 +18,12 @@ EmojiModel::EmojiModel(QObject *parent)
 {
 }
 
-QList<KEmoji::Emoji> EmojiModel::emojis() const
+const KEmoji::Group &EmojiModel::emojis() const
 {
     return m_emojis;
 }
 
-void EmojiModel::setEmojis(const QList<KEmoji::Emoji> &emojis)
+void EmojiModel::setEmojis(const KEmoji::Group &emojis)
 {
     if (emojis == m_emojis) {
         return;
@@ -42,7 +43,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return {};
     }
 
-    const auto &emoji = m_emojis[index.row()];
+    const auto &emoji = m_emojis.at(index.row());
     switch (role) {
     case EmojiRole:
         return QVariant::fromValue(emoji);
@@ -56,7 +57,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
             familyGroup = Dict::instance().familyGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
         }
         if (familyGroup.isEmpty()) {
-            return QVariant::fromValue(QList<Emoji>());
+            return QVariant::fromValue(emptyGroup);
         }
         return QVariant::fromValue(familyGroup.filtered([emoji](const Emoji &familyEmoji) {
             return emoji != familyEmoji;
@@ -69,7 +70,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
 
 int EmojiModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_emojis.length();
+    return parent.isValid() ? 0 : m_emojis.size();
 }
 
 QHash<int, QByteArray> EmojiModel::roleNames() const

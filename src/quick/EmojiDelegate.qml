@@ -15,7 +15,7 @@ QQC2.ItemDelegate {
     id: root
 
     required property KEmoji.emoji emoji
-    required property list<KEmoji.emoji> subEmojis
+    required property KEmoji.group subEmojis
     property alias emojiPixelSize: innerLabel.font.pixelSize
     property bool showSubEmojis: true
 
@@ -46,7 +46,7 @@ QQC2.ItemDelegate {
         Kirigami.Icon {
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            visible: root.subEmojis.length > 0 && root.showSubEmojis
+            visible: root.subEmojis.size > 0 && root.showSubEmojis
             width: Kirigami.Units.gridUnit * 0.5
             height: Kirigami.Units.gridUnit * 0.5
             source: "arrow-down-symbolic"

@@ -5,7 +5,9 @@
 #include <QObject>
 #include <QTest>
 
+#include "dict.h"
 #include "emojimodel.h"
+#include "group.h"
 
 using namespace KEmoji;
 
@@ -25,13 +27,28 @@ void EmojiModelTest::populate()
 
     QCOMPARE(model->rowCount(), 0);
 
-    model->setEmojis({u"😀"_s, u"🤚🏿"_s, u"🧠"_s, u"🫱🏼‍🫲🏿"_s, u"⚽"_s});
+    std::list<Emoji> emojis{u"😀"_s, u"🤚🏿"_s, u"🧠"_s, u"🫱🏼‍🫲🏿"_s, u"⚽"_s};
+    Group group;
+    auto it = emojis.begin();
+    while (it != emojis.end()) {
+        group.add(it);
+        ++it;
+    }
+
+    Group handSubGroup = Dict::instance().familyGroupForEmoji(u"🤚"_s).filtered([](const Emoji &familyEmoji) {
+        return familyEmoji != u"🤚🏿"_s;
+    });
+    Group shakeSubGroup = Dict::instance().familyGroupForEmoji(u"🤝"_s).filtered([](const Emoji &familyEmoji) {
+        return familyEmoji != u"🫱🏼‍🫲🏿"_s;
+    });
+
+    model->setEmojis(group);
     QCOMPARE(model->rowCount(), 5);
-    QCOMPARE(model->data(model->index(0), EmojiModel::EmojiRole).view<Emoji>(), u"😀"_s);
-    QCOMPARE(model->data(model->index(1), EmojiModel::EmojiRole).view<Emoji>(), u"🤚🏿"_s);
-    QCOMPARE(model->data(model->index(2), EmojiModel::EmojiRole).view<Emoji>(), u"🧠"_s);
-    QCOMPARE(model->data(model->index(3), EmojiModel::EmojiRole).view<Emoji>(), u"🫱🏼‍🫲🏿"_s);
-    QCOMPARE(model->data(model->index(4), EmojiModel::EmojiRole).view<Emoji>(), u"⚽"_s);
+    QCOMPARE(model->data(model->index(0), EmojiModel::EmojiRole).value<Emoji>(), u"😀"_s);
+    QCOMPARE(model->data(model->index(1), EmojiModel::EmojiRole).value<Emoji>(), u"🤚🏿"_s);
+    QCOMPARE(model->data(model->index(2), EmojiModel::EmojiRole).value<Emoji>(), u"🧠"_s);
+    QCOMPARE(model->data(model->index(3), EmojiModel::EmojiRole).value<Emoji>(), u"🫱🏼‍🫲🏿"_s);
+    QCOMPARE(model->data(model->index(4), EmojiModel::EmojiRole).value<Emoji>(), u"⚽"_s);
     QCOMPARE(model->data(model->index(0), EmojiModel::RecentIndexRole).toInt(), -1);
     QCOMPARE(model->data(model->index(1), EmojiModel::RecentIndexRole).toInt(), -1);
     QCOMPARE(model->data(model->index(2), EmojiModel::RecentIndexRole).toInt(), -1);
@@ -42,37 +59,11 @@ void EmojiModelTest::populate()
     QCOMPARE(model->data(model->index(2), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(3), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(4), EmojiModel::TimesUsedRole).toInt(), 0);
-    QCOMPARE(model->data(model->index(0), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
-    QCOMPARE(model->data(model->index(1), EmojiModel::SubEmojisRole).value<QList<Emoji>>(),
-             QList<Emoji>({u"🤚"_s, u"🤚🏻"_s, u"🤚🏼"_s, u"🤚🏽"_s, u"🤚🏾"_s}));
-    QCOMPARE(model->data(model->index(2), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
-    QCOMPARE(model->data(model->index(3), EmojiModel::SubEmojisRole).value<QList<Emoji>>(),
-             QList<Emoji>({u"🤝"_s,
-                           u"🤝🏻"_s,
-                           u"🤝🏼"_s,
-                           u"🤝🏽"_s,
-                           u"🤝🏾"_s,
-                           u"🤝🏿"_s,
-                           u"🫱🏻‍🫲🏼"_s,
-                           u"🫱🏻‍🫲🏽"_s,
-                           u"🫱🏻‍🫲🏾"_s,
-                           u"🫱🏻‍🫲🏿"_s,
-                           u"🫱🏼‍🫲🏻"_s,
-                           u"🫱🏼‍🫲🏽"_s,
-                           u"🫱🏼‍🫲🏾"_s,
-                           u"🫱🏽‍🫲🏻"_s,
-                           u"🫱🏽‍🫲🏼"_s,
-                           u"🫱🏽‍🫲🏾"_s,
-                           u"🫱🏽‍🫲🏿"_s,
-                           u"🫱🏾‍🫲🏻"_s,
-                           u"🫱🏾‍🫲🏼"_s,
-                           u"🫱🏾‍🫲🏽"_s,
-                           u"🫱🏾‍🫲🏿"_s,
-                           u"🫱🏿‍🫲🏻"_s,
-                           u"🫱🏿‍🫲🏼"_s,
-                           u"🫱🏿‍🫲🏽"_s,
-                           u"🫱🏿‍🫲🏾"_s}));
-    QCOMPARE(model->data(model->index(4), EmojiModel::SubEmojisRole).value<QList<Emoji>>(), QList<Emoji>());
+    QCOMPARE(model->data(model->index(0), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
+    QCOMPARE(model->data(model->index(1), EmojiModel::SubEmojisRole).value<Group>(), handSubGroup);
+    QCOMPARE(model->data(model->index(2), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
+    QCOMPARE(model->data(model->index(3), EmojiModel::SubEmojisRole).value<Group>(), shakeSubGroup);
+    QCOMPARE(model->data(model->index(4), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
 }
 
 QTEST_GUILESS_MAIN(EmojiModelTest)

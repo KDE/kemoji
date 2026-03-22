@@ -9,7 +9,6 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "emoji.h"
 #include "kemoji_export.h"
 
 #include "dict.h"
@@ -20,7 +19,7 @@ class KEMOJI_EXPORT QuickDict : public QObject
     QML_NAMED_ELEMENT(Dict)
     QML_SINGLETON
 
-    Q_PROPERTY(QList<KEmoji::Emoji> emojis READ emojis NOTIFY emojisChanged)
+    Q_PROPERTY(KEmoji::Group emojis READ emojis NOTIFY emojisChanged)
 
 public:
     QuickDict(QObject *parent = nullptr)
@@ -29,7 +28,7 @@ public:
         connect(&KEmoji::Dict::instance(), &KEmoji::Dict::loadedChanged, this, &QuickDict::emojisChanged);
     }
 
-    const QList<KEmoji::Emoji> &emojis() const
+    const KEmoji::Group &emojis() const
     {
         return KEmoji::Dict::instance().emojis();
     }

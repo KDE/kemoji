@@ -12,6 +12,7 @@
 #include "kemoji_export.h"
 
 #include "emoji.h"
+#include "group.h"
 
 namespace KEmoji
 {
@@ -65,17 +66,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    const QList<KEmoji::Emoji> &emojis() const;
-
-    /*!
-     * \brief Return the index of \c KEmoji::Emoji in the main list.
-     *
-     * This function is much faster than \c ::emojis().indexOf(emoji) as it draws
-     * from a map based cache.
-     *
-     * \sa KEmoji::Emoji, ::emojis()
-     */
-    int indexForEmoji(const KEmoji::Emoji &emoji) const;
+    const Group &emojis() const;
 
     /*!
      * \brief Return the \c KEmoji::EmojiGroup for the given \c KEmoji::Emoji.
@@ -88,7 +79,7 @@ public:
      *
      * \sa KEmoji::Emoji, KEmoji::EmojiGroup
      */
-    const KEmoji::EmojiGroup &familyGroupForEmoji(const KEmoji::Emoji &emoji) const;
+    const Group &familyGroupForEmoji(const KEmoji::Emoji &emoji) const;
 
     /*!
      * \brief Return the full list of \c KEmoji::Category in use.
@@ -179,9 +170,9 @@ private:
     void initialize();
     bool m_loaded = false;
 
-    QList<KEmoji::Emoji> m_emojis;
-    std::unordered_map<QString, int> m_emojiIndicies;
-    std::unordered_map<QString, KEmoji::EmojiGroup> m_emojiFamilyGroups;
+    std::list<KEmoji::Emoji> m_emojis;
+    KEmoji::Group m_completeGroup;
+    std::unordered_map<QString, KEmoji::Group> m_emojiFamilyGroups;
     QList<KEmoji::Emoji> m_recentEmojis;
     QList<KEmoji::FavoriteEmoji> m_favouriteEmojis;
     QList<KEmoji::Category> m_categories;

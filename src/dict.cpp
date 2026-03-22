@@ -82,6 +82,11 @@ const QList<Emoji> &Dict::emojis() const
     return m_emojis;
 }
 
+int Dict::indexForEmoji(const KEmoji::Emoji &emoji) const
+{
+    return m_emojiIndicies.at(emoji.toString(Qt::RichText));
+}
+
 const KEmoji::EmojiGroup &Dict::familyGroupForEmoji(const KEmoji::Emoji &emoji) const
 {
     if (!m_emojiFamilyGroups.contains(emoji.toString(Qt::RichText))) {
@@ -211,6 +216,7 @@ void Dict::loadDict(const QString &path)
             foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
         } else {
             it = m_emojis.insert(m_emojis.size(), emoji);
+            m_emojiIndicies[emoji.toString(Qt::RichText)] = std::distance(m_emojis.begin(), it);
         }
 
         const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);

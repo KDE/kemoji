@@ -62,4 +62,5 @@ private:
     int exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
     int isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
     int isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    bool sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
 };

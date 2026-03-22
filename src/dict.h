@@ -68,6 +68,16 @@ public:
     const QList<KEmoji::Emoji> &emojis() const;
 
     /*!
+     * \brief Return the index of \c KEmoji::Emoji in the main list.
+     *
+     * This function is much faster than \c ::emojis().indexOf(emoji) as it draws
+     * from a map based cache.
+     *
+     * \sa KEmoji::Emoji, ::emojis()
+     */
+    int indexForEmoji(const KEmoji::Emoji &emoji) const;
+
+    /*!
      * \brief Return the \c KEmoji::EmojiGroup for the given \c KEmoji::Emoji.
      *
      * If the given emoji has no group an empty group will be returned.
@@ -170,6 +180,7 @@ private:
     bool m_loaded = false;
 
     QList<KEmoji::Emoji> m_emojis;
+    std::unordered_map<QString, int> m_emojiIndicies;
     std::unordered_map<QString, KEmoji::EmojiGroup> m_emojiFamilyGroups;
     QList<KEmoji::Emoji> m_recentEmojis;
     QList<KEmoji::FavoriteEmoji> m_favouriteEmojis;

@@ -9,6 +9,7 @@
 #include "category.h"
 #include "dict.h"
 #include "emojimodel.h"
+#include "tones.h"
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -62,7 +63,8 @@ void EmojiFilterModel::setCurrentCategory(const KEmoji::Category &category)
         return;
     }
     m_currentCategory = category;
-    invalidate();
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
     Q_EMIT categoryChanged();
 }
 
@@ -109,7 +111,7 @@ bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelInde
         return result > 0;
     }
 
-    return false;
+    return sourceIndexLessThan(source_left, source_right);
 }
 
 bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -131,8 +133,10 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
 
     searchFilter = nameContainsSearch(idx);
 
-    const auto tones = Tones::tonesForEmoji(idx.data(EmojiModel::EmojiRole).view<Emoji>());
-    toneFilter = tones.length() == 1 && tones.contains(m_defaultTone);
+    const auto emoji = idx.data(EmojiModel::EmojiRole).view<Emoji>();
+    const auto tones = Tones::tonesForEmoji(emoji);
+    const auto family = Dict::instance().familyGroupForEmoji(emoji);
+    toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_defaultTone));
 
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == recentCategoryID || m_currentCategory == favoriteCategoryID);
 }
@@ -196,6 +200,14 @@ int EmojiFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QMod
     const auto leftMatch = source_left.data(EmojiModel::TimesUsedRole).toInt();
     const auto rightMatch = source_right.data(EmojiModel::TimesUsedRole).toInt();
     return leftMatch == rightMatch ? 0 : leftMatch > rightMatch ? 1 : -1;
+}
+
+bool EmojiFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    const auto &dict = Dict::instance();
+    const auto leftEmoji = source_left.data(EmojiModel::EmojiRole).view<Emoji>();
+    const auto rightEmoji = source_right.data(EmojiModel::EmojiRole).view<Emoji>();
+    return dict.indexForEmoji(leftEmoji) < dict.indexForEmoji(rightEmoji);
 }
 
 #include "moc_emojifiltermodel.cpp"

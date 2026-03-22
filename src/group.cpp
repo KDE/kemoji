@@ -27,7 +27,7 @@ qsizetype Group::indexForEmoji(const Emoji &emoji) const
     return m_emojiIts.at(emoji.toString(Qt::RichText)) - m_emojiRefs.begin();
 }
 
-bool Group::contains(const Emoji &emoji)
+bool Group::contains(const Emoji &emoji) const
 {
     return m_emojiIts.contains(emoji.toString(Qt::RichText));
 }

@@ -68,12 +68,12 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    bool contains(const Emoji &emoji);
+    bool contains(const Emoji &emoji) const;
 
     qsizetype size() const;
 
     /*!
-     * \brief Return a filtered list of the emojis.
+     * \brief Return a group with the emojis filtered by \c filter.
      *
      * If no valid filter is set a list containing all emojis is returned.
      */

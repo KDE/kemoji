@@ -9,7 +9,8 @@
 #include <QHash>
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
-#include <qcontainerfwd.h>
+
+#include <KLocalizedString>
 
 #include "emoji.h"
 #include "kemoji_export.h"

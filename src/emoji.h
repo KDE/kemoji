@@ -85,14 +85,14 @@ public:
           const QString &unqualifiedUnicode,
           const QString &name,
           const QStringList &altNames,
-          const QString &category,
+          Category::Categories category,
           const QString &fallbackName = {});
     Emoji(const QUrl &image);
     Emoji(const QUrl &image,
           const QString &unqualifiedUnicode,
           const QString &name,
           const QStringList &altNames,
-          const QString &category,
+          Category::Categories category,
           const QString &fallbackName = {});
 
     QString unicode() const;
@@ -191,7 +191,7 @@ private:
     QString m_name;
     QString m_fallbackName;
     QStringList m_altNames;
-    QString m_category;
+    Category::Categories m_category;
 };
 
 struct FavoriteEmoji {

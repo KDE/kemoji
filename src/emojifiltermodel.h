@@ -35,7 +35,7 @@ public:
     void setSearchText(const QString &searchText);
 
     KEmoji::Category currentCategory() const;
-    Q_INVOKABLE void setCurrentCategory(const QString &category);
+    Q_INVOKABLE void setCurrentCategory(KEmoji::Category::Categories category);
     void setCurrentCategory(const KEmoji::Category &category);
 
     KEmoji::Tones::Tone defaultTone() const;

@@ -5,6 +5,7 @@
  */
 
 #include "emoji.h"
+#include "category.h"
 
 #include <QMimeDatabase>
 #include <QTextBoundaryFinder>
@@ -19,6 +20,7 @@ const QString _invalidUnicode = u"�"_s;
 };
 
 Emoji::Emoji(const QString &unicode)
+    : m_category(Category::None)
 {
     setUnicode(unicode);
 }
@@ -27,7 +29,7 @@ Emoji::Emoji(const QString &unicode,
              const QString &unqualifiedUnicode,
              const QString &name,
              const QStringList &altNames,
-             const QString &category,
+             Category::Categories category,
              const QString &fallbackName)
     : m_unqualifiedUnicode(unqualifiedUnicode)
     , m_name(name)
@@ -39,6 +41,7 @@ Emoji::Emoji(const QString &unicode,
 }
 
 Emoji::Emoji(const QUrl &source)
+    : m_category(Category::None)
 {
     setSource(source);
 }
@@ -47,7 +50,7 @@ Emoji::Emoji(const QUrl &source,
              const QString &unqualifiedUnicode,
              const QString &name,
              const QStringList &altNames,
-             const QString &category,
+             Category::Categories category,
              const QString &fallbackName)
     : m_unqualifiedUnicode(unqualifiedUnicode)
     , m_name(name)
@@ -156,10 +159,7 @@ QStringList Emoji::altNames() const
 
 Category Emoji::category() const
 {
-    if (!categoryDict.contains(m_category)) {
-        return emptyCategory;
-    }
-    return categoryDict.value(m_category);
+    return Category(m_category);
 }
 
 QString Emoji::toString(Qt::TextFormat textFormat) const
@@ -195,30 +195,23 @@ bool FavoriteEmoji::operator==(const Emoji &right) const
 
 QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji)
 {
-    stream << emoji.unicode().toUtf8() << emoji.unqualifiedUnicode().toUtf8() << emoji.name().toUtf8() << emoji.category().name().toUtf8();
+    stream << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << (qint32)emoji.category().id();
     for (const auto &name : emoji.altNames()) {
-        stream << name.toUtf8();
+        stream << name;
     }
     return stream;
 }
 
 QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
 {
-    QByteArray buffer;
-    stream >> buffer;
-    const auto unicode = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto unqualifiedUnicode = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto name = QString::fromUtf8(buffer);
-    stream >> buffer;
-    const auto category = QString::fromUtf8(buffer);
-    QList<QByteArray> annotationBuffers;
-    stream >> annotationBuffers;
+    QString unicode;
+    QString unqualifiedUnicode;
+    QString name;
+    qint32 categoryInt;
+    stream >> unicode >> unqualifiedUnicode >> name >> categoryInt;
+    const auto category = static_cast<Category::Categories>(categoryInt);
     QStringList altNames;
-    for (const auto &annotation : annotationBuffers) {
-        altNames << QString::fromUtf8(annotation);
-    }
+    stream >> altNames;
     emoji = Emoji(unicode, unqualifiedUnicode, name, altNames, category);
     return stream;
 }

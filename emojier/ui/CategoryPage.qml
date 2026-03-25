@@ -37,7 +37,7 @@ Kirigami.ScrollablePage {
             model = emoji
             searchText += /[\x00-\x1F\x7F]/.test(event.text) ? "" : event.text
             text: i18nc("@title:page All emojis", "All")
-            root.model.currentCategoryId = ""
+            root.model.currentCategoryId = KEmoji.category.All
         }
     }
 
@@ -77,8 +77,8 @@ Kirigami.ScrollablePage {
 
                 // If nothing was found, try again with all emojis
                 if (emojiGrid.currentIndex < 0) {
-                    if (root.model.currentCategoryId != "all") {
-                        root.model.currentCategoryId = "all";
+                    if (root.model.currentCategoryId != KEmoji.category.All) {
+                        root.model.currentCategoryId = KEmoji.category.All;
                     }
                 }
             }
@@ -123,7 +123,7 @@ Kirigami.ScrollablePage {
             }
 
             down: pressed || skinToneMenu.visible
-            visible: emojiGrid.model.currentCategory.id === "all" || emojiGrid.model.currentCategory.id === "peopleAndBody"
+            visible: emojiGrid.model.currentCategory.id === KEmoji.category.All || emojiGrid.model.currentCategory.id === KEmoji.category.People
 
             Accessible.name: label
             Accessible.role: Accessible.ButtonMenu

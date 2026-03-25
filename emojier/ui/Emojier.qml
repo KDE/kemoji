@@ -85,7 +85,7 @@ Kirigami.ApplicationWindow {
                 onModelReset: drawer.actions = []
             }
             delegate: Kirigami.Action {
-                required property KEmoji.Category category
+                required property KEmoji.category category
 
                 checked: categoryPage.model.currentCategory.id === category.id
                 text: i18ndc("org.kde.plasma.emojier", "Emoji Category", category.name)
@@ -101,14 +101,14 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        categoryPage.model.setCurrentCategory("recent");
+        categoryPage.model.setCurrentCategory(KEmoji.category.Recent);
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory("favorite");
+        categoryPage.model.setCurrentCategory(KEmoji.category.Favorite);
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory("all");
+        categoryPage.model.setCurrentCategory(KEmoji.category.All);
     }
 }

@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: LGPL-2.0-or-later
 #
 from dataclasses import dataclass
+from enum import Enum
 import collections
 import requests
 import io
@@ -13,7 +14,35 @@ import zipfile
 import os
 import glob
 import xml.dom.minidom
-from PyQt5.QtCore import QFile, QDataStream, QByteArray, QIODevice, qCompress
+from PySide6.QtCore import QFile, QDataStream, QByteArray, QIODevice, qCompress
+
+class Categories(Enum):
+    No = 0
+    All = 1
+    Recent = 2
+    Favorite = 3
+    Smileys = 4
+    People = 5
+    Animals = 6
+    Food = 7
+    Travel = 8
+    Activities = 9
+    Objects = 10
+    Symbols = 11
+    Flags =12
+
+categoryNames = {
+    b"Smileys & Emotion": Categories.Smileys.value,
+    b"People & Body": Categories.People.value,
+    b"Animals & Nature": Categories.Animals.value,
+    b"Food & Drink": Categories.Food.value,
+    b"Travel & Places": Categories.Travel.value,
+    b"Activities": Categories.Activities.value,
+    b"Objects": Categories.Objects.value,
+    b"Symbols": Categories.Symbols.value,
+    b"Flags": Categories.Flags.value,
+    b"Component": Categories.No.value,
+}
 
 EMOJI_VERSION = "16.0"
 EMOJI_TEST_FILE = "emoji-test.txt"
@@ -25,9 +54,6 @@ CLDR_URL = f"https://unicode.org/Public/cldr/{CLDR_VERSION.split('.')[0]}/{CLDR_
 CLDR_ANNOTATIONS_DIR = "common/annotations"
 CLDR_ANNOTATIONS_DERIVED_DIR = "common/annotationsDerived"
 
-def toCamelCase(string):
-    parts = string.replace(b" & ", b" and ").replace(b".", b"").split(b" ")
-    return parts[0].lower() + b"".join(word.capitalize() for word in parts[1:])
 
 def partsFromEmojiLine(line):
     segments = line.split(b";")
@@ -64,12 +90,12 @@ class EmojiParser(object):
 
     def parseEmojiTest(self, emojiTestData):
         nameMapping = dict()
-        currentCategory = b"";
+        currentCategory = Categories.No;
         GROUP_TAG = b"# group: "
         for line in emojiTestData.split(b"\n"):
             line = line.strip()
             if line.startswith(GROUP_TAG):
-                currentCategory = toCamelCase(line[len(GROUP_TAG):])
+                currentCategory = categoryNames[line[len(GROUP_TAG):]]
                 continue
 
             if line.startswith(b"#"):
@@ -160,19 +186,17 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
 
         buf = QByteArray()
         stream = QDataStream(buf, QIODevice.WriteOnly)
-        stream.setVersion(QDataStream.Qt_5_15)
-        stream.setByteOrder(QDataStream.LittleEndian)
         stream.writeUInt32(len(filtered_emojis))
         for unicode, emoji in filtered_emojis:
-            stream << QByteArray(unicode.encode("utf-8"))
-            stream << QByteArray(emoji.unqualifiedUnicode.encode("utf-8"))
+            stream.writeQString(unicode)
+            stream.writeQString(emoji.unqualifiedUnicode)
             annotation = annotations[unicode]
-            stream << QByteArray(annotation.name.encode("utf-8"))
-            stream << QByteArray(emoji.category)
+            stream.writeQString(annotation.name)
+            stream.writeInt32(emoji.category)
             # Write QList<QByteArray>
             stream.writeUInt32(len(annotation.altNames))
             for item in annotation.altNames:
-                stream << QByteArray(item.encode("utf-8"))
+                stream.writeQString(item)
         compressed = qCompress(buf)
         dictfile.write(compressed)
         dictfile.close()

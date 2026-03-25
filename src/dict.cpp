@@ -43,9 +43,9 @@ void Dict::initialize()
 {
     m_emojis.clear();
     m_categories.clear();
-    m_categories += categoryDict.value(recentCategoryID);
-    m_categories += categoryDict.value(favoriteCategoryID);
-    m_categories += categoryDict.value(allCategoryID);
+    m_categories += Category(Category::Recent);
+    m_categories += Category(Category::Favorite);
+    m_categories += Category(Category::All);
 
     QFuture<void> future = QtConcurrent::run(&Dict::load, this).then([this]() {
         m_loaded = true;
@@ -188,11 +188,6 @@ void Dict::loadDict(const QString &path)
     auto buffer = file.readAll();
     buffer = qUncompress(buffer);
     QDataStream stream(&buffer, QIODevice::ReadOnly);
-    // We use a fixed version to keep it binary compatible.
-    // Also we do not use advanced data type so it does not matter.
-    stream.setVersion(QDataStream::Qt_5_15);
-    // Explicitly set endianness to ensure it's not relevant to architecture.
-    stream.setByteOrder(QDataStream::LittleEndian);
     QList<Emoji> emojis;
     stream >> emojis;
 
@@ -203,7 +198,7 @@ void Dict::loadDict(const QString &path)
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
-            foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().name(), fallbackName);
+            foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().id(), fallbackName);
         } else {
             it = m_emojis.insert(m_emojis.end(), emoji);
             m_completeGroup.add(it);

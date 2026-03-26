@@ -28,7 +28,7 @@ namespace KEmoji
  * than 1 emoji or adding other character will result in the input being rejected
  * and the Emoji being invalid.
  *
- * A custom emoji is specified by a URL to a local file (remote files are rejected).
+ * A custom emoji is specified by a name and URL to a local file (remote files are rejected).
  * The \c Emoji::toString() method will then produce a string with an \c <img> tag with
  * the hRef set to the local URL if the textFormat is set to \c Qt::TextFormat::RichText.
  *
@@ -59,41 +59,49 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QUrl source READ source)
 
     /*!
-     * \brief The name of the emoji.
+     * \brief The name of the \c KEmoji::Emoji.
+     *
+     * Empty if \c KEmoji::Emoji::isValid() is \c false.
      */
     Q_PROPERTY(QString name READ name)
 
     /*!
-     * \brief The fallback name of the emoji.
+     * \brief The fallback name of the \c KEmoji::Emoji.
+     *
+     * Empty if \c KEmoji::Emoji::isValid() is \c false.
      */
     Q_PROPERTY(QString fallbackName READ fallbackName)
 
     /*!
-     * \brief The list of alternate names for the emoji.
+     * \brief The alternate names of the \c KEmoji::Emoji.
+     *
+     * Empty if \c KEmoji::Emoji::isValid() is \c false.
+     *
+     * Typically used when searching for emojis.
      */
     Q_PROPERTY(QStringList altNames READ altNames)
 
     /*!
-     * \brief The category of the emoji.
+     * \brief The \c KEmoji::Category of the \c KEmoji::Emoji.
+     *
+     * Empty if \c KEmoji::Emoji::isValid() is \c false.
      */
     Q_PROPERTY(Category category READ category)
 
 public:
     Emoji() = default;
-    Emoji(const QString &unicode);
-    Emoji(const QString &unicode,
-          const QString &unqualifiedUnicode,
-          const QString &name,
-          const QStringList &altNames,
-          Category::Categories category,
-          const QString &fallbackName = {});
-    Emoji(const QUrl &image);
-    Emoji(const QUrl &image,
-          const QString &unqualifiedUnicode,
-          const QString &name,
-          const QStringList &altNames,
-          Category::Categories category,
-          const QString &fallbackName = {});
+    Emoji(const QString &unicodeOrCustomName);
+
+    /*!
+     * \brief The ID to reference this \c KEmoji::Emoji by.
+     *
+     * This will be the unicode string for a unicode emoji and the name string for
+     * a custom emoji.
+     *
+     * This is mostly useful as a key for storing the \c KEmoji::Emoji in a map type
+     * container.
+     */
+    QString id() const;
 
     QString unicode() const;
 
@@ -110,16 +118,34 @@ public:
     QUrl source() const;
 
     /*!
-     * \brief Set the source \c QUrl for the custom emoji.
+     * \brief Register a custom emoji.
      *
-     * If this emoji was previously using a unicode representation this will be overridden.
+     * The source \c QUrl and name must be registered before they will be recognized.
      *
-     * If the given \c QUrl is not valid and a local file the \c KEmoji::Emoji will
-     * be invalidated.
+     * \param source The \c QUrl of the image containing the custom emoji. This must
+     * be a local file.
+     * \param name The name of the custom emoji as a \c QString.
+     *
+     * \warning Custom Emojis must not share a name with any existing emoji. If they do
+     * there will be a clash and anytime the name is set of the unicode emoji it will
+     * be overridden by the custom version.
      */
-    void setSource(const QUrl &source);
+    static bool registerCustomEmoji(const QUrl &source, const QString &name);
+
+    /*!
+     * \brief Unregister a custom emoji.
+     *
+     * If the given name is a registered custom emoji it is removed from the list and
+     * can no longer be used.
+     *
+     * \warning All existing custom emojis with the unregistered name will still
+     * be valid as they are populated the protections only exist on \c KEmoji::Emoji
+     * creation. The user must manage existing custom emoji instances.
+     */
+    static bool unregisterCustomEmoji(const QString &name);
 
     QString unqualifiedUnicode() const;
+    void setUnqualifiedUnicode(const QString &unqualifiedUnicode);
 
     /*!
      * \brief Whether the \c KEmoji::Emoji is valid.
@@ -139,35 +165,40 @@ public:
      */
     bool isCustom() const;
 
-    /*!
-     * \brief The name of the \c KEmoji::Emoji.
-     *
-     * Empty if \c KEmoji::Emoji::isValid() is \c false.
-     */
     QString name() const;
 
     /*!
-     * \brief The fallback name of the \c KEmoji::Emoji.
+     * \brief Set the name for the emoji.
      *
-     * Empty if \c KEmoji::Emoji::isValid() is \c false.
+     * If this is the name of a custom emoji the emoji will converted to that custom
+     * emoji.
      */
+    void setName(const QString &name);
+
     QString fallbackName() const;
 
     /*!
-     * \brief The alternate names of the \c KEmoji::Emoji.
-     *
-     * Empty if \c KEmoji::Emoji::isValid() is \c false.
-     *
-     * Typically used when searching for emojis.
+     * \brief Set the fallback name for the emoji.
      */
+    void setFallbackName(const QString &fallbackName);
+
     QStringList altNames() const;
 
     /*!
-     * \brief The \c KEmoji::Category of the \c KEmoji::Emoji.
+     * \brief Set the alternative names for the emoji.
      *
-     * Empty if \c KEmoji::Emoji::isValid() is \c false.
+     * Typically used to help with searching.
      */
+    void setAltNames(const QStringList &altNames);
+
     Category category() const;
+
+    /*!
+     * \brief Set the \c Category::Categories for the emoji.
+     *
+     * \sa Category::Categories
+     */
+    void setCategory(Category::Categories category);
 
     /*!
      * \brief Return a string representation that can be added to a text component.
@@ -186,6 +217,10 @@ public:
 private:
     QString m_unicode;
     QUrl m_source;
+
+    static bool validSource(const QUrl &source);
+    static QHash<QString, QUrl> readCustomEmojis();
+    static void writeCustomEmojis(const QHash<QString, QUrl> &customEmojis);
 
     QString m_unqualifiedUnicode;
     QString m_name;

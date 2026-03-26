@@ -8,57 +8,37 @@
 #include "category.h"
 
 #include <QMimeDatabase>
+#include <QSettings>
 #include <QTextBoundaryFinder>
 
 #include <KLazyLocalizedString>
+#include <qcoreapplication.h>
 
 using namespace KEmoji;
 
 namespace
 {
 const QString _invalidUnicode = u"�"_s;
+constexpr inline auto CustomEmojiKey = "customEmojis"_L1;
 };
 
-Emoji::Emoji(const QString &unicode)
+Emoji::Emoji(const QString &unicodeOrCustomName)
     : m_category(Category::None)
 {
-    setUnicode(unicode);
+    setUnicode(unicodeOrCustomName);
+
+    if (!isValid()) {
+        const auto customEmojis = readCustomEmojis();
+        if (customEmojis.contains(unicodeOrCustomName)) {
+            m_name = unicodeOrCustomName;
+            m_source = customEmojis[unicodeOrCustomName];
+        }
+    }
 }
 
-Emoji::Emoji(const QString &unicode,
-             const QString &unqualifiedUnicode,
-             const QString &name,
-             const QStringList &altNames,
-             Category::Categories category,
-             const QString &fallbackName)
-    : m_unqualifiedUnicode(unqualifiedUnicode)
-    , m_name(name)
-    , m_fallbackName(fallbackName)
-    , m_altNames(altNames)
-    , m_category(category)
+QString Emoji::id() const
 {
-    setUnicode(unicode);
-}
-
-Emoji::Emoji(const QUrl &source)
-    : m_category(Category::None)
-{
-    setSource(source);
-}
-
-Emoji::Emoji(const QUrl &source,
-             const QString &unqualifiedUnicode,
-             const QString &name,
-             const QStringList &altNames,
-             Category::Categories category,
-             const QString &fallbackName)
-    : m_unqualifiedUnicode(unqualifiedUnicode)
-    , m_name(name)
-    , m_fallbackName(fallbackName)
-    , m_altNames(altNames)
-    , m_category(category)
-{
-    setSource(source);
+    return isCustom() ? m_name : m_unicode;
 }
 
 QString Emoji::unicode() const
@@ -80,7 +60,7 @@ void Emoji::setUnicode(const QString &unicode)
     qsizetype nextBoundary = finder.toNextBoundary();
     if (nextBoundary == -1) {
         // If here the string is empty.
-        m_unicode = _invalidUnicode;
+        m_unicode.clear();
         m_source.clear();
         return;
     }
@@ -100,31 +80,85 @@ QUrl Emoji::source() const
     return m_source;
 }
 
-void Emoji::setSource(const QUrl &source)
+bool Emoji::validSource(const QUrl &source)
 {
-    if (!m_unicode.isEmpty()) {
-        m_unicode.clear();
-    }
-
     if (!source.isValid() || !source.isLocalFile()) {
-        m_unicode.clear();
-        m_source.clear();
-        return;
+        return false;
     }
     QMimeDatabase db;
     QMimeType mime = db.mimeTypeForUrl(source);
     if (!mime.isValid() || !mime.name().contains(u"image"_s)) {
-        m_unicode.clear();
-        m_source.clear();
-        return;
+        return false;
     }
 
-    m_source = source;
+    return true;
+}
+
+QHash<QString, QUrl> Emoji::readCustomEmojis()
+{
+    QHash<QString, QUrl> customEmojis;
+    QSettings settings("KDE"_L1, "KEmoji"_L1);
+    auto size = settings.beginReadArray("%1-%2"_L1.arg(CustomEmojiKey, QCoreApplication::applicationName()));
+    for (qsizetype i = 0; i < size; ++i) {
+        settings.setArrayIndex(i);
+        customEmojis[settings.value("name").toString()] = settings.value("source").toUrl();
+    }
+    settings.endArray();
+    return customEmojis;
+}
+
+void Emoji::writeCustomEmojis(const QHash<QString, QUrl> &customEmojis)
+{
+    QSettings settings("KDE"_L1, "KEmoji"_L1);
+    const auto setting = "%1-%2"_L1.arg(CustomEmojiKey, QCoreApplication::applicationName());
+    settings.remove(setting);
+    settings.beginWriteArray(setting);
+    for (qsizetype i = 0; i < customEmojis.size(); ++i) {
+        settings.setArrayIndex(i);
+        settings.setValue("name", customEmojis.keys()[i]);
+        settings.setValue("source", customEmojis[customEmojis.keys()[i]]);
+    }
+    settings.endArray();
+}
+
+bool Emoji::registerCustomEmoji(const QUrl &source, const QString &name)
+{
+    if (!validSource(source) || name.isEmpty()) {
+        return false;
+    }
+
+    auto customEmojis = readCustomEmojis();
+    if (customEmojis.contains(name) && customEmojis[name] == source) {
+        return true;
+    }
+    customEmojis[name] = source;
+    writeCustomEmojis(customEmojis);
+    return true;
+}
+
+bool Emoji::unregisterCustomEmoji(const QString &name)
+{
+    if (name.isEmpty()) {
+        return false;
+    }
+
+    auto customEmojis = readCustomEmojis();
+    if (!customEmojis.contains(name)) {
+        return false;
+    }
+    customEmojis.remove(name);
+    writeCustomEmojis(customEmojis);
+    return true;
 }
 
 QString Emoji::unqualifiedUnicode() const
 {
     return m_unqualifiedUnicode;
+}
+
+void Emoji::setUnqualifiedUnicode(const QString &unqualifiedUnicode)
+{
+    m_unqualifiedUnicode = unqualifiedUnicode;
 }
 
 bool Emoji::isValid() const
@@ -147,9 +181,30 @@ QString Emoji::name() const
     return m_name;
 }
 
+void Emoji::setName(const QString &name)
+{
+    if (name == m_name) {
+        return;
+    }
+    // If this is a custom emoji name set the source and clear any unicode out.
+    const auto customEmojis = readCustomEmojis();
+    if (customEmojis.contains(name)) {
+        m_source = customEmojis[name];
+        m_unicode.clear();
+    }
+
+    m_name = name;
+    return;
+}
+
 QString Emoji::fallbackName() const
 {
     return m_fallbackName;
+}
+
+void Emoji::setFallbackName(const QString &fallbackName)
+{
+    m_fallbackName = fallbackName;
 }
 
 QStringList Emoji::altNames() const
@@ -157,9 +212,19 @@ QStringList Emoji::altNames() const
     return m_altNames;
 }
 
+void Emoji::setAltNames(const QStringList &altNames)
+{
+    m_altNames = altNames;
+}
+
 Category Emoji::category() const
 {
     return Category(m_category);
+}
+
+void Emoji::setCategory(Category::Categories category)
+{
+    m_category = category;
 }
 
 QString Emoji::toString(Qt::TextFormat textFormat) const
@@ -212,7 +277,16 @@ QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
     const auto category = static_cast<Category::Categories>(categoryInt);
     QStringList altNames;
     stream >> altNames;
-    emoji = Emoji(unicode, unqualifiedUnicode, name, altNames, category);
+
+    emoji = Emoji(unicode);
+    if (!emoji.isValid()) {
+        return stream;
+    }
+
+    emoji.setUnqualifiedUnicode(unqualifiedUnicode);
+    emoji.setName(name);
+    emoji.setAltNames(altNames);
+    emoji.setCategory(category);
     return stream;
 }
 

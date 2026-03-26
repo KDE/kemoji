@@ -24,8 +24,11 @@
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
 
+namespace
+{
 constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
 constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
+}
 
 Dict::Dict(QObject *parent)
     : QObject(parent)
@@ -198,7 +201,8 @@ void Dict::loadDict(const QString &path)
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
-            foundEmoji = Emoji(emoji.unicode(), emoji.unqualifiedUnicode(), emoji.name(), emoji.altNames(), emoji.category().id(), fallbackName);
+            foundEmoji = emoji;
+            foundEmoji.setFallbackName(fallbackName);
         } else {
             it = m_emojis.insert(m_emojis.end(), emoji);
             m_completeGroup.add(it);

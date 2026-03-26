@@ -21,6 +21,11 @@ Category::Categories Category::id() const
     return m_id;
 }
 
+void Category::setId(Categories id)
+{
+    m_id = id;
+}
+
 QString Category::name() const
 {
     switch (m_id) {

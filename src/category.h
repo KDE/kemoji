@@ -55,6 +55,7 @@ public:
         All,
         Recent,
         Favorite,
+        Custom,
         Smileys,
         People,
         Animals,

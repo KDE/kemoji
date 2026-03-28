@@ -30,6 +30,9 @@
 #include <QSessionManager>
 
 #include "kemoji_version.h"
+#include "settings.h"
+
+using namespace Qt::Literals::StringLiterals;
 
 int main(int argc, char **argv)
 {
@@ -95,6 +98,8 @@ int main(int argc, char **argv)
             w->raise();
         }
     });
+
+    KEmoji::Settings::instance().registerCustomEmoji(QUrl::fromLocalFile(u"/home/jgraham/kde/src/kemoji/autotests/data/360px-Mascot_konqi.png"_s), u"Konqi"_s);
 
     return app.exec();
 }

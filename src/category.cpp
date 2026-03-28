@@ -35,6 +35,8 @@ QString Category::name() const
         return i18nc("Emoji Category", "Recent");
     case Favorite:
         return i18nc("Emoji Category", "Favorite");
+    case Custom:
+        return i18nc("Emoji Category", "Custom");
     case Smileys:
         return i18nc("Emoji Category", "Smileys and Emotion");
     case People:
@@ -67,6 +69,8 @@ QString Category::iconName() const
         return "document-open-recent-symbolic"_L1;
     case Favorite:
         return "favorite"_L1;
+    case Custom:
+        return "edit-image"_L1;
     case Smileys:
         return "smiley"_L1;
     case People:

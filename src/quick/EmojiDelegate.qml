@@ -4,6 +4,8 @@
  *  SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls as QQC2
 
@@ -16,7 +18,7 @@ QQC2.ItemDelegate {
 
     required property KEmoji.emoji emoji
     required property KEmoji.group subEmojis
-    property alias emojiPixelSize: innerLabel.font.pixelSize
+    property int emojiPixelSize
     property bool showSubEmojis: true
 
     signal rightClicked
@@ -35,13 +37,8 @@ QQC2.ItemDelegate {
         font.pixelSize: root.emojiPixelSize
     }
 
-    contentItem: QQC2.Label {
-        id: innerLabel
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
-        text: root.emoji.toString(Qt.RichText)
-        textFormat: Text.PlainText
+    contentItem: Loader {
+        sourceComponent: root.emoji.category.id === KEmoji.category.Custom ? innerImage : innerLabel
 
         Kirigami.Icon {
             anchors.bottom: parent.bottom
@@ -50,6 +47,28 @@ QQC2.ItemDelegate {
             width: Kirigami.Units.gridUnit * 0.5
             height: Kirigami.Units.gridUnit * 0.5
             source: "arrow-down-symbolic"
+        }
+    }
+
+    Component {
+        id: innerLabel
+        QQC2.Label {
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
+            font.pixelSize: root.emojiPixelSize
+            text: root.emoji.unicode
+            textFormat: Text.PlainText
+        }
+    }
+
+    Component {
+        id: innerImage
+        Image {
+            fillMode: Image.PreserveAspectFit
+            horizontalAlignment: Image.AlignHCenter
+            verticalAlignment: Image.AlignVCenter
+            source: root.emoji.source
         }
     }
 

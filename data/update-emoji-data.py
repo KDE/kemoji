@@ -21,15 +21,16 @@ class Categories(Enum):
     All = 1
     Recent = 2
     Favorite = 3
-    Smileys = 4
-    People = 5
-    Animals = 6
-    Food = 7
-    Travel = 8
-    Activities = 9
-    Objects = 10
-    Symbols = 11
-    Flags =12
+    Custom = 4
+    Smileys = 5
+    People = 6
+    Animals = 7
+    Food = 8
+    Travel = 9
+    Activities = 10
+    Objects = 11
+    Symbols = 12
+    Flags =13
 
 categoryNames = {
     b"Smileys & Emotion": Categories.Smileys.value,

@@ -179,6 +179,7 @@ private:
 
     void load();
     void loadDict(const QString &path);
+    void loadCustom();
 };
 
 }

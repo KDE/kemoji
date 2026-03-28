@@ -15,10 +15,13 @@
 #include <QtConcurrentRun>
 
 #include <KLocalizedString>
+#include <algorithm>
 
 #include "category.h"
 #include "emoji.h"
+#include "group.h"
 #include "kemoji_logging.h"
+#include "settings.h"
 #include "tones.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -49,6 +52,9 @@ void Dict::initialize()
     m_categories += Category(Category::Recent);
     m_categories += Category(Category::Favorite);
     m_categories += Category(Category::All);
+    m_categories += Category(Category::Custom);
+
+    loadCustom();
 
     QFuture<void> future = QtConcurrent::run(&Dict::load, this).then([this]() {
         m_loaded = true;
@@ -225,6 +231,16 @@ void Dict::loadDict(const QString &path)
     });
 }
 
+void Dict::loadCustom()
+{
+    const auto customEmojis = Settings::instance().customEmojis().keys();
+    std::ranges::for_each(customEmojis, [this](const QString &name) {
+        Group::EmojiIt it = m_emojis.insert(m_emojis.end(), name);
+        it->setCategory(Category::Custom);
+        m_completeGroup.add(it);
+    });
+}
+
 void Dict::emojiUsed(const Emoji &emoji)
 {
     if (!m_completeGroup.contains(emoji)) {
@@ -239,6 +255,8 @@ void Dict::emojiUsed(const Emoji &emoji)
     } else {
         m_recentEmojis.prepend(emoji);
     }
+
+    qWarning() << emoji << m_recentEmojis;
 
     settings.beginWriteArray(RecentEmojiKey);
     for (qsizetype i = 0; i < m_recentEmojis.size(); ++i) {

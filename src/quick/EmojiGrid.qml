@@ -44,7 +44,7 @@ GridView {
         onClicked: root.clicked(emojiDelegate.emoji)
         onRightClicked: root.rightClicked(emojiDelegate.emoji)
         onPressAndHold: {
-            if (emojiDelegate.subEmojis.length <= 0) {
+            if (emojiDelegate.subEmojis.size <= 0) {
                 return;
             }
             let subPopup = Qt.createComponent('org.kde.kemoji', 'SubEmojiPopup').createObject(emojiDelegate, {

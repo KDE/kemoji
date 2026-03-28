@@ -7,6 +7,7 @@
 #include "emoji.h"
 
 #include "category.h"
+#include "settings.h"
 
 using namespace KEmoji;
 
@@ -23,7 +24,9 @@ private Q_SLOTS:
     void empty();
     void unicodeTest();
     void customTest();
-    void registerCustomTest();
+    void equalityTest();
+
+    void cleanupTestCase();
 };
 
 void EmojiTest::empty()
@@ -99,7 +102,7 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"�"_s);
 
-    const auto registered = Emoji::registerCustomEmoji(customImageFile, customEmojiName);
+    const auto registered = Settings::instance().registerCustomEmoji(customImageFile, customEmojiName);
     QCOMPARE(registered, true);
     emoji.setName(customEmojiName);
 
@@ -115,9 +118,9 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.altNames(), QStringList());
     QCOMPARE(emoji.category(), Category());
     QCOMPARE(emoji.toString(), u"�"_s);
-    QCOMPARE(emoji.toString(Qt::RichText), u"<img title=\"Konqi\" src=\"%1\">"_s.arg(customImageFile.toString()));
+    QCOMPARE(emoji.toString(Qt::RichText), u"<img title=\"Konqi\" src=\"%1\" />"_s.arg(customImageFile.toString()));
 
-    const auto unregistered = Emoji::unregisterCustomEmoji(customEmojiName);
+    const auto unregistered = Settings::instance().unregisterCustomEmoji(customEmojiName);
     QCOMPARE(unregistered, true);
 
     // The unregistered emoji should now be invalid.
@@ -125,19 +128,26 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.isValid(), false);
 }
 
-void EmojiTest::registerCustomTest()
+void EmojiTest::equalityTest()
 {
-    auto registered = Emoji::registerCustomEmoji(customImageFile, customEmojiName);
+    auto emoji1 = Emoji(u"😀"_s);
+    auto emoji2 = Emoji(u"😀"_s);
+    QCOMPARE(emoji1 == emoji2, true);
+
+    emoji2 = Emoji(u"🤠"_s);
+    QCOMPARE(emoji1 == emoji2, false);
+
+    const auto registered = Settings::instance().registerCustomEmoji(customImageFile, customEmojiName);
     QCOMPARE(registered, true);
+    emoji1 = Emoji(customEmojiName);
+    emoji2 = Emoji(customEmojiName);
+    QCOMPARE(emoji1 == emoji2, true);
+}
 
-    auto unregistered = Emoji::unregisterCustomEmoji(customEmojiName);
-    QCOMPARE(unregistered, true);
-
-    registered = Emoji::registerCustomEmoji(localTextFile, customEmojiName);
-    QCOMPARE(registered, false);
-
-    registered = Emoji::registerCustomEmoji(QUrl(u"https://kde.org"_s), customEmojiName);
-    QCOMPARE(registered, false);
+void EmojiTest::cleanupTestCase()
+{
+    // If a test fails the custom emoji may end up still registered.
+    Settings::instance().unregisterCustomEmoji(customEmojiName);
 }
 
 QTEST_GUILESS_MAIN(EmojiTest)

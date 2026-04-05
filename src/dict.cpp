@@ -12,7 +12,7 @@
 #include <QLocale>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <KLocalizedString>
 #include <algorithm>
@@ -26,12 +26,6 @@
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
-
-namespace
-{
-constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
-constexpr inline auto FavoriteEmojiKey = "favoriteEmojis"_L1;
-}
 
 Dict::Dict(QObject *parent)
     : QObject(parent)
@@ -54,30 +48,15 @@ void Dict::initialize()
     m_categories += Category(Category::All);
     m_categories += Category(Category::Custom);
 
+    connect(&Settings::instance(), &Settings::recentEmojisChanged, this, &Dict::recentEmojisChanged);
+    connect(&Settings::instance(), &Settings::favoriteEmojisChanged, this, &Dict::favoriteEmojisChanged);
+
     loadCustom();
 
     QFuture<void> future = QtConcurrent::run(&Dict::load, this).then([this]() {
         m_loaded = true;
         Q_EMIT loadedChanged();
     });
-
-    QSettings settings("KDE"_L1, "KEmoji"_L1);
-
-    auto size = settings.beginReadArray(RecentEmojiKey);
-    for (qsizetype i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        m_recentEmojis += settings.value("emoji").value<Emoji>();
-    }
-    settings.endArray();
-
-    size = settings.beginReadArray(FavoriteEmojiKey);
-    for (qsizetype i = 0; i < size; ++i) {
-        settings.setArrayIndex(i);
-        const auto emoji = settings.value("emoji").value<Emoji>();
-        const auto timesUsed = settings.value("timesUsed").toInt();
-        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = timesUsed};
-    }
-    settings.endArray();
 }
 
 bool Dict::loaded() const
@@ -112,28 +91,14 @@ const QList<KEmoji::Emoji> Dict::emojisForCategory(KEmoji::Category category) co
     return emojis;
 }
 
-const QList<KEmoji::Emoji> &Dict::recentEmojis() const
-{
-    return m_recentEmojis;
-}
-
 int Dict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
-    return m_recentEmojis.indexOf(emoji);
-}
-
-const QList<KEmoji::FavoriteEmoji> &Dict::favoriteEmojis() const
-{
-    return m_favouriteEmojis;
+    return Settings::instance().recentIndex(emoji.id());
 }
 
 int Dict::timesEmojiUsed(const KEmoji::Emoji &emoji) const
 {
-    auto index = m_favouriteEmojis.indexOf(emoji);
-    if (index == -1) {
-        return 0;
-    }
-    return m_favouriteEmojis[index].timesUsed;
+    return Settings::instance().timesUsed(emoji.id());
 }
 
 void Dict::load()
@@ -247,43 +212,7 @@ void Dict::emojiUsed(const Emoji &emoji)
         return;
     }
 
-    QSettings settings("KDE"_L1, "KEmoji"_L1);
-
-    const auto recentIndex = m_recentEmojis.indexOf(emoji);
-    if (recentIndex >= 0) {
-        m_recentEmojis.move(recentIndex, 0);
-    } else {
-        m_recentEmojis.prepend(emoji);
-    }
-
-    qWarning() << emoji << m_recentEmojis;
-
-    settings.beginWriteArray(RecentEmojiKey);
-    for (qsizetype i = 0; i < m_recentEmojis.size(); ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue("emoji", QVariant::fromValue(m_recentEmojis[i]));
-    }
-    settings.endArray();
-
-    const auto favoriteIndex = m_favouriteEmojis.indexOf(emoji);
-    if (favoriteIndex >= 0) {
-        ++m_favouriteEmojis[favoriteIndex].timesUsed;
-    } else {
-        m_favouriteEmojis += FavoriteEmoji{.emoji = emoji, .timesUsed = 1};
-    }
-
-    settings.beginWriteArray(FavoriteEmojiKey);
-    for (qsizetype i = 0; i < m_favouriteEmojis.size(); ++i) {
-        settings.setArrayIndex(i);
-        settings.setValue("emoji", QVariant::fromValue(m_favouriteEmojis[i].emoji));
-        settings.setValue("timesUsed", m_favouriteEmojis[i].timesUsed);
-    }
-    settings.endArray();
-
-    settings.sync();
-
-    Q_EMIT recentEmojisChanged();
-    Q_EMIT favoriteEmojisChanged();
+    Settings::instance().emojiUsed(emoji.id());
 }
 
 #include "moc_dict.cpp"

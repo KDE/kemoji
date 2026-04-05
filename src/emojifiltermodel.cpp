@@ -59,8 +59,7 @@ void EmojiFilterModel::setCurrentCategory(const KEmoji::Category &category)
         return;
     }
     m_currentCategory = category;
-    beginFilterChange();
-    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+    invalidate();
     Q_EMIT categoryChanged();
 }
 

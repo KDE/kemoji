@@ -14,12 +14,58 @@
 
 namespace KEmoji
 {
+/*!
+ * \class Settings
+ *
+ * \brief A class to manage the \c KEmoji settings.
+ *
+ * This currently supports recent, favorite and custom emojis.
+ */
 class KEMOJI_EXPORT Settings : public QObject
 {
     Q_OBJECT
 
 public:
     static Settings &instance();
+
+    /*!
+     * \brief Tell the settings the emoji represented by the given string has been used.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    void emojiUsed(const QString &emoji);
+
+    /*!
+     * \brief Whether the emoji represented by the given string is a recent emoji.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    bool isRecent(const QString &emoji) const;
+
+    /*!
+     * \brief The index for the emoji represented by the given string in the list of recent emojis.
+     *
+     * Where 0 is the most recent and increasing indices are older. Returns -1 if
+     * the emoji is not in the recent emoji list.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    int recentIndex(const QString &emoji) const;
+
+    /*!
+     * \brief The number of times the emoji represented by the given string has been used.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    int timesUsed(const QString &emoji) const;
 
     /*!
      * \brief Register a custom emoji.
@@ -48,6 +94,9 @@ public:
      */
     bool unregisterCustomEmoji(const QString &name);
 
+    /*!
+     * \brief Return a list of registered custom emojis.
+     */
     const QHash<QString, QUrl> &customEmojis() const;
 
     /*!
@@ -62,8 +111,23 @@ public:
      */
     QUrl customEmojiSource(const QString &name) const;
 
+Q_SIGNALS:
+    /*!
+     * \brief Emitted whenever the list of recent emojis is changed.
+     */
+    void recentEmojisChanged();
+
+    /*!
+     * \brief Emitted whenever the list of favorite emojis is changed.
+     */
+    void favoriteEmojisChanged();
+
 private:
     explicit Settings(QObject *parent = nullptr);
+    void initialize();
+
+    QStringList m_recent;
+    QHash<QString, int> m_timesUsed;
 
     QHash<QString, QUrl> m_customEmojis;
 

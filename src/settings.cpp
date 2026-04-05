@@ -15,19 +15,73 @@ using namespace KEmoji;
 
 namespace
 {
+constexpr inline auto OrganizationKey = "KDE"_L1;
+constexpr inline auto KEmojiKey = "KEmoji"_L1;
+constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
 constexpr inline auto CustomEmojiKey = "customEmojis"_L1;
 };
 
 Settings::Settings(QObject *parent)
     : QObject(parent)
 {
-    m_customEmojis = readCustomEmojis();
+    initialize();
 }
 
 Settings &Settings::instance()
 {
     static Settings _instance;
     return _instance;
+}
+
+void Settings::initialize()
+{
+    m_customEmojis = readCustomEmojis();
+
+    QSettings settings(OrganizationKey, KEmojiKey);
+    m_recent = settings.value(RecentEmojiKey).toStringList();
+
+    std::ranges::for_each(m_recent, [this](const QString &emoji) {
+        if (m_timesUsed.contains(emoji)) {
+            ++m_timesUsed[emoji];
+            return;
+        }
+        m_timesUsed[emoji] = 1;
+    });
+
+    Q_EMIT recentEmojisChanged();
+    Q_EMIT favoriteEmojisChanged();
+}
+
+void Settings::emojiUsed(const QString &emoji)
+{
+    QSettings settings(OrganizationKey, KEmojiKey);
+    m_recent.prepend(emoji);
+    settings.setValue(RecentEmojiKey, m_recent);
+    settings.sync();
+
+    if (m_timesUsed.contains(emoji)) {
+        ++m_timesUsed[emoji];
+    } else {
+        m_timesUsed[emoji] = 1;
+    }
+
+    Q_EMIT recentEmojisChanged();
+    Q_EMIT favoriteEmojisChanged();
+}
+
+bool Settings::isRecent(const QString &emoji) const
+{
+    return m_recent.contains(emoji);
+}
+
+int Settings::recentIndex(const QString &emoji) const
+{
+    return m_recent.indexOf(emoji);
+}
+
+int Settings::timesUsed(const QString &emoji) const
+{
+    return m_timesUsed.value(emoji, 0);
 }
 
 bool Settings::validSource(const QUrl &source)

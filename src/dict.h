@@ -98,13 +98,6 @@ public:
     const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Category category) const;
 
     /*!
-     * \brief Return a list of recent \c KEmoji::Emoji.
-     *
-     * \sa KEmoji::Emoji
-     */
-    const QList<KEmoji::Emoji> &recentEmojis() const;
-
-    /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the recent emojis list.
      *
      * Will return -1 if the \c KEmoiji::Emoji is not in the recent emojis list.
@@ -112,16 +105,6 @@ public:
      * \sa KEmoji::Emoji
      */
     int recentEmojiIndex(const KEmoji::Emoji &emoji) const;
-
-    /*!
-     * \brief Return a list of favorite \c KEmoji::FavoriteEmoji.
-     *
-     * The \c KEmoji::FavoriteEmoji struct contains both the \c KEmoji::Emoji and
-     * the number of times it has been used.
-     *
-     * \sa KEmoji::FavoriteEmoji, KEmoji::Emoji
-     */
-    const QList<KEmoji::FavoriteEmoji> &favoriteEmojis() const;
 
     /*!
      * \brief Return the number of times the given \c KEmoji::Emoji has been used.
@@ -173,8 +156,6 @@ private:
     std::list<KEmoji::Emoji> m_emojis;
     KEmoji::Group m_completeGroup;
     std::unordered_map<QString, KEmoji::Group> m_emojiFamilyGroups;
-    QList<KEmoji::Emoji> m_recentEmojis;
-    QList<KEmoji::FavoriteEmoji> m_favouriteEmojis;
     QList<KEmoji::Category> m_categories;
 
     void load();

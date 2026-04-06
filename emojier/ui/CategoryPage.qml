@@ -22,7 +22,12 @@ Kirigami.ScrollablePage {
     property string searchText: ""
     property bool showClearHistoryButton: false
 
-    title: model.currentCategory.name
+    title: helper.name
+
+    KEmoji.CategoryHelper {
+        id: helper
+        category: emojiGrid.model.currentCategory
+    }
 
     leftPadding: undefined
     rightPadding: undefined

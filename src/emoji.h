@@ -86,7 +86,7 @@ class KEMOJI_EXPORT Emoji
      *
      * Empty if \c KEmoji::Emoji::isValid() is \c false.
      */
-    Q_PROPERTY(KEmoji::Category category READ category)
+    Q_PROPERTY(KEmoji::Categories::Category category READ category)
 
 public:
     Emoji() = default;
@@ -164,14 +164,14 @@ public:
      */
     void setAltNames(const QStringList &altNames);
 
-    Category category() const;
+    Categories::Category category() const;
 
     /*!
-     * \brief Set the \c Category::Categories for the emoji.
+     * \brief Set the \c Categories::Category for the emoji.
      *
-     * \sa Category::Categories
+     * \sa Categories::Category
      */
-    void setCategory(Category::Categories category);
+    void setCategory(Categories::Category category);
 
     /*!
      * \brief Return a string representation that can be added to a text component.
@@ -194,7 +194,7 @@ private:
     QString m_name;
     QString m_fallbackName;
     QStringList m_altNames;
-    Category::Categories m_category;
+    Categories::Category m_category;
 };
 
 struct FavoriteEmoji {

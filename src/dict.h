@@ -16,8 +16,6 @@
 
 namespace KEmoji
 {
-class Category;
-
 /*!
  * \class Dict
  *
@@ -82,20 +80,20 @@ public:
     const Group &familyGroupForEmoji(const KEmoji::Emoji &emoji) const;
 
     /*!
-     * \brief Return the full list of \c KEmoji::Category in use.
+     * \brief Return the full list of \c KEmoji::Categories::Category in use.
      *
      * The list represents all the categories currently available.
      *
-     * \sa KEmoji::Category
+     * \sa KEmoji::Categories::Category
      */
-    const QList<KEmoji::Category> &categories() const;
+    const QList<KEmoji::Categories::Category> &categories() const;
 
     /*!
-     * \brief Return a list of \c KEmoji::Emoji for the given \c KEmoji::Category.
+     * \brief Return a list of \c KEmoji::Emoji for the given \c KEmoji::Categories::Category.
      *
-     * \sa KEmoji::Emoji, KEmoji::Category
+     * \sa KEmoji::Emoji, KEmoji::Categories::Category
      */
-    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Category category) const;
+    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Categories::Category category) const;
 
     /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the recent emojis list.
@@ -156,7 +154,7 @@ private:
     std::list<KEmoji::Emoji> m_emojis;
     KEmoji::Group m_completeGroup;
     std::unordered_map<QString, KEmoji::Group> m_emojiFamilyGroups;
-    QList<KEmoji::Category> m_categories;
+    QList<KEmoji::Categories::Category> m_categories;
 
     void load();
     void loadDict(const QString &path);

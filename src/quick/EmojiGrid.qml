@@ -63,7 +63,7 @@ GridView {
     Kirigami.PlaceholderMessage {
         anchors.centerIn: parent
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
-        text: categoryFilterModel.currentCategory.id === KEmoji.category.Recent ? i18n("No recent Emojis") : i18n("No favorite Emojis")
-        visible: root.count === 0 && (categoryFilterModel.currentCategory.id === KEmoji.category.Recent || categoryFilterModel.currentCategory.id === KEmoji.category.Favorite)
+        text: categoryFilterModel.currentCategory === KEmoji.Categories.Recent ? i18n("No recent Emojis") : i18n("No favorite Emojis")
+        visible: root.count === 0 && (categoryFilterModel.currentCategory === KEmoji.Categories.Recent || categoryFilterModel.currentCategory === KEmoji.Categories.Favorite)
     }
 }

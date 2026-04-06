@@ -21,7 +21,7 @@ const QString _invalidUnicode = u"�"_s;
 };
 
 Emoji::Emoji(const QString &unicodeOrCustomName)
-    : m_category(Category::None)
+    : m_category(Categories::None)
 {
     setUnicode(unicodeOrCustomName);
 
@@ -139,12 +139,12 @@ void Emoji::setAltNames(const QStringList &altNames)
     m_altNames = altNames;
 }
 
-Category Emoji::category() const
+Categories::Category Emoji::category() const
 {
-    return Category(m_category);
+    return m_category;
 }
 
-void Emoji::setCategory(Category::Categories category)
+void Emoji::setCategory(Categories::Category category)
 {
     m_category = category;
 }
@@ -182,7 +182,7 @@ bool FavoriteEmoji::operator==(const Emoji &right) const
 
 QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji)
 {
-    stream << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << (qint32)emoji.category().id();
+    stream << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << (qint32)emoji.category();
     for (const auto &name : emoji.altNames()) {
         stream << name;
     }
@@ -196,7 +196,7 @@ QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
     QString name;
     qint32 categoryInt;
     stream >> unicode >> unqualifiedUnicode >> name >> categoryInt;
-    const auto category = static_cast<Category::Categories>(categoryInt);
+    const auto category = static_cast<Categories::Category>(categoryInt);
     QStringList altNames;
     stream >> altNames;
 

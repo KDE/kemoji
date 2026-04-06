@@ -22,7 +22,7 @@ class KEMOJI_EXPORT EmojiFilterModel : public QSortFilterProxyModel
 
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
-    Q_PROPERTY(KEmoji::Category currentCategory READ currentCategory WRITE setCurrentCategory NOTIFY categoryChanged)
+    Q_PROPERTY(KEmoji::Categories::Category currentCategory READ currentCategory WRITE setCurrentCategory NOTIFY categoryChanged)
 
     Q_PROPERTY(KEmoji::Tones::Tone defaultTone READ defaultTone WRITE setDefaultTone NOTIFY defaultToneChanged)
 
@@ -34,9 +34,8 @@ public:
     QString searchText() const;
     void setSearchText(const QString &searchText);
 
-    KEmoji::Category currentCategory() const;
-    Q_INVOKABLE void setCurrentCategory(KEmoji::Category::Categories category);
-    void setCurrentCategory(const KEmoji::Category &category);
+    KEmoji::Categories::Category currentCategory() const;
+    Q_INVOKABLE void setCurrentCategory(KEmoji::Categories::Category category);
 
     KEmoji::Tones::Tone defaultTone() const;
     QString defaultToneUnicode() const;
@@ -54,7 +53,7 @@ Q_SIGNALS:
 private:
     QString m_searchText = {};
 
-    KEmoji::Category m_currentCategory;
+    KEmoji::Categories::Category m_currentCategory;
     KEmoji::Tones::Tone m_defaultTone = KEmoji::Tones::Neutral;
 
     bool nameContainsSearch(const QModelIndex &index) const;

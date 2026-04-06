@@ -43,7 +43,7 @@ void EmojiTest::empty()
     QCOMPARE(emoji.name(), QString());
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Category());
+    QCOMPARE(emoji.category(), Categories::None);
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"�"_s);
 }
@@ -62,7 +62,7 @@ void EmojiTest::unicodeTest()
     QCOMPARE(emoji.name(), QString());
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Category());
+    QCOMPARE(emoji.category(), Categories::None);
     QCOMPARE(emoji.toString(), u"😀"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"😀"_s);
 
@@ -78,7 +78,7 @@ void EmojiTest::unicodeTest()
     QCOMPARE(emoji.name(), QString());
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Category());
+    QCOMPARE(emoji.category(), Categories::None);
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"�"_s);
 }
@@ -98,7 +98,7 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.name(), QString());
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Category());
+    QCOMPARE(emoji.category(), Categories::None);
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"�"_s);
 
@@ -116,7 +116,7 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.name(), customEmojiName);
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Category());
+    QCOMPARE(emoji.category(), Categories::None);
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"<img title=\"Konqi\" src=\"%1\" />"_s.arg(customImageFile.toString()));
 

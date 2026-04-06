@@ -16,11 +16,10 @@ target_sources(KEmoji PRIVATE
     dict.cpp
     settings.cpp
     group.cpp
-    category.cpp
+    category.h
     tones.h
     emojimodel.cpp
     emojifiltermodel.cpp
-    emojicategorymodel.cpp
     tonemodel.cpp
 )
 
@@ -54,7 +53,6 @@ ecm_generate_headers(KEmoji_HEADERS
     Dict
     EmojiModel
     EmojiFilterModel
-    EmojiCategoryModel
 
   REQUIRED_HEADERS KEmoji_HEADERS
 )

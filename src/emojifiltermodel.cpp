@@ -16,7 +16,7 @@ using namespace KEmoji;
 
 EmojiFilterModel::EmojiFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_currentCategory(Category(Category::All))
+    , m_currentCategory(Categories::Category::All)
 {
     sort(0);
     connect(&Dict::instance(), &Dict::favoriteEmojisChanged, this, &EmojiFilterModel::invalidate);
@@ -43,17 +43,12 @@ void EmojiFilterModel::setSearchText(const QString &searchText)
     Q_EMIT searchTextChanged();
 }
 
-Category EmojiFilterModel::currentCategory() const
+Categories::Category EmojiFilterModel::currentCategory() const
 {
     return m_currentCategory;
 }
 
-void EmojiFilterModel::setCurrentCategory(Category::Categories category)
-{
-    setCurrentCategory(Category(category));
-}
-
-void EmojiFilterModel::setCurrentCategory(const KEmoji::Category &category)
+void EmojiFilterModel::setCurrentCategory(Categories::Category category)
 {
     if (category == m_currentCategory) {
         return;
@@ -87,12 +82,12 @@ void EmojiFilterModel::setDefaultTone(Tones::Tone defaultTone)
 bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     int result = isRecentMatch(source_left, source_right);
-    if (m_currentCategory.id() == Category::Recent && result != 0) {
+    if (m_currentCategory == Categories::Recent && result != 0) {
         return result > 0;
     }
 
     result = isFavoriteMatch(source_left, source_right);
-    if (m_currentCategory.id() == Category::Favorite && result != 0) {
+    if (m_currentCategory == Categories::Favorite && result != 0) {
         return result > 0;
     }
 
@@ -118,12 +113,12 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
     const auto idx = sourceModel()->index(source_row, 0, source_parent);
 
     // First if the category is Recent accept based on whether the emoji is a recent emoji, then favorite.
-    if (m_currentCategory.id() == Category::Recent) {
+    if (m_currentCategory == Categories::Recent) {
         categoryFilter = idx.data(EmojiModel::RecentIndexRole).toInt() >= 0;
-    } else if (m_currentCategory.id() == Category::Favorite) {
+    } else if (m_currentCategory == Categories::Favorite) {
         categoryFilter = idx.data(EmojiModel::TimesUsedRole).toInt() > 0;
     } else {
-        categoryFilter = m_currentCategory.id() == Category::All || idx.data(EmojiModel::EmojiRole).view<Emoji>().category().id() == m_currentCategory.id();
+        categoryFilter = m_currentCategory == Categories::All || idx.data(EmojiModel::EmojiRole).view<Emoji>().category() == m_currentCategory;
     }
 
     searchFilter = nameContainsSearch(idx);
@@ -133,7 +128,7 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
     const auto family = Dict::instance().familyGroupForEmoji(emoji);
     toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_defaultTone));
 
-    return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Category::Recent || m_currentCategory == Category::Favorite);
+    return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Categories::Recent || m_currentCategory == Categories::Favorite);
 }
 
 bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const

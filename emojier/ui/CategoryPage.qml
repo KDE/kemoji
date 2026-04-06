@@ -123,7 +123,7 @@ Kirigami.ScrollablePage {
             }
 
             down: pressed || skinToneMenu.visible
-            visible: emojiGrid.model.currentCategory.id === KEmoji.category.All || emojiGrid.model.currentCategory.id === KEmoji.category.People
+            visible: emojiGrid.model.currentCategory.id === KEmoji.Categories.All || emojiGrid.model.currentCategory.id === KEmoji.Categories.People
 
             Accessible.name: label
             Accessible.role: Accessible.ButtonMenu

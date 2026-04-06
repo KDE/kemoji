@@ -34,12 +34,6 @@ ecm_add_test(
 )
 
 ecm_add_test(
-    categorytest.cpp
-    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
-    TEST_NAME categorytest
-)
-
-ecm_add_test(
     settingstest.cpp
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
     TEST_NAME settingstest

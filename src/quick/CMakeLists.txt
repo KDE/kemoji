@@ -5,6 +5,7 @@ ecm_add_qml_module(KEmojiPlugin URI org.kde.kemoji GENERATE_PLUGIN_SOURCE
         SubEmojiPopup.qml
     SOURCES
         quickdict.h
+        categoryhelper.h
 )
 
 target_link_libraries(KEmojiPlugin PRIVATE

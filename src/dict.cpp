@@ -43,10 +43,10 @@ void Dict::initialize()
 {
     m_emojis.clear();
     m_categories.clear();
-    m_categories += Category(Category::Recent);
-    m_categories += Category(Category::Favorite);
-    m_categories += Category(Category::All);
-    m_categories += Category(Category::Custom);
+    m_categories += Categories::Recent;
+    m_categories += Categories::Favorite;
+    m_categories += Categories::All;
+    m_categories += Categories::Custom;
 
     connect(&Settings::instance(), &Settings::recentEmojisChanged, this, &Dict::recentEmojisChanged);
     connect(&Settings::instance(), &Settings::favoriteEmojisChanged, this, &Dict::favoriteEmojisChanged);
@@ -77,12 +77,12 @@ const Group &Dict::familyGroupForEmoji(const Emoji &emoji) const
     return m_emojiFamilyGroups.at(emoji.toString(Qt::RichText));
 }
 
-const QList<Category> &Dict::categories() const
+const QList<Categories::Category> &Dict::categories() const
 {
     return m_categories;
 }
 
-const QList<KEmoji::Emoji> Dict::emojisForCategory(KEmoji::Category category) const
+const QList<KEmoji::Emoji> Dict::emojisForCategory(Categories::Category category) const
 {
     QList<Emoji> emojis;
     std::copy_if(m_emojis.begin(), m_emojis.end(), std::back_inserter(emojis), [category](Emoji emoji) {
@@ -201,7 +201,7 @@ void Dict::loadCustom()
     const auto customEmojis = Settings::instance().customEmojis().keys();
     std::ranges::for_each(customEmojis, [this](const QString &name) {
         Group::EmojiIt it = m_emojis.insert(m_emojis.end(), name);
-        it->setCategory(Category::Custom);
+        it->setCategory(Categories::Custom);
         m_completeGroup.add(it);
     });
 }

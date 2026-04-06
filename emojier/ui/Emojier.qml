@@ -81,34 +81,41 @@ Kirigami.ApplicationWindow {
 
         Instantiator {
             id: instantiator
-            model: KEmoji.EmojiCategoryModel {
-                onModelReset: drawer.actions = []
-            }
+            model: KEmoji.Dict.categories
             delegate: Kirigami.Action {
-                required property KEmoji.category category
+                id: categoryAction
+                required property int modelData
 
-                checked: categoryPage.model.currentCategory.id === category.id
-                text: i18ndc("org.kde.plasma.emojier", "Emoji Category", category.name)
-                icon.name: category.iconName
+                readonly property KEmoji.CategoryHelper helper: KEmoji.CategoryHelper {
+                    category: categoryAction.modelData
+                }
 
-                onTriggered: categoryPage.model.currentCategory = category
+                checked: categoryPage.model.currentCategory === modelData
+                text: i18ndc("org.kde.plasma.emojier", "Emoji Category", helper.name)
+                icon.name: helper.iconName
+
+                onTriggered: categoryPage.model.currentCategory = modelData
             }
 
             onObjectAdded: (index, object) => {
                 drawer.actions.push(object);
             }
+            onObjectRemoved: (index, object) => {
+                const idx = drawer.actions.indexOf(object);
+                drawer.actions.splice(idx, 1);
+            }
         }
     }
 
     Component.onCompleted: {
-        categoryPage.model.setCurrentCategory(KEmoji.category.Recent);
+        categoryPage.model.setCurrentCategory(KEmoji.Categories.Recent);
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory(KEmoji.category.Favorite);
+        categoryPage.model.setCurrentCategory(KEmoji.Categories.Favorite);
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory(KEmoji.category.All);
+        categoryPage.model.setCurrentCategory(KEmoji.Categories.All);
     }
 }

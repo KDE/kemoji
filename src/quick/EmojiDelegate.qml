@@ -38,7 +38,7 @@ QQC2.ItemDelegate {
     }
 
     contentItem: Loader {
-        sourceComponent: root.emoji.category.id === KEmoji.category.Custom ? innerImage : innerLabel
+        sourceComponent: root.emoji.category === KEmoji.Categories.Custom ? innerImage : innerLabel
 
         Kirigami.Icon {
             anchors.bottom: parent.bottom

@@ -25,6 +25,7 @@ class Emoji;
 namespace KEmoji::Tones
 {
 Q_NAMESPACE_EXPORT(KEMOJI_EXPORT)
+QML_ELEMENT
 
 /*!
  * \enum Tone
@@ -32,7 +33,7 @@ Q_NAMESPACE_EXPORT(KEMOJI_EXPORT)
  * Enumeration representing the available emoji tones:
  *
  * \value Neutral
- *        Default representention, i.e. no tone.
+ *        Default representation, i.e. no tone.
  * \value Light
  *        A light skin tone, 🏻.
  * \value MediumLight

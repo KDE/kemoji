@@ -48,8 +48,7 @@ void Dict::initialize()
     m_categories += Categories::All;
     m_categories += Categories::Custom;
 
-    connect(&Settings::instance(), &Settings::recentEmojisChanged, this, &Dict::recentEmojisChanged);
-    connect(&Settings::instance(), &Settings::favoriteEmojisChanged, this, &Dict::favoriteEmojisChanged);
+    connect(&Settings::instance(), &Settings::emojiHistoryChanged, this, &Dict::emojiHistoryChanged);
 
     loadCustom();
 

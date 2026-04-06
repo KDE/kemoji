@@ -19,7 +19,14 @@ EmojiFilterModel::EmojiFilterModel(QObject *parent)
     , m_currentCategory(Categories::Category::All)
 {
     sort(0);
-    connect(&Dict::instance(), &Dict::favoriteEmojisChanged, this, &EmojiFilterModel::invalidate);
+    connect(&Dict::instance(), &Dict::emojiHistoryChanged, this, [this]() {
+        if (m_currentCategory == Categories::Favorite || m_currentCategory == Categories::Recent) {
+            invalidate();
+            return;
+        }
+        beginFilterChange();
+        endFilterChange(QSortFilterProxyModel::Direction::Rows);
+    });
     connect(this, &EmojiFilterModel::sourceModelChanged, this, &EmojiFilterModel::invalidate);
     connect(this, &EmojiFilterModel::sourceModelChanged, this, [this]() {
         if (sourceModel()) {

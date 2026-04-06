@@ -137,14 +137,9 @@ Q_SIGNALS:
     void loadedChanged();
 
     /*!
-     * \brief Emitted whenever the list of recent emojis is changed.
+     * \brief Emitted whenever the emoji is history is changed.
      */
-    void recentEmojisChanged();
-
-    /*!
-     * \brief Emitted whenever the list of favorite emojis is changed.
-     */
-    void favoriteEmojisChanged();
+    void emojiHistoryChanged();
 
 private:
     explicit Dict(QObject *parent = nullptr);

@@ -48,8 +48,7 @@ void Settings::initialize()
         m_timesUsed[emoji] = 1;
     });
 
-    Q_EMIT recentEmojisChanged();
-    Q_EMIT favoriteEmojisChanged();
+    Q_EMIT emojiHistoryChanged();
 }
 
 void Settings::emojiUsed(const QString &emoji)
@@ -65,8 +64,7 @@ void Settings::emojiUsed(const QString &emoji)
         m_timesUsed[emoji] = 1;
     }
 
-    Q_EMIT recentEmojisChanged();
-    Q_EMIT favoriteEmojisChanged();
+    Q_EMIT emojiHistoryChanged();
 }
 
 void Settings::clearUsedEmojis()
@@ -77,8 +75,7 @@ void Settings::clearUsedEmojis()
     settings.remove(RecentEmojiKey);
     settings.sync();
 
-    Q_EMIT recentEmojisChanged();
-    Q_EMIT favoriteEmojisChanged();
+    Q_EMIT emojiHistoryChanged();
 }
 
 bool Settings::isRecent(const QString &emoji) const

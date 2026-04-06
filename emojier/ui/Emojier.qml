@@ -82,18 +82,10 @@ Kirigami.ApplicationWindow {
         Instantiator {
             id: instantiator
             model: KEmoji.Dict.categories
-            delegate: Kirigami.Action {
-                id: categoryAction
+            delegate: KEmoji.CategoryAction {
                 required property int modelData
-
-                readonly property KEmoji.CategoryHelper helper: KEmoji.CategoryHelper {
-                    category: categoryAction.modelData
-                }
-
+                category: modelData
                 checked: categoryPage.model.currentCategory === modelData
-                text: i18ndc("org.kde.plasma.emojier", "Emoji Category", helper.name)
-                icon.name: helper.iconName
-
                 onTriggered: categoryPage.model.currentCategory = modelData
             }
 

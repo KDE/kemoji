@@ -194,24 +194,21 @@ Kirigami.ScrollablePage {
 
         QQC2.Menu {
             id: emojiMenu
-            required property string label
+            required property KEmoji.emoji emoji
 
             onClosed: destroy()
 
             QQC2.MenuItem {
                 icon.name: "edit-copy"
-                text: i18nc("@item:inmenu", "Copy Character")
-                onClicked: {
-                    CopyHelper.copyTextToClipboard(emojiMenu.label);
-                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.label));
-                }
+                text: i18nc("@item:inmenu", "Copy Emoji")
+                onClicked: Window.window.report(emoji)
             }
             QQC2.MenuItem {
                 icon.name: "edit-copy"
                 text: i18nc("@item:inmenu", "Copy Name")
                 onClicked: {
-                    CopyHelper.copyTextToClipboard(emojiMenu.label);
-                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.label));
+                    CopyHelper.copyTextToClipboard(emojiMenu.emoji.name);
+                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.emoji.name));
                 }
             }
         }
@@ -223,7 +220,7 @@ Kirigami.ScrollablePage {
         onClicked: emoji => Window.window.report(emoji);
         onRightClicked: emoji => {
             const menu = menuComponent.createObject(emojiGrid, {
-                label: emoji,
+                emoji: emoji,
             });
             menu.popup();
         }

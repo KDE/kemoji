@@ -69,6 +69,18 @@ void Settings::emojiUsed(const QString &emoji)
     Q_EMIT favoriteEmojisChanged();
 }
 
+void Settings::clearUsedEmojis()
+{
+    QSettings settings(OrganizationKey, KEmojiKey);
+    m_recent.clear();
+    m_timesUsed.clear();
+    settings.remove(RecentEmojiKey);
+    settings.sync();
+
+    Q_EMIT recentEmojisChanged();
+    Q_EMIT favoriteEmojisChanged();
+}
+
 bool Settings::isRecent(const QString &emoji) const
 {
     return m_recent.contains(emoji);

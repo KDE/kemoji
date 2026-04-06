@@ -37,6 +37,8 @@ public:
      */
     void emojiUsed(const QString &emoji);
 
+    void clearUsedEmojis();
+
     /*!
      * \brief Whether the emoji represented by the given string is a recent emoji.
      *

@@ -19,8 +19,58 @@ private:
     QUrl localTextFile = QUrl::fromLocalFile(u"%1/text_file.txt"_s.arg(DATA_DIR));
 
 private Q_SLOTS:
+    void emojiUsedTest();
     void registerCustomTest();
 };
+
+void SettingsTest::emojiUsedTest()
+{
+    auto &settings = Settings::instance();
+    settings.clearUsedEmojis();
+
+    const auto emoji1 = u"😀"_s;
+    const auto emoji2 = u"😶‍🌫️"_s;
+    QCOMPARE(settings.isRecent(emoji1), false);
+    QCOMPARE(settings.recentIndex(emoji1), -1);
+    QCOMPARE(settings.timesUsed(emoji1), 0);
+    QCOMPARE(settings.isRecent(emoji2), false);
+    QCOMPARE(settings.recentIndex(emoji2), -1);
+    QCOMPARE(settings.timesUsed(emoji2), 0);
+
+    settings.emojiUsed(emoji1);
+    QCOMPARE(settings.isRecent(emoji1), true);
+    QCOMPARE(settings.recentIndex(emoji1), 0);
+    QCOMPARE(settings.timesUsed(emoji1), 1);
+    QCOMPARE(settings.isRecent(emoji2), false);
+    QCOMPARE(settings.recentIndex(emoji2), -1);
+    QCOMPARE(settings.timesUsed(emoji2), 0);
+
+    settings.emojiUsed(emoji1);
+    QCOMPARE(settings.isRecent(emoji1), true);
+    QCOMPARE(settings.recentIndex(emoji1), 0);
+    QCOMPARE(settings.timesUsed(emoji1), 2);
+    QCOMPARE(settings.isRecent(emoji2), false);
+    QCOMPARE(settings.recentIndex(emoji2), -1);
+    QCOMPARE(settings.timesUsed(emoji2), 0);
+
+    settings.emojiUsed(emoji2);
+    QCOMPARE(settings.isRecent(emoji1), true);
+    QCOMPARE(settings.recentIndex(emoji1), 1);
+    QCOMPARE(settings.timesUsed(emoji1), 2);
+    QCOMPARE(settings.isRecent(emoji2), true);
+    QCOMPARE(settings.recentIndex(emoji2), 0);
+    QCOMPARE(settings.timesUsed(emoji2), 1);
+
+    settings.emojiUsed(emoji1);
+    QCOMPARE(settings.isRecent(emoji1), true);
+    QCOMPARE(settings.recentIndex(emoji1), 0);
+    QCOMPARE(settings.timesUsed(emoji1), 3);
+    QCOMPARE(settings.isRecent(emoji2), true);
+    QCOMPARE(settings.recentIndex(emoji2), 1);
+    QCOMPARE(settings.timesUsed(emoji2), 1);
+
+    settings.clearUsedEmojis();
+}
 
 void SettingsTest::registerCustomTest()
 {

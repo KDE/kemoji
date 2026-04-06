@@ -4,6 +4,7 @@ ecm_add_qml_module(KEmojiPlugin URI org.kde.kemoji GENERATE_PLUGIN_SOURCE
         EmojiGrid.qml
         SubEmojiPopup.qml
         CategoryAction.qml
+        ToneAction.qml
     SOURCES
         quickdict.h
         categoryhelper.h

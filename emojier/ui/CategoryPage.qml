@@ -165,18 +165,12 @@ Kirigami.ScrollablePage {
                 }
                 Instantiator {
                     model: KEmoji.Tones.LENGTH
-                    delegate: Kirigami.Action {
+                    delegate: KEmoji.ToneAction {
                         id: toneAction
                         required property int modelData
-
-                        readonly property KEmoji.ToneHelper helper: KEmoji.ToneHelper {
-                            id: toneHelper
-                            tone: toneAction.modelData
-                        }
+                        tone: modelData
 
                         QQC2.ActionGroup.group: skinToneGroup
-                        text: toneHelper.exampleUnicodeWithName
-                        Accessible.name: toneHelper.name
                         shortcut: "ctrl+%1".arg(modelData + 1)
                         checkable: true
                         checked: emojiGrid.model.defaultTone == modelData

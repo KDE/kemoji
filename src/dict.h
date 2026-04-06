@@ -9,6 +9,7 @@
 
 #include <QObject>
 
+#include "category.h"
 #include "kemoji_export.h"
 
 #include "emoji.h"
@@ -77,7 +78,7 @@ public:
      *
      * \sa KEmoji::Emoji, KEmoji::EmojiGroup
      */
-    const Group &familyGroupForEmoji(const KEmoji::Emoji &emoji) const;
+    const Group &variantGroupForEmoji(const Emoji &emoji) const;
 
     /*!
      * \brief Return the full list of \c KEmoji::Categories::Category in use.
@@ -86,14 +87,14 @@ public:
      *
      * \sa KEmoji::Categories::Category
      */
-    const QList<KEmoji::Categories::Category> &categories() const;
+    const QList<Categories::Category> &categories() const;
 
     /*!
-     * \brief Return a list of \c KEmoji::Emoji for the given \c KEmoji::Categories::Category.
+     * \brief Returns a \c KEmoji::EmojiGroup for the given \c KEmoji::Categories::Category.
      *
-     * \sa KEmoji::Emoji, KEmoji::Categories::Category
+     * \sa KEmoji::EmojiGroup, KEmoji::Categories::Category
      */
-    const QList<KEmoji::Emoji> emojisForCategory(KEmoji::Categories::Category category) const;
+    const Group &categoryGroup(Categories::Category category) const;
 
     /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the recent emojis list.
@@ -102,7 +103,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    int recentEmojiIndex(const KEmoji::Emoji &emoji) const;
+    int recentEmojiIndex(const Emoji &emoji) const;
 
     /*!
      * \brief Return the number of times the given \c KEmoji::Emoji has been used.
@@ -111,7 +112,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    int timesEmojiUsed(const KEmoji::Emoji &emoji) const;
+    int timesEmojiUsed(const Emoji &emoji) const;
 
     /*!
      * \brief Tell the dictionary the given \c KEmoji::Emoji has been used.
@@ -125,7 +126,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    void emojiUsed(const KEmoji::Emoji &emoji);
+    void emojiUsed(const Emoji &emoji);
 
 Q_SIGNALS:
     /*!
@@ -151,13 +152,15 @@ private:
     void initialize();
     bool m_loaded = false;
 
-    std::list<KEmoji::Emoji> m_emojis;
-    KEmoji::Group m_completeGroup;
-    std::unordered_map<QString, KEmoji::Group> m_emojiFamilyGroups;
-    QList<KEmoji::Categories::Category> m_categories;
+    std::list<Emoji> m_emojis;
+    Group m_completeGroup;
+    std::unordered_map<QString, Group> m_variantGroups;
+    std::unordered_map<Categories::Category, Group> m_categoryGroups;
+    QList<Categories::Category> m_categories;
 
     void load();
     void loadDict(const QString &path);
+    void loadEmojiToCategoryGroup(Group::EmojiIt it);
     void loadCustom();
 };
 

@@ -125,7 +125,7 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
 
     const auto emoji = idx.data(EmojiModel::EmojiRole).view<Emoji>();
     const auto tones = Tones::tonesForEmoji(emoji);
-    const auto family = Dict::instance().familyGroupForEmoji(emoji);
+    const auto family = Dict::instance().variantGroupForEmoji(emoji);
     toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_defaultTone));
 
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Categories::Recent || m_currentCategory == Categories::Favorite);

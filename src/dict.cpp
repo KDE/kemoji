@@ -69,12 +69,12 @@ const Group &Dict::emojis() const
     return m_completeGroup;
 }
 
-const Group &Dict::familyGroupForEmoji(const Emoji &emoji) const
+const Group &Dict::variantGroupForEmoji(const Emoji &emoji) const
 {
-    if (!m_emojiFamilyGroups.contains(emoji.toString(Qt::RichText))) {
+    if (!m_variantGroups.contains(emoji.toString(Qt::RichText))) {
         return emptyGroup;
     }
-    return m_emojiFamilyGroups.at(emoji.toString(Qt::RichText));
+    return m_variantGroups.at(emoji.toString(Qt::RichText));
 }
 
 const QList<Categories::Category> &Dict::categories() const
@@ -82,13 +82,9 @@ const QList<Categories::Category> &Dict::categories() const
     return m_categories;
 }
 
-const QList<KEmoji::Emoji> Dict::emojisForCategory(Categories::Category category) const
+const Group &Dict::categoryGroup(Categories::Category category) const
 {
-    QList<Emoji> emojis;
-    std::copy_if(m_emojis.begin(), m_emojis.end(), std::back_inserter(emojis), [category](Emoji emoji) {
-        return emoji.category() == category;
-    });
-    return emojis;
+    return m_categoryGroups.at(category);
 }
 
 int Dict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
@@ -183,17 +179,27 @@ void Dict::loadDict(const QString &path)
         if (tonelessEmoji == emoji) {
             return;
         }
-        if (m_emojiFamilyGroups.contains(tonelessEmoji.toString(Qt::RichText))) {
-            auto &group = m_emojiFamilyGroups[tonelessEmoji.toString(Qt::RichText)];
+        if (m_variantGroups.contains(tonelessEmoji.toString(Qt::RichText))) {
+            auto &group = m_variantGroups[tonelessEmoji.toString(Qt::RichText)];
             group.add(it);
         } else {
             const auto baseIt = std::find(m_emojis.begin(), m_emojis.end(), tonelessEmoji);
             Group group;
             group.add(baseIt);
             group.add(it);
-            m_emojiFamilyGroups[baseIt->toString(Qt::RichText)] = group;
+            m_variantGroups[baseIt->toString(Qt::RichText)] = group;
         }
+
+        loadEmojiToCategoryGroup(it);
     });
+}
+
+void Dict::loadEmojiToCategoryGroup(Group::EmojiIt it)
+{
+    if (!m_categoryGroups.contains(it->category())) {
+        m_categoryGroups[it->category()] = Group();
+    }
+    m_categoryGroups[it->category()].add(it);
 }
 
 void Dict::loadCustom()

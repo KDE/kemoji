@@ -35,10 +35,10 @@ void EmojiModelTest::populate()
         ++it;
     }
 
-    Group handSubGroup = Dict::instance().familyGroupForEmoji(u"🤚"_s).filtered([](const Emoji &familyEmoji) {
+    Group handSubGroup = Dict::instance().variantGroupForEmoji(u"🤚"_s).filtered([](const Emoji &familyEmoji) {
         return familyEmoji != u"🤚🏿"_s;
     });
-    Group shakeSubGroup = Dict::instance().familyGroupForEmoji(u"🤝"_s).filtered([](const Emoji &familyEmoji) {
+    Group shakeSubGroup = Dict::instance().variantGroupForEmoji(u"🤝"_s).filtered([](const Emoji &familyEmoji) {
         return familyEmoji != u"🫱🏼‍🫲🏿"_s;
     });
 

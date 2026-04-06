@@ -52,9 +52,9 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     case TimesUsedRole:
         return Dict::instance().timesEmojiUsed(emoji);
     case SubEmojisRole: {
-        auto familyGroup = Dict::instance().familyGroupForEmoji(emoji);
+        auto familyGroup = Dict::instance().variantGroupForEmoji(emoji);
         if (familyGroup.isEmpty()) {
-            familyGroup = Dict::instance().familyGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
+            familyGroup = Dict::instance().variantGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
         }
         if (familyGroup.isEmpty()) {
             return QVariant::fromValue(emptyGroup);

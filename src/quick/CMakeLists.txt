@@ -7,6 +7,7 @@ ecm_add_qml_module(KEmojiPlugin URI org.kde.kemoji GENERATE_PLUGIN_SOURCE
     SOURCES
         quickdict.h
         categoryhelper.h
+        tonehelper.h
 )
 
 target_link_libraries(KEmojiPlugin PRIVATE

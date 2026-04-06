@@ -20,7 +20,6 @@ target_sources(KEmoji PRIVATE
     tones.h
     emojimodel.cpp
     emojifiltermodel.cpp
-    tonemodel.cpp
 )
 
 if(KEMOJI_USE_QML)

@@ -164,20 +164,23 @@ Kirigami.ScrollablePage {
                     exclusive: true
                 }
                 Instantiator {
-                    model: KEmoji.ToneModel {}
+                    model: KEmoji.Tones.LENGTH
                     delegate: Kirigami.Action {
-                        required property int index
-                        required property string name
-                        required property int tone
-                        required property string unicodeNameString
+                        id: toneAction
+                        required property int modelData
+
+                        readonly property KEmoji.ToneHelper helper: KEmoji.ToneHelper {
+                            id: toneHelper
+                            tone: toneAction.modelData
+                        }
 
                         QQC2.ActionGroup.group: skinToneGroup
-                        text: unicodeNameString
-                        Accessible.name: name
-                        shortcut: "ctrl+%1".arg(index + 1)
+                        text: toneHelper.exampleUnicodeWithName
+                        Accessible.name: toneHelper.name
+                        shortcut: "ctrl+%1".arg(modelData + 1)
                         checkable: true
-                        checked: emojiGrid.model.defaultTone == tone
-                        onTriggered: emojiGrid.model.defaultTone = tone
+                        checked: emojiGrid.model.defaultTone == modelData
+                        onTriggered: emojiGrid.model.defaultTone = modelData
                     }
 
                     onObjectAdded: (index, object) => skinToneMenu.contentData.push(object)

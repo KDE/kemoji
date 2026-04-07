@@ -45,6 +45,11 @@ public:
         KEmoji::Dict::instance().emojiUsed(emoji);
     }
 
+    Q_INVOKABLE void clearHistory()
+    {
+        KEmoji::Dict::instance().clearHistory();
+    }
+
 Q_SIGNALS:
     void loaded();
 };

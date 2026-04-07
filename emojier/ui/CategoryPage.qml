@@ -20,7 +20,6 @@ Kirigami.ScrollablePage {
 
     property alias model: emojiGrid.model
     property string searchText: ""
-    property bool showClearHistoryButton: false
 
     title: helper.name
 
@@ -33,18 +32,7 @@ Kirigami.ScrollablePage {
     rightPadding: undefined
     horizontalPadding: 0
 
-    Keys.onPressed: event => {
-        if (event.key === Qt.Key_Escape) {
-            Qt.quit()
-        }
-        if (event.text.length > 0 && event.modifiers === Qt.NoModifier) {
-            // We want to prevent unprintable characters like backspace
-            model = emoji
-            searchText += /[\x00-\x1F\x7F]/.test(event.text) ? "" : event.text
-            text: i18nc("@title:page All emojis", "All")
-            root.model.currentCategoryId = KEmoji.category.All
-        }
-    }
+    Keys.onEscapePressed: Qt.quit()
 
     titleDelegate: RowLayout {
         id: titleRowLayout
@@ -66,6 +54,32 @@ Kirigami.ScrollablePage {
             Layout.fillWidth: true
             Layout.minimumWidth: Kirigami.Units.gridUnit * 5
             Layout.maximumWidth: (Kirigami.Units.gridUnit * 15) - clearHistoryButton.effectiveWidth - skinToneButton.effectiveWidth
+
+            Component.onCompleted: {
+                Qt.callLater(forceActiveFocus);
+            }
+
+            Keys.onEscapePressed: event => {
+                if (text) {
+                    clear()
+                } else {
+                    event.accepted = false
+                }
+            }
+            Keys.onEnterPressed: event => emojiGrid.currentItem?.Keys.enterPressed(event)
+            Keys.onReturnPressed: event => emojiGrid.currentItem?.Keys.returnPressed(event)
+            Keys.onDownPressed: event => {
+                emojiGrid.currentIndex = Math.max(emojiGrid.currentIndex, 0)
+                event.accepted = false
+            }
+            KeyNavigation.down: emojiGrid
+            KeyNavigation.right: clearHistoryButton
+            Binding {
+                root.Keys.forwardTo: [searchField]
+                root.KeyNavigation.up: searchField.KeyNavigation.down // explicitly set as this and clear button point there
+            }
+
+
             text: root.searchText
             inputMethodHints: Qt.ImhNoPredictiveText
 
@@ -87,17 +101,6 @@ Kirigami.ScrollablePage {
                     }
                 }
             }
-            Component.onCompleted: {
-                Qt.callLater(forceActiveFocus);
-            }
-            Keys.onEscapePressed: event => {
-                if (text) {
-                    clear()
-                } else {
-                    Qt.quit()
-                }
-            }
-            Keys.forwardTo: emojiGrid
         }
 
         QQC2.ToolButton {
@@ -105,13 +108,13 @@ Kirigami.ScrollablePage {
 
             readonly property int effectiveWidth: !visible ? 0 : implicitWidth + titleRowLayout.spacing
 
-            visible: root.showClearHistoryButton
+            KeyNavigation.right: skinToneButton
+
+            visible: emojiGrid.model.currentCategory === KEmoji.Categories.Recent || emojiGrid.model.currentCategory === KEmoji.Categories.Favorite
             enabled: emojiGrid.count > 0
             text: i18n("Clear History")
             icon.name: "edit-clear-history"
-            onClicked: {
-                recentEmojiModel.clearHistory();
-            }
+            onClicked: KEmoji.Dict.clearHistory();
         }
         QQC2.ToolButton {
             id: skinToneButton

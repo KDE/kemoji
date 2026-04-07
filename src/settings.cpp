@@ -67,7 +67,7 @@ void Settings::emojiUsed(const QString &emoji)
     Q_EMIT emojiHistoryChanged();
 }
 
-void Settings::clearUsedEmojis()
+void Settings::clearHistory()
 {
     QSettings settings(OrganizationKey, KEmojiKey);
     m_recent.clear();

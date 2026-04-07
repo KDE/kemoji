@@ -26,7 +26,7 @@ private Q_SLOTS:
 void SettingsTest::emojiUsedTest()
 {
     auto &settings = Settings::instance();
-    settings.clearUsedEmojis();
+    settings.clearHistory();
 
     const auto emoji1 = u"😀"_s;
     const auto emoji2 = u"😶‍🌫️"_s;
@@ -69,7 +69,7 @@ void SettingsTest::emojiUsedTest()
     QCOMPARE(settings.recentIndex(emoji2), 1);
     QCOMPARE(settings.timesUsed(emoji2), 1);
 
-    settings.clearUsedEmojis();
+    settings.clearHistory();
 }
 
 void SettingsTest::registerCustomTest()

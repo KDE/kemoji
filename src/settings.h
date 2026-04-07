@@ -37,7 +37,12 @@ public:
      */
     void emojiUsed(const QString &emoji);
 
-    void clearUsedEmojis();
+    /*!
+     * \brief Clear the emoji usage history.
+     *
+     * This will leave recent and favorite emojis empty.
+     */
+    void clearHistory();
 
     /*!
      * \brief Whether the emoji represented by the given string is a recent emoji.

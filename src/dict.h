@@ -128,6 +128,13 @@ public:
      */
     void emojiUsed(const Emoji &emoji);
 
+    /*!
+     * \brief Clear the emoji usage history.
+     *
+     * This will leave recent and favorite emojis empty.
+     */
+    void clearHistory();
+
 Q_SIGNALS:
     /*!
      * \brief Emitted whenever loaded changes.

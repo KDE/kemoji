@@ -250,4 +250,9 @@ void Dict::emojiUsed(const Emoji &emoji)
     Settings::instance().emojiUsed(emoji.id());
 }
 
+void Dict::clearHistory()
+{
+    Settings::instance().clearHistory();
+}
+
 #include "moc_dict.cpp"

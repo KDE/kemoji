@@ -88,7 +88,7 @@ public:
 
 private:
     friend class Dict;
-    using GroupIt = std::deque<EmojiIt>::iterator;
+    using GroupIt = std::deque<EmojiIt>::const_iterator;
 
     std::deque<EmojiIt> m_emojiRefs;
     std::unordered_map<QString, GroupIt> m_emojiIts;

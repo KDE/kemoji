@@ -10,8 +10,8 @@ using namespace KEmoji;
 
 void Group::add(EmojiIt it)
 {
-    const auto insertIt = m_emojiRefs.insert(m_emojiRefs.end(), it);
-    m_emojiIts[it->toString(Qt::RichText)] = insertIt;
+    auto insertIt = m_emojiRefs.insert(m_emojiRefs.end(), it);
+    m_emojiIts[it->id()] = insertIt;
 }
 
 const Emoji &Group::at(qsizetype i) const
@@ -21,15 +21,15 @@ const Emoji &Group::at(qsizetype i) const
 
 qsizetype Group::indexForEmoji(const Emoji &emoji) const
 {
-    if (!m_emojiIts.contains(emoji.toString(Qt::RichText))) {
+    if (!m_emojiIts.contains(emoji.id())) {
         return -1;
     }
-    return m_emojiIts.at(emoji.toString(Qt::RichText)) - m_emojiRefs.begin();
+    return std::distance(m_emojiRefs.begin(), m_emojiIts.at(emoji.id()));
 }
 
 bool Group::contains(const Emoji &emoji) const
 {
-    return m_emojiIts.contains(emoji.toString(Qt::RichText));
+    return m_emojiIts.contains(emoji.id());
 }
 
 qsizetype Group::size() const

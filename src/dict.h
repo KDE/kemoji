@@ -157,6 +157,8 @@ private:
     void loadDict(const QString &path);
     void loadEmojiToCategoryGroup(Group::EmojiIt it);
     void loadCustom();
+
+    QString qualify(QString emoji);
 };
 
 }

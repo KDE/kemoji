@@ -10,8 +10,10 @@
 #include <QDir>
 #include <QFile>
 #include <QLocale>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTextBoundaryFinder>
 #include <QtConcurrent/QtConcurrentRun>
 
 #include <KLocalizedString>
@@ -70,10 +72,10 @@ const Group &Dict::emojis() const
 
 const Group &Dict::variantGroupForEmoji(const Emoji &emoji) const
 {
-    if (!m_variantGroups.contains(emoji.toString(Qt::RichText))) {
+    if (!m_variantGroups.contains(emoji.id())) {
         return emptyGroup;
     }
-    return m_variantGroups.at(emoji.toString(Qt::RichText));
+    return m_variantGroups.at(emoji.id());
 }
 
 const QList<Categories::Category> &Dict::categories() const
@@ -163,7 +165,7 @@ void Dict::loadDict(const QString &path)
     std::ranges::for_each(emojis, [this](const Emoji &emoji) {
         Group::EmojiIt it;
         if (m_completeGroup.contains(emoji)) {
-            it = *m_completeGroup.m_emojiIts[emoji.toString(Qt::RichText)];
+            it = *m_completeGroup.m_emojiIts[emoji.id()];
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
@@ -174,22 +176,28 @@ void Dict::loadDict(const QString &path)
             m_completeGroup.add(it);
         }
 
-        const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
+        loadEmojiToCategoryGroup(it);
+
+        auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
+        if (!m_completeGroup.contains(tonelessEmoji)) {
+            tonelessEmoji.setUnicode(qualify(tonelessEmoji.unicode()));
+        }
+        if (!m_completeGroup.contains(tonelessEmoji)) {
+            return;
+        }
         if (tonelessEmoji == emoji) {
             return;
         }
-        if (m_variantGroups.contains(tonelessEmoji.toString(Qt::RichText))) {
-            auto &group = m_variantGroups[tonelessEmoji.toString(Qt::RichText)];
+        if (m_variantGroups.contains(tonelessEmoji.id())) {
+            auto &group = m_variantGroups[tonelessEmoji.id()];
             group.add(it);
         } else {
             const auto baseIt = std::find(m_emojis.begin(), m_emojis.end(), tonelessEmoji);
             Group group;
             group.add(baseIt);
             group.add(it);
-            m_variantGroups[baseIt->toString(Qt::RichText)] = group;
+            m_variantGroups[baseIt->id()] = group;
         }
-
-        loadEmojiToCategoryGroup(it);
     });
 }
 
@@ -209,6 +217,28 @@ void Dict::loadCustom()
         it->setCategory(Categories::Custom);
         m_completeGroup.add(it);
     });
+}
+
+QString Dict::qualify(QString emoji)
+{
+    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, emoji);
+    int from = 0;
+    while (finder.toNextBoundary() != -1) {
+        auto to = finder.position();
+        const auto currentChar = emoji.mid(from, to - from);
+        QString nextChar;
+        const auto next = finder.toNextBoundary();
+        if (next != -1) {
+            nextChar = emoji.mid(to, next - to);
+            finder.toPreviousBoundary();
+        }
+        if (currentChar != u"\u200D"_s && currentChar != u"\uFE0F"_s && nextChar != u"\uFE0F"_s) {
+            emoji.replace(from, to - from, u"%1\uFE0F"_s.arg(currentChar));
+            to += u"\uFE0F"_s.length();
+        }
+        from = to;
+    }
+    return emoji;
 }
 
 void Dict::emojiUsed(const Emoji &emoji)

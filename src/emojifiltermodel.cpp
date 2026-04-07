@@ -10,6 +10,7 @@
 #include "dict.h"
 #include "emojimodel.h"
 #include "tones.h"
+#include <qnamespace.h>
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -148,17 +149,17 @@ bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
     int fallbackNameMatches = 0;
     QHash<QString, int> altNameMatches;
     for (const auto &part : searchParts) {
-        if (emoji.name().contains(part)) {
+        if (emoji.name().contains(part, Qt::CaseInsensitive)) {
             ++nameMatches;
         }
-        if (emoji.fallbackName().contains(part)) {
+        if (emoji.fallbackName().contains(part, Qt::CaseInsensitive)) {
             ++fallbackNameMatches;
         }
         std::ranges::for_each(emoji.altNames(), [&altNameMatches, part](const QString &altName) {
             if (!altNameMatches.contains(altName)) {
                 altNameMatches[altName] = 0;
             }
-            if (altName.contains(part)) {
+            if (altName.contains(part, Qt::CaseInsensitive)) {
                 ++altNameMatches[altName];
             }
         });
@@ -172,16 +173,17 @@ bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
 int EmojiFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftEmoji = source_left.data(EmojiModel::EmojiRole).view<Emoji>();
-    const auto leftMatch = leftEmoji.name() == m_searchText || leftEmoji.fallbackName() == m_searchText;
+    const auto leftMatch = leftEmoji.name().compare(m_searchText, Qt::CaseInsensitive) || leftEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive);
     const auto rightEmoji = source_right.data(EmojiModel::EmojiRole).view<Emoji>();
-    const auto rightMatch = rightEmoji.name() == m_searchText || rightEmoji.fallbackName() == m_searchText;
+    const auto rightMatch =
+        rightEmoji.name().compare(m_searchText, Qt::CaseInsensitive) || rightEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive);
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
 int EmojiFilterModel::exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
-    const auto leftMatch = source_left.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText);
-    const auto rightMatch = source_right.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText);
+    const auto leftMatch = source_left.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
+    const auto rightMatch = source_right.data(EmojiModel::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 

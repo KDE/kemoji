@@ -1,7 +1,7 @@
 /*
  *    SPDX-FileCopyrightText: 2025 James Graham <james.h.graham@protonmail.com>
  *
- *    SPDX-License-Identifier: LGPL-2.0-or-later
+ *    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
  */
 
 #include "emojimodel.h"

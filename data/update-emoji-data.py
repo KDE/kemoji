@@ -3,6 +3,7 @@
 # Helper script to generate Emoji dictionary file from unicode data.
 #
 # SPDX-FileCopyrightText: 2022 Weng Xuetian <wengxt@gmail.com>
+# SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 # SPDX-License-Identifier: LGPL-2.0-or-later
 #
 from dataclasses import dataclass

@@ -22,12 +22,16 @@ target_link_libraries(emojier PRIVATE
     KF6::ConfigGui
     KF6::I18n
     KF6::CoreAddons
-    KF6::Crash
-    KF6::DBusAddons
     KF6::Kirigami
     KF6::WindowSystem
     KEmoji
 )
+
+if(NOT ANDROID AND NOT WIN32)
+    target_link_libraries(emojier PRIVATE KF6::DBusAddons KF6::Crash)
+    target_compile_definitions(emojier PUBLIC -DHAVE_KDBUSADDONS)
+    target_compile_definitions(emojier PUBLIC -DHAVE_KCRASH)
+endif()
 
 target_include_directories(emojier PRIVATE ${CMAKE_BINARY_DIR})
 

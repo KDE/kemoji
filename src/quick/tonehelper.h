@@ -9,11 +9,9 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "kemoji_export.h"
-
 #include "tones.h"
 
-class KEMOJI_EXPORT ToneHelper : public QObject
+class ToneHelper : public QObject
 {
     Q_OBJECT
     QML_ELEMENT

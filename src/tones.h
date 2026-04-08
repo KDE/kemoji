@@ -85,7 +85,8 @@ inline QString nameStringForTone(Tone tone)
  */
 inline QStringList allToneCodePoints()
 {
-    return {u"🏻"_s, u"🏼"_s, u"🏽"_s, u"🏾"_s, u"🏿"_s};
+    static const QStringList _allTones = {u"🏻"_s, u"🏼"_s, u"🏽"_s, u"🏾"_s, u"🏿"_s};
+    return _allTones;
 }
 
 /*!

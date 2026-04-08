@@ -10,7 +10,6 @@
 #include "dict.h"
 #include "emojimodel.h"
 #include "tones.h"
-#include <qnamespace.h>
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -25,8 +24,12 @@ EmojiFilterModel::EmojiFilterModel(QObject *parent)
             invalidate();
             return;
         }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
         beginFilterChange();
         endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+        invalidateRowsFilter();
+#endif
     });
     connect(this, &EmojiFilterModel::sourceModelChanged, this, &EmojiFilterModel::invalidate);
     connect(this, &EmojiFilterModel::sourceModelChanged, this, [this]() {
@@ -82,8 +85,12 @@ void EmojiFilterModel::setDefaultTone(Tones::Tone defaultTone)
         return;
     }
     m_defaultTone = defaultTone;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+    invalidateRowsFilter();
+#endif
     Q_EMIT defaultToneChanged();
 }
 

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 [Desktop Entry]
 Exec=plasma-emojier
 Name=Emoji Selector

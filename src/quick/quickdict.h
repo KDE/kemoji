@@ -9,11 +9,9 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "kemoji_export.h"
-
 #include "dict.h"
 
-class KEMOJI_EXPORT QuickDict : public QObject
+class QuickDict : public QObject
 {
     Q_OBJECT
     QML_NAMED_ELEMENT(Dict)

@@ -5,8 +5,6 @@
 */
 
 #include <KAboutData>
-#include <KCrash>
-#include <KDBusService>
 #include <KLocalizedString>
 #include <KSharedConfig>
 #include <KWindowConfig>
@@ -14,9 +12,6 @@
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QCommandLineParser>
-#include <QDBusConnection>
-#include <QDBusConnectionInterface>
-#include <QDBusMessage>
 #include <QDebug>
 #include <QIcon>
 #include <QList>
@@ -29,6 +24,14 @@
 #include <QQuickWindow>
 #include <QSessionManager>
 
+#ifdef HAVE_KDBUSADDONS
+#include <KDBusService>
+#endif
+
+#ifdef HAVE_KCRASH
+#include <KCrash>
+#endif
+
 #include "kemoji_version.h"
 #include "settings.h"
 
@@ -39,7 +42,10 @@ int main(int argc, char **argv)
     QCoreApplication::setAttribute(Qt::AA_DisableSessionManager);
     QApplication app(argc, argv);
     app.setWindowIcon(QIcon::fromTheme(QStringLiteral("preferences-desktop-emoticons")));
+
+#ifdef HAVE_KCRASH
     KCrash::initialize();
+#endif
 
     KLocalizedString::setApplicationDomain(QByteArrayLiteral("org.kde.emojier"));
 
@@ -60,6 +66,7 @@ int main(int argc, char **argv)
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
 
+#ifdef HAVE_KDBUSADDONS
     KDBusService::StartupOptions startup = {};
     {
         QCommandLineParser parser;
@@ -76,6 +83,7 @@ int main(int argc, char **argv)
     }
 
     KDBusService *service = new KDBusService(KDBusService::Unique | startup, &app);
+#endif
 
     // Clean up old window geometry data from before using WindowStateSaver
     KSharedConfig::openConfig()->deleteGroup(QStringLiteral("Window"));
@@ -85,6 +93,7 @@ int main(int argc, char **argv)
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.loadFromModule("org.kde.emojier", "Emojier");
 
+#ifdef HAVE_KDBUSADDONS
     QObject::connect(service, &KDBusService::activateRequested, &engine, [&engine](const QStringList & /*arguments*/, const QString & /*workingDirectory*/) {
         for (QObject *object : engine.rootObjects()) {
             auto w = qobject_cast<QQuickWindow *>(object);
@@ -98,6 +107,7 @@ int main(int argc, char **argv)
             w->raise();
         }
     });
+#endif
 
     KEmoji::Settings::instance().registerCustomEmoji(QUrl::fromLocalFile(u"/home/jgraham/kde/src/kemoji/autotests/data/360px-Mascot_konqi.png"_s), u"Konqi"_s);
 

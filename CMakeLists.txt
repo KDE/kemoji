@@ -74,7 +74,11 @@ endif()
 
 if(KEMOJI_BUILD_EMOJIER)
     find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui QuickControls2 Widgets)
-    find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons Crash DBusAddons WindowSystem)
+    find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons WindowSystem)
+
+    if(NOT ANDROID AND NOT WIN32)
+        find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS DBusAddons Crash)
+    endif()
 
     add_subdirectory(emojier)
 endif()

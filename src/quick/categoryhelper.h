@@ -9,11 +9,9 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "kemoji_export.h"
-
 #include "category.h"
 
-class KEMOJI_EXPORT CategoryHelper : public QObject
+class CategoryHelper : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
@@ -36,7 +34,7 @@ class KEMOJI_EXPORT CategoryHelper : public QObject
     Q_PROPERTY(QString iconName READ iconName NOTIFY categoryChanged)
 
 public:
-    CategoryHelper(QObject *parent = nullptr)
+    CategoryHelper(QObject *parent)
         : QObject(parent)
     {
     }

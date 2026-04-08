@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 ecm_add_qml_module(KEmojiPlugin URI org.kde.kemoji GENERATE_PLUGIN_SOURCE
     QML_FILES
         EmojiDelegate.qml

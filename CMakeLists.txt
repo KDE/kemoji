@@ -33,6 +33,7 @@ include(ECMFindQmlModule)
 include(ECMGenerateQDoc)
 include(CMakeDependentOption)
 include(CMakePackageConfigHelpers)
+include(KDEClangFormat)
 
 set(kemoji_version_header "${CMAKE_CURRENT_BINARY_DIR}/src/kemoji_version.h")
 ecm_setup_version(PROJECT
@@ -112,3 +113,6 @@ include(ECMFeatureSummary)
 ecm_feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
+
+file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES src/*.cpp src/*.h)
+kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})

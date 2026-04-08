@@ -143,12 +143,12 @@ bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
 {
     const auto emoji = index.data(EmojiModel::EmojiRole).view<Emoji>();
 
-    const auto searchParts = m_searchText.split(u' ');
-
     int nameMatches = 0;
     int fallbackNameMatches = 0;
     QHash<QString, int> altNameMatches;
-    for (const auto &part : searchParts) {
+    int partsCount = 0;
+    for (const auto part : QStringTokenizer(m_searchText, ' '_L1)) {
+        ++partsCount;
         if (emoji.name().contains(part, Qt::CaseInsensitive)) {
             ++nameMatches;
         }
@@ -165,8 +165,8 @@ bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
         });
     }
 
-    return nameMatches == searchParts.size() || fallbackNameMatches == searchParts.size() || std::ranges::any_of(altNameMatches, [searchParts](int matches) {
-               return matches == searchParts.size();
+    return nameMatches == partsCount || fallbackNameMatches == partsCount || std::ranges::any_of(altNameMatches, [partsCount](int matches) {
+               return matches == partsCount;
            });
 }
 

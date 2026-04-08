@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
+# SPDX-License-Identifier: BSD-2-Clause
+
 add_executable(emojier emojier.cpp)
 
 ecm_add_qml_module(emojier GENERATE_PLUGIN_SOURCE

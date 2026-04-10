@@ -46,7 +46,7 @@ QQC2.Popup {
         }
         delegate: KEmoji.EmojiDelegate {
             emojiPixelSize: root.emojiPixelSize
-            showSubEmojis: false
+            showVariantEmojis: false
 
             onClicked: {
                 root.clicked(emoji)

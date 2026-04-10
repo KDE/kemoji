@@ -59,11 +59,11 @@ void EmojiModelTest::populate()
     QCOMPARE(model->data(model->index(2), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(3), EmojiModel::TimesUsedRole).toInt(), 0);
     QCOMPARE(model->data(model->index(4), EmojiModel::TimesUsedRole).toInt(), 0);
-    QCOMPARE(model->data(model->index(0), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
-    QCOMPARE(model->data(model->index(1), EmojiModel::SubEmojisRole).value<Group>(), handSubGroup);
-    QCOMPARE(model->data(model->index(2), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
-    QCOMPARE(model->data(model->index(3), EmojiModel::SubEmojisRole).value<Group>(), shakeSubGroup);
-    QCOMPARE(model->data(model->index(4), EmojiModel::SubEmojisRole).value<Group>(), emptyGroup);
+    QCOMPARE(model->data(model->index(0), EmojiModel::VariantEmojisRole).value<Group>(), emptyGroup);
+    QCOMPARE(model->data(model->index(1), EmojiModel::VariantEmojisRole).value<Group>(), handSubGroup);
+    QCOMPARE(model->data(model->index(2), EmojiModel::VariantEmojisRole).value<Group>(), emptyGroup);
+    QCOMPARE(model->data(model->index(3), EmojiModel::VariantEmojisRole).value<Group>(), shakeSubGroup);
+    QCOMPARE(model->data(model->index(4), EmojiModel::VariantEmojisRole).value<Group>(), emptyGroup);
 }
 
 QTEST_GUILESS_MAIN(EmojiModelTest)

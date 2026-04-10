@@ -22,9 +22,9 @@ class KEMOJI_EXPORT EmojiModel : public QAbstractListModel
 public:
     enum RoleNames {
         EmojiRole = Qt::UserRole + 1,
+        VariantEmojisRole,
         RecentIndexRole,
         TimesUsedRole,
-        SubEmojisRole,
     };
 
     explicit EmojiModel(QObject *parent = nullptr);

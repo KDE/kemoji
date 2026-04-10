@@ -13,14 +13,53 @@ import org.kde.kirigami as Kirigami
 
 import org.kde.kemoji as KEmoji
 
+/*!
+ \qmltype EmojiDelegate
+ \inqmlmodule org.kde.kemoji
+
+ \brief A delegate to visualize a \c KEmoji::Emoji
+
+ The delegate can handle unicode and custom emojis, it grabs the correct parameters
+ from the given \c KEmoji::Emoji automatically.
+
+ When clicked the delegate will call \c KEmoji.Dict.emojiUsed so the user does not
+ need to do this automatically.
+
+ \sa KEmoji::Emoji, KEmoji::Dict
+ */
 QQC2.ItemDelegate {
     id: root
 
-    required property KEmoji.emoji emoji
-    required property KEmoji.group subEmojis
-    property int emojiPixelSize
-    property bool showSubEmojis: true
+    /*!
+     \brief The \c KEmoji::Emoji to visualize.
 
+     \sa KEmoji::Emoji
+     */
+    required property KEmoji.emoji emoji
+
+    /*!
+     \brief The \c KEmoji::Group containing the variants of this emoji.
+
+     \sa KEmoji::Group
+     */
+    required property KEmoji.group variantEmojis
+
+    /*!
+     \brief Whether any variant emojis should be shown.
+     */
+    property bool showVariantEmojis: true
+
+    /*!
+     \brief The size of the emoji in pixels.
+
+     The delegate will be a square sized to hold the emoji of this size including
+     any padding.
+     */
+    property int emojiPixelSize
+
+    /*!
+     \brief Emitted when the delegate pis right clicked.
+     */
     signal rightClicked
 
     implicitWidth: metrics.height + leftPadding + rightPadding
@@ -43,7 +82,7 @@ QQC2.ItemDelegate {
         Kirigami.Icon {
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            visible: root.subEmojis.size > 0 && root.showSubEmojis
+            visible: root.variantEmojis.size > 0 && root.showVariantEmojis
             width: Kirigami.Units.gridUnit * 0.5
             height: Kirigami.Units.gridUnit * 0.5
             source: "arrow-down-symbolic"

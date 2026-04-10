@@ -51,7 +51,7 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
         return Dict::instance().recentEmojiIndex(emoji);
     case TimesUsedRole:
         return Dict::instance().timesEmojiUsed(emoji);
-    case SubEmojisRole: {
+    case VariantEmojisRole: {
         auto familyGroup = Dict::instance().variantGroupForEmoji(emoji);
         if (familyGroup.isEmpty()) {
             familyGroup = Dict::instance().variantGroupForEmoji(Tones::removeTonesFromEmoji(emoji));
@@ -77,7 +77,9 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
 {
     return {
         {EmojiRole, "emoji"},
-        {SubEmojisRole, "subEmojis"},
+        {VariantEmojisRole, "variantEmojis"},
+        {RecentIndexRole, "recentIndex"},
+        {TimesUsedRole, "timesUsed"},
     };
 }
 

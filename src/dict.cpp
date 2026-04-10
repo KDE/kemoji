@@ -67,7 +67,7 @@ bool Dict::loaded() const
 
 const Group &Dict::emojis() const
 {
-    return m_completeGroup;
+    return m_categoryGroups.at(Categories::All);
 }
 
 const Group &Dict::variantGroupForEmoji(const Emoji &emoji) const
@@ -85,6 +85,9 @@ const QList<Categories::Category> &Dict::categories() const
 
 const Group &Dict::categoryGroup(Categories::Category category) const
 {
+    if (!m_categoryGroups.contains(category)) {
+        return emptyGroup;
+    }
     return m_categoryGroups.at(category);
 }
 
@@ -138,6 +141,8 @@ void Dict::load()
         return;
     }
 
+    m_categoryGroups[Categories::All] = Group();
+
     // We load in reverse order, because we want to preserve the order in en.dict.
     // en.dict almost always gives complete set of data.
     std::ranges::for_each(dicts.crbegin(), dicts.crend(), [this](const QString &path) {
@@ -164,8 +169,8 @@ void Dict::loadDict(const QString &path)
 
     std::ranges::for_each(emojis, [this](const Emoji &emoji) {
         Group::EmojiIt it;
-        if (m_completeGroup.contains(emoji)) {
-            it = *m_completeGroup.m_emojiIts[emoji.id()];
+        if (m_categoryGroups[Categories::All].contains(emoji)) {
+            it = *m_categoryGroups[Categories::All].m_emojiIts[emoji.id()];
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
@@ -173,16 +178,16 @@ void Dict::loadDict(const QString &path)
             foundEmoji.setFallbackName(fallbackName);
         } else {
             it = m_emojis.insert(m_emojis.end(), emoji);
-            m_completeGroup.add(it);
+            m_categoryGroups[Categories::All].add(it);
         }
 
         loadEmojiToCategoryGroup(it);
 
         auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
-        if (!m_completeGroup.contains(tonelessEmoji)) {
+        if (!m_categoryGroups[Categories::All].contains(tonelessEmoji)) {
             tonelessEmoji.setUnicode(qualify(tonelessEmoji.unicode()));
         }
-        if (!m_completeGroup.contains(tonelessEmoji)) {
+        if (!m_categoryGroups[Categories::All].contains(tonelessEmoji)) {
             return;
         }
         if (tonelessEmoji == emoji) {
@@ -215,7 +220,7 @@ void Dict::loadCustom()
     std::ranges::for_each(customEmojis, [this](const QString &name) {
         Group::EmojiIt it = m_emojis.insert(m_emojis.end(), name);
         it->setCategory(Categories::Custom);
-        m_completeGroup.add(it);
+        m_categoryGroups[Categories::All].add(it);
     });
 }
 
@@ -243,7 +248,7 @@ QString Dict::qualify(QString emoji)
 
 void Dict::emojiUsed(const Emoji &emoji)
 {
-    if (!m_completeGroup.contains(emoji)) {
+    if (!m_categoryGroups[Categories::All].contains(emoji)) {
         return;
     }
 

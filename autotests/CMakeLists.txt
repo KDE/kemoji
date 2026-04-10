@@ -16,6 +16,12 @@ ecm_add_test(
 )
 
 ecm_add_test(
+    dicttest.cpp
+    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
+    TEST_NAME dicttest
+)
+
+ecm_add_test(
     grouptest.cpp
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
     TEST_NAME grouptest

@@ -182,7 +182,6 @@ private:
     bool m_loaded = false;
 
     std::list<Emoji> m_emojis;
-    Group m_completeGroup;
     std::unordered_map<QString, Group> m_variantGroups;
     std::unordered_map<Categories::Category, Group> m_categoryGroups;
     QList<Categories::Category> m_categories;

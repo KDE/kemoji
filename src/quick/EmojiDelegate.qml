@@ -82,6 +82,8 @@ QQC2.ItemDelegate {
     Keys.onMenuPressed: event => root.rightClicked()
     Keys.onReturnPressed: event => root.clicked()
 
+    onClicked: KEmoji.Dict.emojiUsed(root.emoji)
+
     TapHandler {
         acceptedButtons: Qt.RightButton
         onTapped: (eventPoint, button) => root.rightClicked()

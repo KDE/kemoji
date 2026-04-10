@@ -42,7 +42,6 @@ Kirigami.ApplicationWindow {
             return;
         }
         CopyHelper.copyTextToClipboard(emoji.toString(Qt.RichText))
-        KEmoji.Dict.emojiUsed(emoji);
         window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji.toString(Qt.RichText)))
     }
 

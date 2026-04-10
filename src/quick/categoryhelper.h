@@ -34,7 +34,7 @@ class CategoryHelper : public QObject
     Q_PROPERTY(QString iconName READ iconName NOTIFY categoryChanged)
 
 public:
-    CategoryHelper(QObject *parent)
+    CategoryHelper(QObject *parent = nullptr)
         : QObject(parent)
     {
     }

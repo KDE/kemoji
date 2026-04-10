@@ -41,7 +41,7 @@ QQC2.Popup {
         currentIndex: -1
         reuseItems: true
 
-        model: KEmoji.EmojiModel {
+        model: KEmoji.Model {
             id: emojiModel
         }
         delegate: KEmoji.EmojiDelegate {

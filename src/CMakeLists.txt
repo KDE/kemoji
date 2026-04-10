@@ -18,7 +18,7 @@ target_sources(KEmoji PRIVATE
     group.cpp
     category.h
     tones.h
-    emojimodel.cpp
+    model.cpp
     emojifiltermodel.cpp
 )
 
@@ -49,11 +49,14 @@ target_link_libraries(KEmoji PRIVATE
 
 ecm_generate_headers(KEmoji_HEADERS
   HEADER_NAMES
+    Emoji
+    Group
     Dict
-    EmojiModel
+    Model
     EmojiFilterModel
 
   REQUIRED_HEADERS KEmoji_HEADERS
+  SHARED_PREFIX KEmoji
 )
 
 install(TARGETS KEmoji EXPORT KEmojiTargets ${KF_INSTALL_TARGETS_DEFAULT_ARGS})

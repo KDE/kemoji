@@ -4,7 +4,7 @@
  *    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
  */
 
-#include "emojimodel.h"
+#include "model.h"
 
 #include "dict.h"
 #include "emoji.h"
@@ -13,17 +13,17 @@
 
 using namespace KEmoji;
 
-EmojiModel::EmojiModel(QObject *parent)
+Model::Model(QObject *parent)
     : QAbstractListModel(parent)
 {
 }
 
-const KEmoji::Group &EmojiModel::emojis() const
+const Group &Model::emojis() const
 {
     return m_emojis;
 }
 
-void EmojiModel::setEmojis(const KEmoji::Group &emojis)
+void Model::setEmojis(const Group &emojis)
 {
     if (emojis == m_emojis) {
         return;
@@ -34,7 +34,7 @@ void EmojiModel::setEmojis(const KEmoji::Group &emojis)
     Q_EMIT emojisChanged();
 }
 
-QVariant EmojiModel::data(const QModelIndex &index, int role) const
+QVariant Model::data(const QModelIndex &index, int role) const
 {
     if (!checkIndex(index,
                     QAbstractItemModel::CheckIndexOption::IndexIsValid | QAbstractItemModel::CheckIndexOption::ParentIsInvalid
@@ -68,12 +68,12 @@ QVariant EmojiModel::data(const QModelIndex &index, int role) const
     }
 }
 
-int EmojiModel::rowCount(const QModelIndex &parent) const
+int Model::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : m_emojis.size();
 }
 
-QHash<int, QByteArray> EmojiModel::roleNames() const
+QHash<int, QByteArray> Model::roleNames() const
 {
     return {
         {EmojiRole, "emoji"},
@@ -83,4 +83,4 @@ QHash<int, QByteArray> EmojiModel::roleNames() const
     };
 }
 
-#include "moc_emojimodel.cpp"
+#include "moc_model.cpp"

@@ -22,9 +22,9 @@ ecm_add_test(
 )
 
 ecm_add_test(
-    emojimodeltest.cpp
+    modeltest.cpp
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
-    TEST_NAME emojimodeltest
+    TEST_NAME modeltest
 )
 
 ecm_add_test(

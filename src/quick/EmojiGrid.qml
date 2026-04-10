@@ -29,8 +29,7 @@ GridView {
 
     model: KEmoji.EmojiFilterModel {
         id: categoryFilterModel
-        sourceModel: KEmoji.EmojiModel {
-            id: emojiModel
+        sourceModel: KEmoji.Model {
             emojis: KEmoji.Dict.emojis
         }
     }

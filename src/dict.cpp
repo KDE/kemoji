@@ -23,7 +23,7 @@
 #include "emoji.h"
 #include "group.h"
 #include "kemoji_logging.h"
-#include "settings.h"
+#include "settings_p.h"
 #include "tones.h"
 
 using namespace Qt::Literals::StringLiterals;
@@ -248,6 +248,16 @@ void Dict::emojiUsed(const Emoji &emoji)
     }
 
     Settings::instance().emojiUsed(emoji.id());
+}
+
+bool Dict::registerCustomEmoji(const QUrl &source, const QString &name)
+{
+    return Settings::instance().registerCustomEmoji(source, name);
+}
+
+bool Dict::unregisterCustomEmoji(const QString &name)
+{
+    return Settings::instance().unregisterCustomEmoji(name);
 }
 
 void Dict::clearHistory()

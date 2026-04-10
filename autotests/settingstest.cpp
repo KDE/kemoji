@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTest>
 
-#include "settings.h"
+#include "settings_p.h"
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;

@@ -7,7 +7,7 @@
 #include "emoji.h"
 
 #include "category.h"
-#include "settings.h"
+#include "settings_p.h"
 
 using namespace KEmoji;
 

@@ -129,6 +129,33 @@ public:
     void emojiUsed(const Emoji &emoji);
 
     /*!
+     * \brief Register a custom emoji.
+     *
+     * The source \c QUrl and name must be registered before they will be recognized.
+     *
+     * \param source The \c QUrl of the image containing the custom emoji. This must
+     * be a local file.
+     * \param name The name of the custom emoji as a \c QString.
+     *
+     * \warning Custom Emojis must not share a name with any existing emoji. If they do
+     * there will be a clash and anytime the name is set of the unicode emoji it will
+     * be overridden by the custom version.
+     */
+    bool registerCustomEmoji(const QUrl &source, const QString &name);
+
+    /*!
+     * \brief Unregister a custom emoji.
+     *
+     * If the given name is a registered custom emoji it is removed from the list and
+     * can no longer be used.
+     *
+     * \warning All existing custom emojis with the unregistered name will still
+     * be valid as they are populated the protections only exist on \c KEmoji::Emoji
+     * creation. The user must manage existing custom emoji instances.
+     */
+    bool unregisterCustomEmoji(const QString &name);
+
+    /*!
      * \brief Clear the emoji usage history.
      *
      * This will leave recent and favorite emojis empty.

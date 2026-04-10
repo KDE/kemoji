@@ -11,7 +11,7 @@
 
 #include <KLazyLocalizedString>
 
-#include "settings.h"
+#include "settings_p.h"
 
 using namespace KEmoji;
 

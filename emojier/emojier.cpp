@@ -4,11 +4,6 @@
     SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
 
-#include <KAboutData>
-#include <KLocalizedString>
-#include <KSharedConfig>
-#include <KWindowConfig>
-#include <KWindowSystem>
 #include <QAbstractListModel>
 #include <QApplication>
 #include <QCommandLineParser>
@@ -24,6 +19,13 @@
 #include <QQuickWindow>
 #include <QSessionManager>
 
+#include <KAboutData>
+#include <KEmoji/Dict>
+#include <KLocalizedString>
+#include <KSharedConfig>
+#include <KWindowConfig>
+#include <KWindowSystem>
+
 #ifdef HAVE_KDBUSADDONS
 #include <KDBusService>
 #endif
@@ -33,7 +35,6 @@
 #endif
 
 #include "kemoji_version.h"
-#include "settings.h"
 
 using namespace Qt::Literals::StringLiterals;
 
@@ -109,7 +110,7 @@ int main(int argc, char **argv)
     });
 #endif
 
-    KEmoji::Settings::instance().registerCustomEmoji(QUrl::fromLocalFile(u"/home/jgraham/kde/src/kemoji/autotests/data/360px-Mascot_konqi.png"_s), u"Konqi"_s);
+    KEmoji::Dict::instance().registerCustomEmoji(QUrl::fromLocalFile(u"/home/jgraham/kde/src/kemoji/autotests/data/360px-Mascot_konqi.png"_s), u"Konqi"_s);
 
     return app.exec();
 }

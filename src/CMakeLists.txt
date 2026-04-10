@@ -50,8 +50,10 @@ target_link_libraries(KEmoji PRIVATE
 ecm_generate_headers(KEmoji_HEADERS
   HEADER_NAMES
     Emoji
-    Group
     Dict
+    Group
+    Category
+    Tones
     Model
     SortFilterModel
 

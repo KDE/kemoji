@@ -4,7 +4,7 @@
  *    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
  */
 
-#include "settings.h"
+#include "settings_p.h"
 
 #include <QCoreApplication>
 #include <QMimeDatabase>
@@ -176,5 +176,3 @@ QUrl Settings::customEmojiSource(const QString &name) const
 {
     return m_customEmojis.value(name, {});
 }
-
-#include "moc_settings.cpp"

@@ -4,7 +4,7 @@
  *    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
  */
 
-#include "emojifiltermodel.h"
+#include "sortfiltermodel.h"
 
 #include "category.h"
 #include "dict.h"
@@ -14,7 +14,7 @@
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
 
-EmojiFilterModel::EmojiFilterModel(QObject *parent)
+SortFilterModel::SortFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_currentCategory(Categories::Category::All)
 {
@@ -31,20 +31,20 @@ EmojiFilterModel::EmojiFilterModel(QObject *parent)
         invalidateRowsFilter();
 #endif
     });
-    connect(this, &EmojiFilterModel::sourceModelChanged, this, &EmojiFilterModel::invalidate);
-    connect(this, &EmojiFilterModel::sourceModelChanged, this, [this]() {
+    connect(this, &SortFilterModel::sourceModelChanged, this, &SortFilterModel::invalidate);
+    connect(this, &SortFilterModel::sourceModelChanged, this, [this]() {
         if (sourceModel()) {
-            connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, &EmojiFilterModel::invalidate);
+            connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, &SortFilterModel::invalidate);
         }
     });
 }
 
-QString EmojiFilterModel::searchText() const
+QString SortFilterModel::searchText() const
 {
     return m_searchText;
 }
 
-void EmojiFilterModel::setSearchText(const QString &searchText)
+void SortFilterModel::setSearchText(const QString &searchText)
 {
     if (searchText == m_searchText) {
         return;
@@ -54,12 +54,12 @@ void EmojiFilterModel::setSearchText(const QString &searchText)
     Q_EMIT searchTextChanged();
 }
 
-Categories::Category EmojiFilterModel::currentCategory() const
+Categories::Category SortFilterModel::currentCategory() const
 {
     return m_currentCategory;
 }
 
-void EmojiFilterModel::setCurrentCategory(Categories::Category category)
+void SortFilterModel::setCurrentCategory(Categories::Category category)
 {
     if (category == m_currentCategory) {
         return;
@@ -69,32 +69,32 @@ void EmojiFilterModel::setCurrentCategory(Categories::Category category)
     Q_EMIT categoryChanged();
 }
 
-Tones::Tone EmojiFilterModel::defaultTone() const
+Tones::Tone SortFilterModel::toneFilter() const
 {
-    return m_defaultTone;
+    return m_toneFilter;
 }
 
-QString EmojiFilterModel::defaultToneUnicode() const
+QString SortFilterModel::toneFilterUnicode() const
 {
-    return Tones::exampleEmojiUnicodeForTone(m_defaultTone);
+    return Tones::exampleEmojiUnicodeForTone(m_toneFilter);
 }
 
-void EmojiFilterModel::setDefaultTone(Tones::Tone defaultTone)
+void SortFilterModel::setToneFilter(Tones::Tone toneFilter)
 {
-    if (defaultTone == m_defaultTone) {
+    if (toneFilter == m_toneFilter) {
         return;
     }
-    m_defaultTone = defaultTone;
+    m_toneFilter = toneFilter;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
 #else
     invalidateRowsFilter();
 #endif
-    Q_EMIT defaultToneChanged();
+    Q_EMIT toneFilterChanged();
 }
 
-bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+bool SortFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     int result = isRecentMatch(source_left, source_right);
     if (m_currentCategory == Categories::Recent && result != 0) {
@@ -119,7 +119,7 @@ bool EmojiFilterModel::lessThan(const QModelIndex &source_left, const QModelInde
     return sourceIndexLessThan(source_left, source_right);
 }
 
-bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
+bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
 {
     bool categoryFilter = false;
     bool searchFilter = false;
@@ -141,12 +141,12 @@ bool EmojiFilterModel::filterAcceptsRow(int source_row, const QModelIndex &sourc
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
     const auto tones = Tones::tonesForEmoji(emoji);
     const auto family = Dict::instance().variantGroupForEmoji(emoji);
-    toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_defaultTone));
+    toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_toneFilter));
 
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Categories::Recent || m_currentCategory == Categories::Favorite);
 }
 
-bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
+bool SortFilterModel::nameContainsSearch(const QModelIndex &index) const
 {
     const auto emoji = index.data(Model::EmojiRole).view<Emoji>();
 
@@ -177,7 +177,7 @@ bool EmojiFilterModel::nameContainsSearch(const QModelIndex &index) const
            });
 }
 
-int EmojiFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftEmoji = source_left.data(Model::EmojiRole).view<Emoji>();
     const auto leftMatch = leftEmoji.name().compare(m_searchText, Qt::CaseInsensitive) || leftEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive);
@@ -187,28 +187,28 @@ int EmojiFilterModel::exactNameMatch(const QModelIndex &source_left, const QMode
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
-int EmojiFilterModel::exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftMatch = source_left.data(Model::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
     const auto rightMatch = source_right.data(Model::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
-int EmojiFilterModel::isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftMatch = source_left.data(Model::RecentIndexRole).toInt();
     const auto rightMatch = source_right.data(Model::RecentIndexRole).toInt();
     return leftMatch == rightMatch ? 0 : rightMatch > leftMatch ? 1 : -1;
 }
 
-int EmojiFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftMatch = source_left.data(Model::TimesUsedRole).toInt();
     const auto rightMatch = source_right.data(Model::TimesUsedRole).toInt();
     return leftMatch == rightMatch ? 0 : leftMatch > rightMatch ? 1 : -1;
 }
 
-bool EmojiFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+bool SortFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto source = dynamic_cast<Model *>(sourceModel());
     if (!source) {
@@ -220,4 +220,4 @@ bool EmojiFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const
     return group.indexForEmoji(leftEmoji) < group.indexForEmoji(rightEmoji);
 }
 
-#include "moc_emojifiltermodel.cpp"
+#include "moc_sortfiltermodel.cpp"

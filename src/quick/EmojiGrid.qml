@@ -27,7 +27,7 @@ GridView {
     currentIndex: -1
     reuseItems: true
 
-    model: KEmoji.EmojiFilterModel {
+    model: KEmoji.SortFilterModel {
         id: categoryFilterModel
         sourceModel: KEmoji.Model {
             emojis: KEmoji.Dict.emojis

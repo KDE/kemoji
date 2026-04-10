@@ -99,14 +99,14 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
-        categoryPage.model.setCurrentCategory(KEmoji.Categories.Recent);
+        categoryPage.model.currentCategory = KEmoji.Categories.Recent;
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory(KEmoji.Categories.Favorite);
+        categoryPage.model.currentCategory = KEmoji.Categories.Favorite;
         if (categoryPage.model.rowCount() > 0) {
             return;
         }
-        categoryPage.model.setCurrentCategory(KEmoji.Categories.All);
+        categoryPage.model.currentCategory = KEmoji.Categories.All;
     }
 }

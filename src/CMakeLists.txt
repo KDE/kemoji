@@ -19,7 +19,7 @@ target_sources(KEmoji PRIVATE
     category.h
     tones.h
     model.cpp
-    emojifiltermodel.cpp
+    sortfiltermodel.cpp
 )
 
 if(KEMOJI_USE_QML)
@@ -53,7 +53,7 @@ ecm_generate_headers(KEmoji_HEADERS
     Group
     Dict
     Model
-    EmojiFilterModel
+    SortFilterModel
 
   REQUIRED_HEADERS KEmoji_HEADERS
   SHARED_PREFIX KEmoji

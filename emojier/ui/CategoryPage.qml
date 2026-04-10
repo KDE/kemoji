@@ -143,7 +143,7 @@ Kirigami.ScrollablePage {
                     text: skinToneButton.label
                 }
                 QQC2.Label {
-                    text: emojiGrid.model.defaultToneUnicode
+                    text: emojiGrid.model.toneFilterUnicode
                     font.pixelSize: Kirigami.Units.iconSizes.smallMedium
                 }
             }
@@ -176,8 +176,8 @@ Kirigami.ScrollablePage {
                         QQC2.ActionGroup.group: skinToneGroup
                         shortcut: "ctrl+%1".arg(modelData + 1)
                         checkable: true
-                        checked: emojiGrid.model.defaultTone == modelData
-                        onTriggered: emojiGrid.model.defaultTone = modelData
+                        checked: emojiGrid.model.toneFilter == modelData
+                        onTriggered: emojiGrid.model.toneFilter = modelData
                     }
 
                     onObjectAdded: (index, object) => skinToneMenu.contentData.push(object)

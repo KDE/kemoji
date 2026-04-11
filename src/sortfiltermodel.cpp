@@ -180,10 +180,11 @@ bool SortFilterModel::nameContainsSearch(const QModelIndex &index) const
 int SortFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     const auto leftEmoji = source_left.data(Model::EmojiRole).view<Emoji>();
-    const auto leftMatch = leftEmoji.name().compare(m_searchText, Qt::CaseInsensitive) || leftEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive);
+    const auto leftMatch =
+        leftEmoji.name().compare(m_searchText, Qt::CaseInsensitive) == 0 || leftEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive) == 0;
     const auto rightEmoji = source_right.data(Model::EmojiRole).view<Emoji>();
     const auto rightMatch =
-        rightEmoji.name().compare(m_searchText, Qt::CaseInsensitive) || rightEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive);
+        rightEmoji.name().compare(m_searchText, Qt::CaseInsensitive) == 0 || rightEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive) == 0;
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 

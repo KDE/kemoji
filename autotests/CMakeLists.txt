@@ -34,6 +34,12 @@ ecm_add_test(
 )
 
 ecm_add_test(
+    sortfiltermodeltest.cpp
+    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
+    TEST_NAME sortfiltermodeltest
+)
+
+ecm_add_test(
     tonestest.cpp
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
     TEST_NAME tonestest

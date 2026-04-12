@@ -62,6 +62,7 @@ QQC2.ItemDelegate {
      */
     signal rightClicked
 
+    text: emoji.name
     implicitWidth: metrics.height + leftPadding + rightPadding
     implicitHeight: metrics.height + leftPadding + rightPadding
     leftPadding: Kirigami.Units.mediumSpacing
@@ -111,7 +112,7 @@ QQC2.ItemDelegate {
         }
     }
 
-    Accessible.name: root.emoji.name
+    Accessible.name: root.text
     Accessible.onPressAction: root.clicked()
 
     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay

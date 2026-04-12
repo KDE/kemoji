@@ -70,6 +70,7 @@ add_subdirectory(data)
 add_subdirectory(src)
 
 if (BUILD_TESTING)
+    find_package(Qt6 ${REQUIRED_QT_VERSION} NO_MODULE COMPONENTS QuickTest)
     add_subdirectory(autotests)
 endif()
 

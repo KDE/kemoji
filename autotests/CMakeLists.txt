@@ -50,3 +50,32 @@ ecm_add_test(
     LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
     TEST_NAME settingstest
 )
+
+macro(add_qml_tests)
+    if (WIN32)
+        set(_extra_args -platform offscreen)
+    endif()
+
+    foreach(test ${ARGV})
+        add_test(NAME ${test}
+                COMMAND qmltest
+                ${_extra_args}
+                -input ${test}
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        )
+    endforeach()
+endmacro()
+
+add_executable(qmltest qmltest.cpp)
+qt_add_qml_module(qmltest URI NeoChatTestUtils)
+
+target_link_libraries(qmltest PRIVATE
+    Qt6::Qml
+    Qt6::QuickTest
+    KF6::I18n
+    KEmoji
+)
+
+add_qml_tests(
+    emojidelegatetest.qml
+)

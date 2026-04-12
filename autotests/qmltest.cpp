@@ -53,6 +53,12 @@ private:
         it = m_emojis.insert(m_emojis.end(), emoji);
         m_testGroup.add(it);
         engine->rootContext()->setContextProperty(u"emoji3"_s, QVariant::fromValue(emoji));
+        emoji = KEmoji::Emoji(u"😁"_s);
+        emoji.setName(u"Name 4"_s);
+        emoji.setCategory(KEmoji::Categories::Smileys);
+        it = m_emojis.insert(m_emojis.end(), emoji);
+        m_testGroup.add(it);
+        engine->rootContext()->setContextProperty(u"emoji4"_s, QVariant::fromValue(emoji));
 
         engine->rootContext()->setContextProperty(u"testGroup"_s, QVariant::fromValue(m_testGroup));
     }

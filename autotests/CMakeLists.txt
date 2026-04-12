@@ -78,4 +78,5 @@ target_link_libraries(qmltest PRIVATE
 
 add_qml_tests(
     emojidelegatetest.qml
+    emojigridtest.qml
 )

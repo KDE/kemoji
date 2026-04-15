@@ -21,6 +21,8 @@ TestCase {
         KEmoji.EmojiGrid {
             width: 100
             height: 100
+            cellWidth: 50
+            cellHeight: 50
             model: KEmoji.SortFilterModel {
                 id: categoryFilterModel
                 sourceModel: KEmoji.Model {

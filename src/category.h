@@ -22,7 +22,7 @@ Q_NAMESPACE_EXPORT(KEMOJI_EXPORT)
 QML_ELEMENT
 
 /*!
- * \enum Categoru
+ * \enum Category
  *
  * Enumeration representing the available emoji categories:
  *

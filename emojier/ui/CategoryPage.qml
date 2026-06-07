@@ -21,12 +21,8 @@ Kirigami.ScrollablePage {
     property alias model: emojiGrid.model
     property string searchText: ""
 
-    title: helper.name
-
-    KEmoji.CategoryHelper {
-        id: helper
-        category: emojiGrid.model.currentCategory
-    }
+    KEmoji.Category.category: emojiGrid.model.currentCategory
+    title: KEmoji.Category.name
 
     leftPadding: undefined
     rightPadding: undefined

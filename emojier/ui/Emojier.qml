@@ -81,9 +81,11 @@ Kirigami.ApplicationWindow {
         Instantiator {
             id: instantiator
             model: KEmoji.Dict.categories
-            delegate: KEmoji.CategoryAction {
+            delegate: QQC2.Action {
                 required property int modelData
-                category: modelData
+                KEmoji.Category.category: modelData
+                text: KEmoji.Category.name
+                icon.name: KEmoji.Category.iconName
                 checked: categoryPage.model.currentCategory === modelData
                 onTriggered: categoryPage.model.currentCategory = modelData
             }

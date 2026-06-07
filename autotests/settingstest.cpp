@@ -92,7 +92,12 @@ void SettingsTest::registerCustomTest()
     QCOMPARE(Settings::instance().customEmojiSource(customEmojiName), QUrl());
 
     registered = Settings::instance().registerCustomEmoji(QUrl(u"https://kde.org"_s), customEmojiName);
-    QCOMPARE(registered, false);
+    QCOMPARE(registered, true);
+    QCOMPARE(Settings::instance().isCustomEmoji(customEmojiName), true);
+    QCOMPARE(Settings::instance().customEmojiSource(customEmojiName), QUrl(u"https://kde.org"_s));
+
+    registered = Settings::instance().unregisterCustomEmoji(customEmojiName);
+    QCOMPARE(registered, true);
     QCOMPARE(Settings::instance().isCustomEmoji(customEmojiName), false);
     QCOMPARE(Settings::instance().customEmojiSource(customEmojiName), QUrl());
 }

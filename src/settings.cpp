@@ -95,12 +95,12 @@ int Settings::timesUsed(const QString &emoji) const
 
 bool Settings::validSource(const QUrl &source)
 {
-    if (!source.isValid() || !source.isLocalFile()) {
+    if (!source.isValid()) {
         return false;
     }
     QMimeDatabase db;
     QMimeType mime = db.mimeTypeForUrl(source);
-    if (!mime.isValid() || !mime.name().contains(u"image"_s)) {
+    if (source.isLocalFile() && (!mime.isValid() || !mime.name().contains(u"image"_s))) {
         return false;
     }
 

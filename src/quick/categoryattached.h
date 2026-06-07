@@ -11,15 +11,13 @@
 
 #include "category.h"
 
-namespace KEmoji::Categories
-{
 /*!
  * \class CategoryAttached
  *
  * \brief An attached property to allow KEmoji::Categories::Category data to be accessed
  * in QML.
  *
- * By declaring a Category object in QML and assigning it a category values the
+ * By declaring a Category object in QML and assigning it a category value the
  * relevant category name string and icon name strings can be obtained.
  *
  * \code
@@ -64,7 +62,7 @@ class CategoryAttached : public QObject
      *
      * \sa KEmoji::Categories::Category
      */
-    Q_PROPERTY(Category category READ category WRITE setCategory NOTIFY categoryChanged FINAL)
+    Q_PROPERTY(KEmoji::Categories::Category category READ category WRITE setCategory NOTIFY categoryChanged FINAL)
 
     /*!
      * \brief The name of the \c KEmoji::Categories::Category as a \c QString.
@@ -79,8 +77,8 @@ class CategoryAttached : public QObject
 public:
     explicit CategoryAttached(QObject *parent = nullptr);
 
-    Category category() const;
-    void setCategory(Category category);
+    KEmoji::Categories::Category category() const;
+    void setCategory(KEmoji::Categories::Category category);
     QString name() const;
     QString iconName() const;
 
@@ -90,6 +88,5 @@ Q_SIGNALS:
     void categoryChanged();
 
 private:
-    Category m_category = None;
+    KEmoji::Categories::Category m_category = KEmoji::Categories::None;
 };
-}

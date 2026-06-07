@@ -74,11 +74,6 @@ Tones::Tone SortFilterModel::toneFilter() const
     return m_toneFilter;
 }
 
-QString SortFilterModel::toneFilterUnicode() const
-{
-    return Tones::exampleEmojiUnicodeForTone(m_toneFilter);
-}
-
 void SortFilterModel::setToneFilter(Tones::Tone toneFilter)
 {
     if (toneFilter == m_toneFilter) {

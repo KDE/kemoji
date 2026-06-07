@@ -73,15 +73,6 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
      */
     Q_PROPERTY(KEmoji::Tones::Tone toneFilter READ toneFilter WRITE setToneFilter NOTIFY toneFilterChanged)
 
-    /*!
-     * \brief An example \c KEmoji::Emoji with the \c KEmoji::Tones::Tone to represent the filter.
-     *
-     * This is generally used for visualizing the current selection in a menu.
-     *
-     * \sa KEmoji::Tones::Tone
-     */
-    Q_PROPERTY(QString toneFilterUnicode READ toneFilterUnicode NOTIFY toneFilterChanged)
-
 public:
     explicit SortFilterModel(QObject *parent = nullptr);
 
@@ -92,7 +83,6 @@ public:
     void setCurrentCategory(Categories::Category category);
 
     Tones::Tone toneFilter() const;
-    QString toneFilterUnicode() const;
     void setToneFilter(Tones::Tone toneFilter);
 
 Q_SIGNALS:

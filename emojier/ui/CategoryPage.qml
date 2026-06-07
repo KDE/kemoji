@@ -139,7 +139,8 @@ Kirigami.ScrollablePage {
                     text: skinToneButton.label
                 }
                 QQC2.Label {
-                    text: emojiGrid.model.toneFilterUnicode
+                    KEmoji.Tone.tone: emojiGrid.model.toneFilter
+                    text: KEmoji.Tone.exampleUnicode
                     font.pixelSize: Kirigami.Units.iconSizes.smallMedium
                 }
             }
@@ -164,10 +165,12 @@ Kirigami.ScrollablePage {
                 }
                 Instantiator {
                     model: KEmoji.Tones.LENGTH
-                    delegate: KEmoji.ToneAction {
+                    delegate: QQC2.Action {
                         id: toneAction
                         required property int modelData
-                        tone: modelData
+                        KEmoji.Tone.tone: modelData
+                        text: KEmoji.Tone.exampleUnicodeWithName
+                        Accessible.name: KEmoji.Tone.name
 
                         QQC2.ActionGroup.group: skinToneGroup
                         shortcut: "ctrl+%1".arg(modelData + 1)

@@ -135,7 +135,7 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
     const auto tones = Tones::tonesForEmoji(emoji);
-    const auto family = Dict::instance().variantGroupForEmoji(emoji);
+    const auto &family = Dict::instance().variantGroupForEmoji(emoji);
     toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_toneFilter));
 
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Categories::Recent || m_currentCategory == Categories::Favorite);

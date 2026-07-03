@@ -99,11 +99,11 @@ private:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
 
-    bool nameContainsSearch(const QModelIndex &index) const;
-    int exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
-    int exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    [[nodiscard]] bool nameContainsSearch(const Emoji &emoji) const;
+    [[nodiscard]] int exactNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const;
+    [[nodiscard]] int exactAltNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const;
     int isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
     int isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
-    bool sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
+    [[nodiscard]] bool sourceIndexLessThan(const Emoji &leftEmoji, const Emoji &rightEmoji) const;
 };
 }

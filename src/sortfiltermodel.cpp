@@ -101,17 +101,19 @@ bool SortFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex
         return result > 0;
     }
 
-    result = exactNameMatch(source_left, source_right);
+    const auto leftEmoji = source_left.data(Model::EmojiRole).view<Emoji>();
+    const auto rightEmoji = source_right.data(Model::EmojiRole).view<Emoji>();
+    result = exactNameMatch(leftEmoji, rightEmoji);
     if (result != 0) {
         return result > 0;
     }
 
-    result = exactAltNameMatch(source_left, source_right);
+    result = exactAltNameMatch(leftEmoji, rightEmoji);
     if (result != 0) {
         return result > 0;
     }
 
-    return sourceIndexLessThan(source_left, source_right);
+    return sourceIndexLessThan(leftEmoji, rightEmoji);
 }
 
 bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -131,9 +133,9 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
         categoryFilter = m_currentCategory == Categories::All || idx.data(Model::EmojiRole).view<Emoji>().category() == m_currentCategory;
     }
 
-    searchFilter = nameContainsSearch(idx);
-
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
+    searchFilter = nameContainsSearch(emoji);
+
     const auto tones = Tones::tonesForEmoji(emoji);
     const auto &family = Dict::instance().variantGroupForEmoji(emoji);
     toneFilter = tones.length() == 1 && ((family.isEmpty() && tones.contains(Tones::Neutral)) || tones.contains(m_toneFilter));
@@ -141,10 +143,8 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     return categoryFilter && searchFilter && (toneFilter || m_currentCategory == Categories::Recent || m_currentCategory == Categories::Favorite);
 }
 
-bool SortFilterModel::nameContainsSearch(const QModelIndex &index) const
+bool SortFilterModel::nameContainsSearch(const Emoji &emoji) const
 {
-    const auto emoji = index.data(Model::EmojiRole).view<Emoji>();
-
     int nameMatches = 0;
     int fallbackNameMatches = 0;
     QHash<QString, int> altNameMatches;
@@ -172,21 +172,19 @@ bool SortFilterModel::nameContainsSearch(const QModelIndex &index) const
            });
 }
 
-int SortFilterModel::exactNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::exactNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const
 {
-    const auto leftEmoji = source_left.data(Model::EmojiRole).view<Emoji>();
     const auto leftMatch =
         leftEmoji.name().compare(m_searchText, Qt::CaseInsensitive) == 0 || leftEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive) == 0;
-    const auto rightEmoji = source_right.data(Model::EmojiRole).view<Emoji>();
     const auto rightMatch =
         rightEmoji.name().compare(m_searchText, Qt::CaseInsensitive) == 0 || rightEmoji.fallbackName().compare(m_searchText, Qt::CaseInsensitive) == 0;
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
-int SortFilterModel::exactAltNameMatch(const QModelIndex &source_left, const QModelIndex &source_right) const
+int SortFilterModel::exactAltNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const
 {
-    const auto leftMatch = source_left.data(Model::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
-    const auto rightMatch = source_right.data(Model::EmojiRole).view<Emoji>().altNames().contains(m_searchText, Qt::CaseInsensitive);
+    const auto leftMatch = leftEmoji.altNames().contains(m_searchText, Qt::CaseInsensitive);
+    const auto rightMatch = rightEmoji.altNames().contains(m_searchText, Qt::CaseInsensitive);
     return leftMatch == rightMatch ? 0 : leftMatch ? 1 : -1;
 }
 
@@ -204,15 +202,13 @@ int SortFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QMode
     return leftMatch == rightMatch ? 0 : leftMatch > rightMatch ? 1 : -1;
 }
 
-bool SortFilterModel::sourceIndexLessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+bool SortFilterModel::sourceIndexLessThan(const Emoji &leftEmoji, const Emoji &rightEmoji) const
 {
     const auto source = dynamic_cast<Model *>(sourceModel());
     if (!source) {
         return false;
     }
     const auto &group = source->emojis();
-    const auto leftEmoji = source_left.data(Model::EmojiRole).view<Emoji>();
-    const auto rightEmoji = source_right.data(Model::EmojiRole).view<Emoji>();
     return group.indexForEmoji(leftEmoji) < group.indexForEmoji(rightEmoji);
 }
 

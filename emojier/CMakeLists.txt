@@ -21,6 +21,7 @@ target_link_libraries(emojier PRIVATE
     Qt::Widgets
     KF6::ConfigGui
     KF6::I18n
+    KF6::I18nQml
     KF6::CoreAddons
     KF6::Kirigami
     KF6::WindowSystem

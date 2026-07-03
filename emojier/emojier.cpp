@@ -21,6 +21,7 @@
 
 #include <KAboutData>
 #include <KEmoji/Dict>
+#include <KLocalizedQmlContext>
 #include <KLocalizedString>
 #include <KSharedConfig>
 #include <KWindowConfig>
@@ -90,8 +91,7 @@ int main(int argc, char **argv)
     KSharedConfig::openConfig()->deleteGroup(QStringLiteral("Window"));
 
     QQmlApplicationEngine engine;
-
-    engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
+    KLocalization::setupLocalizedContext(&engine);
     engine.loadFromModule("org.kde.emojier", "Emojier");
 
 #ifdef HAVE_KDBUSADDONS

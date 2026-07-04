@@ -5,4 +5,20 @@
 
 # KEmoji
 
-Framework providing an emoji dictionary, model, search and basic components for use in applications.
+Library to provide applications with standardized emoji support.
+
+## Structure
+
+The core of KEmoji is a dictionary that contains all emojis defined in the [Unicode
+standard](https://www.unicode.org/Public/emoji/) (currently version 16).
+
+The dictionary uses an Emoji object which also contains all the other relevant data
+e.g. name, alternative names, category, etc. Which is populated from the included
+dictionaries.
+
+The library also provides other support to help integrate emojis into applications:
+- Groups
+- Models
+- QML Components
+
+

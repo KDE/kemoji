@@ -221,7 +221,7 @@ inline QStringList toneCodePointsForEmoji(const Emoji &emoji)
  */
 inline QList<Tones::Tone> tonesForEmoji(const Emoji &emoji)
 {
-    const auto foundUnicodeTones = toneCodePointsForEmoji(emoji.unicode());
+    const auto foundUnicodeTones = toneCodePointsForEmoji(emoji);
     QList<Tones::Tone> foundTones;
     for (const auto &tone : foundUnicodeTones) {
         foundTones += Tones::toneForCodePoint(tone);

@@ -50,6 +50,8 @@ void SortFilterModel::setSearchText(const QString &searchText)
         return;
     }
     m_searchText = searchText.trimmed();
+    m_searchTextParts.clear();
+    std::ranges::copy(QStringTokenizer(m_searchText, ' '_L1, Qt::SkipEmptyParts), std::back_inserter(m_searchTextParts));
     invalidate();
     Q_EMIT searchTextChanged();
 }
@@ -188,31 +190,26 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 
 bool SortFilterModel::nameContainsSearch(const Emoji &emoji) const
 {
-    int nameMatches = 0;
-    int fallbackNameMatches = 0;
-    QHash<QString, int> altNameMatches;
-    int partsCount = 0;
-    for (const auto part : QStringTokenizer(m_searchText, ' '_L1)) {
-        ++partsCount;
-        if (emoji.name().contains(part, Qt::CaseInsensitive)) {
-            ++nameMatches;
-        }
-        if (emoji.fallbackName().contains(part, Qt::CaseInsensitive)) {
-            ++fallbackNameMatches;
-        }
-        std::ranges::for_each(emoji.altNames(), [&altNameMatches, part](const QString &altName) {
-            if (!altNameMatches.contains(altName)) {
-                altNameMatches[altName] = 0;
-            }
-            if (altName.contains(part, Qt::CaseInsensitive)) {
-                ++altNameMatches[altName];
-            }
-        });
+    const auto name = emoji.name();
+    if (std::ranges::all_of(m_searchTextParts, [&name](QStringView s) {
+            return name.contains(s, Qt::CaseInsensitive);
+        })) {
+        return true;
     }
 
-    return nameMatches == partsCount || fallbackNameMatches == partsCount || std::ranges::any_of(altNameMatches, [partsCount](int matches) {
-               return matches == partsCount;
-           });
+    const auto fallbackName = emoji.fallbackName();
+    if (std::ranges::all_of(m_searchTextParts, [&fallbackName](QStringView s) {
+            return fallbackName.contains(s, Qt::CaseInsensitive);
+        })) {
+        return true;
+    }
+
+    const auto altNames = emoji.altNames();
+    return std::ranges::any_of(altNames, [this](const QString &altName) {
+        return std::ranges::all_of(m_searchTextParts, [&altName](QStringView s) {
+            return altName.contains(s, Qt::CaseInsensitive);
+        });
+    });
 }
 
 int SortFilterModel::exactNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const

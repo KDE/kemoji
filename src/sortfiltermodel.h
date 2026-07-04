@@ -115,7 +115,8 @@ Q_SIGNALS:
     void currentFontChanged();
 
 private:
-    QString m_searchText = {};
+    QString m_searchText;
+    std::vector<QStringView> m_searchTextParts;
 
     Categories::Category m_currentCategory;
     Tones::Tone m_toneFilter = Tones::Neutral;

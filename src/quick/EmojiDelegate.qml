@@ -50,15 +50,7 @@ QQC2.ItemDelegate {
     property bool showVariantEmojis: true
 
     /*!
-     \brief The size of the emoji in pixels.
-
-     The delegate will be a square sized to hold the emoji of this size including
-     any padding.
-     */
-    property int emojiPixelSize
-
-    /*!
-     \brief Emitted when the delegate pis right clicked.
+     \brief Emitted when the delegate is right clicked.
      */
     signal rightClicked
 
@@ -72,9 +64,13 @@ QQC2.ItemDelegate {
     spacing: 0
     highlighted: GridView.isCurrentItem || ListView.isCurrentItem
 
+    font: ({
+        family: "emoji", // Avoid monochrome fonts like DejaVu Sans
+        pixelSize: Kirigami.Units.iconSizes.small
+    })
     FontMetrics {
         id: metrics
-        font.pixelSize: root.emojiPixelSize
+        font.pixelSize: root.font.pixelSize
     }
 
     contentItem: Loader {
@@ -95,9 +91,8 @@ QQC2.ItemDelegate {
         QQC2.Label {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            font.family: 'emoji' // Avoid monochrome fonts like DejaVu Sans
-            font.pixelSize: root.emojiPixelSize
-            text: root.emoji.unicode
+            font: root.font
+            text: root.emoji.unicodeSupportedByFont(font) ? root.emoji.unicode : "�"
             textFormat: Text.PlainText
         }
     }

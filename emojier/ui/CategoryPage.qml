@@ -220,7 +220,10 @@ Kirigami.ScrollablePage {
 
     KEmoji.EmojiGrid {
         id: emojiGrid
-        emojiPixelSize: Kirigami.Units.iconSizes.medium
+        font {
+            family: "emoji"
+            pixelSize: Kirigami.Units.iconSizes.medium
+        }
         onClicked: emoji => Window.window.report(emoji);
         onRightClicked: emoji => {
             const menu = menuComponent.createObject(emojiGrid, {

@@ -18,7 +18,9 @@ TestCase {
     }
 
     function test_emojiData(): void {
-        compare(delegate.contentItem.item.text, "😀");
+        if (hasEmojiFont) {
+            compare(delegate.contentItem.item.text, "😀");
+        }
         compare(delegate.text, "Name 1");
         compare(delegate.contentItem.item instanceof QQC2.Label, true)
     }

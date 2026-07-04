@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 
+#include <QFont>
+#include <QFontDatabase>
 #include <QObject>
 #include <QTest>
 
@@ -25,6 +27,7 @@ private Q_SLOTS:
     void unicodeTest();
     void customTest();
     void equalityTest();
+    void glyphAvailableTest();
 
     void cleanupTestCase();
 };
@@ -144,11 +147,31 @@ void EmojiTest::equalityTest()
     QCOMPARE(emoji1 == emoji2, true);
 }
 
+void EmojiTest::glyphAvailableTest()
+{
+    auto emoji = Emoji(u"😀"_s);
+    bool hasEmojiFont = std::ranges::any_of(QFontDatabase::families(), [](const QString &family) {
+        return family.contains(u"emoji", Qt::CaseInsensitive);
+    });
+
+    if (hasEmojiFont) {
+#ifdef Q_OS_WINDOWS
+        QFont emojiFont(u"Segoe UI Emoji"_s);
+#else
+        QFont emojiFont(u"emoji"_s);
+#endif
+        QCOMPARE(emoji.unicodeSupportedByFont(emojiFont), true);
+    }
+
+    auto noFont = QFont();
+    QCOMPARE(emoji.unicodeSupportedByFont(noFont), false);
+}
+
 void EmojiTest::cleanupTestCase()
 {
     // If a test fails the custom emoji may end up still registered.
     Settings::instance().unregisterCustomEmoji(customEmojiName);
 }
 
-QTEST_GUILESS_MAIN(EmojiTest)
+QTEST_MAIN(EmojiTest)
 #include "emojitest.moc"

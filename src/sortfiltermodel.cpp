@@ -89,6 +89,46 @@ void SortFilterModel::setToneFilter(Tones::Tone toneFilter)
     Q_EMIT toneFilterChanged();
 }
 
+bool SortFilterModel::showUnsupportedEmojis() const
+{
+    return m_showUnsupportedEmojis;
+}
+
+void SortFilterModel::setShowUnsupportedEmojis(bool showUnsupportedEmojis)
+{
+    if (showUnsupportedEmojis == m_showUnsupportedEmojis) {
+        return;
+    }
+    m_showUnsupportedEmojis = showUnsupportedEmojis;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+    invalidateRowsFilter();
+#endif
+    Q_EMIT showUnsupportedEmojisChanged();
+}
+
+QFont SortFilterModel::currentFont() const
+{
+    return m_currentFont;
+}
+
+void SortFilterModel::setCurrentFont(const QFont &currentFont)
+{
+    if (currentFont == m_currentFont) {
+        return;
+    }
+    m_currentFont = currentFont;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
+#else
+    invalidateRowsFilter();
+#endif
+    Q_EMIT currentFontChanged();
+}
+
 bool SortFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
 {
     int result = isRecentMatch(source_left, source_right);
@@ -134,6 +174,9 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     }
 
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
+    if (!m_showUnsupportedEmojis && !emoji.unicodeSupportedByFont(m_currentFont) && m_currentFont != QFont()) {
+        return false;
+    }
     searchFilter = nameContainsSearch(emoji);
 
     const auto tones = Tones::tonesForEmoji(emoji);

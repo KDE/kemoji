@@ -5,12 +5,15 @@
  */
 
 #include "emoji.h"
-#include "category.h"
 
+#include <QFont>
+#include <QRawFont>
 #include <QTextBoundaryFinder>
+#include <QTextLayout>
 
 #include <KLazyLocalizedString>
 
+#include "category.h"
 #include "settings_p.h"
 
 using namespace KEmoji;
@@ -68,6 +71,39 @@ void Emoji::setUnicode(const QString &unicode)
     }
 
     m_unicode = unicode;
+}
+
+bool Emoji::unicodeSupportedByFont(const QFont &font) const
+{
+    // Check if the unicode produces a single glyph when rendered. This shows that
+    // the font supports any variation sequences.
+    QTextLayout textLayout(m_unicode);
+    textLayout.setFont(font);
+    textLayout.beginLayout();
+    QTextLine line = textLayout.createLine();
+    textLayout.endLayout();
+    if (!line.isValid()) {
+        return false;
+    }
+    if (line.glyphRuns().at(0).glyphIndexes().size() > 1) {
+        return false;
+    }
+
+    // Check that all character are supported. This is to handle a font not supporting
+    // new code point gracefully.
+    const auto rawFont = QRawFont::fromFont(font);
+    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, m_unicode);
+    int from = 0;
+    while (finder.toNextBoundary() != -1) {
+        auto to = finder.position();
+
+        auto character = m_unicode.mid(from, to - from).toUcs4()[0];
+        if (!rawFont.supportsCharacter(character)) {
+            return false;
+        }
+        from = to;
+    }
+    return true;
 }
 
 QUrl Emoji::source() const

@@ -15,10 +15,33 @@ pragma ComponentBehavior: Bound
 GridView {
     id: root
 
-    property real emojiPixelSize: Kirigami.Units.iconSizes.small
+    /*!
+     \brief The font to use
 
+     The default uses the "emoji" family and a pixelSize of  \c Kirigami.Units.iconSizes.small.
+     The font family should always be one that supports color emojis.
+     */
+    property font font: ({
+        family: "emoji",
+        pixelSize: Kirigami.Units.iconSizes.small
+    })
+
+    /*!
+     \brief Whether unicode sequences not supported by the current font should be shown.
+
+     As new unicode code points are added not all fonts may support them and may be
+     missing glyphs, this allows for them not to be shown.
+     */
+    property alias showUnsupportedEmojis: categoryFilterModel.showUnsupportedEmojis
+
+    /*!
+     \brief Emitted when a delegate is clicked.
+     */
     signal clicked(emoji: KEmoji.emoji)
 
+    /*!
+     \brief Emitted when a delegate is right clicked.
+     */
     signal rightClicked(emoji: KEmoji.emoji)
 
     cellWidth: count > 0 && itemAtIndex(0) ? itemAtIndex(0).implicitWidth : 0
@@ -32,12 +55,13 @@ GridView {
         sourceModel: KEmoji.Model {
             emojis: KEmoji.Dict.emojis
         }
+        currentFont: root.font
     }
 
     delegate: KEmoji.EmojiDelegate {
         id: emojiDelegate
         property bool subPopupOpen: false
-        emojiPixelSize: root.emojiPixelSize
+        font: root.font
         highlighted: GridView.isCurrentItem || ListView.isCurrentItem || subPopupOpen
 
         onClicked: root.clicked(emojiDelegate.emoji)
@@ -48,7 +72,7 @@ GridView {
             }
             let subPopup = Qt.createComponent('org.kde.kemoji', 'SubEmojiPopup').createObject(emojiDelegate, {
                 emojis: emojiDelegate.variantEmojis,
-                emojiPixelSize: root.emojiPixelSize
+                font: root.font
             }) as KEmoji.SubEmojiPopup;
             subPopup.clicked.connect(emoji => {root.clicked(emoji)});
             subPopup.rightClicked.connect(emoji => root.rightClicked(emoji));

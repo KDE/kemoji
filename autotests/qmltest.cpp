@@ -4,6 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
  */
 
+#include <QFontDatabase>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QtQuickTest>
@@ -61,6 +62,15 @@ private:
         engine->rootContext()->setContextProperty(u"emoji4"_s, QVariant::fromValue(emoji));
 
         engine->rootContext()->setContextProperty(u"testGroup"_s, QVariant::fromValue(m_testGroup));
+
+#ifdef Q_OS_WINDOWS
+        bool hasEmojiFont = false;
+#else
+        bool hasEmojiFont = std::ranges::any_of(QFontDatabase::families(), [](const QString &family) {
+            return family.contains(u"emoji", Qt::CaseInsensitive);
+        });
+#endif
+        engine->rootContext()->setContextProperty(u"hasEmojiFont"_s, hasEmojiFont);
     }
 };
 

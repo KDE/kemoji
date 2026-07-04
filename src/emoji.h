@@ -115,6 +115,8 @@ public:
      */
     void setUnicode(const QString &unicode);
 
+    Q_INVOKABLE bool unicodeSupportedByFont(const QFont &font) const;
+
     QUrl source() const;
 
     QString unqualifiedUnicode() const;

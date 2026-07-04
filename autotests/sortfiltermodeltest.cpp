@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 
 #include "sortfiltermodel.h"
-#include "category.h"
-#include "group.h"
-#include "model.h"
-#include "tones.h"
+
 #include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QTest>
@@ -14,6 +11,11 @@
 #include <KEmoji/Dict>
 #include <KEmoji/Model>
 #include <KEmoji/SortFilterModel>
+
+#include "category.h"
+#include "group.h"
+#include "model.h"
+#include "tones.h"
 
 using namespace KEmoji;
 

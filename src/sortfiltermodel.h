@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <QFont>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QtQmlIntegration/qqmlintegration.h>
@@ -73,6 +74,21 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
      */
     Q_PROPERTY(KEmoji::Tones::Tone toneFilter READ toneFilter WRITE setToneFilter NOTIFY toneFilterChanged)
 
+    /*!
+     * \brief Whether unicode sequences not supported by the current font should be shown.
+     *
+     * As new unicode code points are added not all fonts may support them and may be
+     * missing glyphs, this allows for them not to be shown.
+     */
+    Q_PROPERTY(bool showUnsupportedEmojis READ showUnsupportedEmojis WRITE setShowUnsupportedEmojis NOTIFY showUnsupportedEmojisChanged)
+
+    /*!
+     * \brief The current font being used to visualize \c KEmoji::Emoji.
+     *
+     * This is used to check if the font has a glyph for an \c KEmoji::Emoji.
+     */
+    Q_PROPERTY(QFont currentFont READ currentFont WRITE setCurrentFont NOTIFY currentFontChanged)
+
 public:
     explicit SortFilterModel(QObject *parent = nullptr);
 
@@ -85,16 +101,26 @@ public:
     Tones::Tone toneFilter() const;
     void setToneFilter(Tones::Tone toneFilter);
 
+    bool showUnsupportedEmojis() const;
+    void setShowUnsupportedEmojis(bool showUnsupportedEmojis);
+
+    QFont currentFont() const;
+    void setCurrentFont(const QFont &currentFont);
+
 Q_SIGNALS:
     void searchTextChanged();
     void categoryChanged();
     void toneFilterChanged();
+    void showUnsupportedEmojisChanged();
+    void currentFontChanged();
 
 private:
     QString m_searchText = {};
 
     Categories::Category m_currentCategory;
     Tones::Tone m_toneFilter = Tones::Neutral;
+    bool m_showUnsupportedEmojis = true;
+    QFont m_currentFont = {};
 
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;

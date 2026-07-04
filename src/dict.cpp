@@ -29,6 +29,14 @@
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
 
+namespace
+{
+constexpr quint32 BINARYMAGIC = 0x656D6F6A;
+constexpr quint32 MINBINARYVER = 001;
+constexpr quint32 MAXBINARYVER = 001;
+constexpr QDataStream::Version VERSION1 = QDataStream::Qt_6_10;
+}
+
 Dict::Dict(QObject *parent)
     : QObject(parent)
 {
@@ -164,6 +172,20 @@ void Dict::loadDict(const QString &path)
     auto buffer = file.readAll();
     buffer = qUncompress(buffer);
     QDataStream stream(&buffer, QIODevice::ReadOnly);
+    quint32 magic;
+    stream >> magic;
+    if (magic != BINARYMAGIC) {
+        qCWarning(KEMOJI) << "Bad dictionary file magic number does not match" << path;
+    }
+    quint32 version;
+    stream >> version;
+    if (version < MINBINARYVER) {
+        qCWarning(KEMOJI) << "Bad dictionary file magic version too old" << path;
+    } else if (version > MAXBINARYVER) {
+        qCWarning(KEMOJI) << "Bad dictionary file magic version too new" << path;
+    }
+    stream.setVersion(VERSION1);
+
     QList<Emoji> emojis;
     stream >> emojis;
 

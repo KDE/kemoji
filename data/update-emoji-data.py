@@ -46,15 +46,17 @@ categoryNames = {
     b"Component": Categories.No.value,
 }
 
-EMOJI_VERSION = "16.0"
+EMOJI_VERSION = "latest"
 EMOJI_TEST_FILE = "emoji-test.txt"
 EMOJI_TEST_URL = f"https://www.unicode.org/Public/emoji/{EMOJI_VERSION}/{EMOJI_TEST_FILE}"
 
-CLDR_VERSION = "46.0"
+CLDR_VERSION = "48.2"
 CLDR_FILE = f"cldr-common-{CLDR_VERSION}.zip"
-CLDR_URL = f"https://unicode.org/Public/cldr/{CLDR_VERSION.split('.')[0]}/{CLDR_FILE}"
+CLDR_URL = f"https://unicode.org/Public/cldr/{CLDR_VERSION}/{CLDR_FILE}"
 CLDR_ANNOTATIONS_DIR = "common/annotations"
 CLDR_ANNOTATIONS_DERIVED_DIR = "common/annotationsDerived"
+
+STREAM_VERSION = QDataStream.Qt_6_10
 
 
 def partsFromEmojiLine(line):
@@ -188,6 +190,10 @@ with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
 
         buf = QByteArray()
         stream = QDataStream(buf, QIODevice.WriteOnly)
+        stream.writeUInt32(0x656D6F6A)
+        stream.writeUInt32(1)
+        stream.setVersion(STREAM_VERSION)
+
         stream.writeUInt32(len(filtered_emojis))
         for unicode, emoji in filtered_emojis:
             stream.writeQString(unicode)

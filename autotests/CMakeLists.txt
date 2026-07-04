@@ -11,7 +11,7 @@ add_definitions(-DDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data" )
 
 ecm_add_test(
     emojitest.cpp
-    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
+    LINK_LIBRARIES KEmoji Qt::Test Qt::Gui KF6::I18n
     TEST_NAME emojitest
 )
 
@@ -35,7 +35,7 @@ ecm_add_test(
 
 ecm_add_test(
     sortfiltermodeltest.cpp
-    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
+    LINK_LIBRARIES KEmoji Qt::Test Qt::Gui KF6::I18n
     TEST_NAME sortfiltermodeltest
 )
 
@@ -71,6 +71,7 @@ qt_add_qml_module(qmltest URI NeoChatTestUtils)
 
 target_link_libraries(qmltest PRIVATE
     Qt6::Qml
+    Qt6::Gui
     Qt6::QuickTest
     KF6::I18n
     KEmoji

@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModelTester>
 #include <QObject>
+#include <QStandardPaths>
 #include <QTest>
 
 #include "dict.h"
@@ -16,8 +17,14 @@ class ModelTest : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
     void populate();
 };
+
+void ModelTest::initTestCase()
+{
+    QStandardPaths::setTestModeEnabled(true);
+}
 
 void ModelTest::populate()
 {

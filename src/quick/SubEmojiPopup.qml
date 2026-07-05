@@ -17,8 +17,6 @@ QQC2.Popup {
 
     property alias emojis: emojiModel.emojis
 
-    property real emojiPixelSize
-
     signal clicked(emoji: KEmoji.emoji)
 
     signal rightClicked(emoji: KEmoji.emoji)
@@ -31,6 +29,11 @@ QQC2.Popup {
     y: -height
     modal: true
     popupType: QQC2.Popup.Native
+
+    font: ({
+        family: "emoji",
+        pixelSize: Kirigami.Units.iconSizes.small
+    })
 
     GridView {
         id: list
@@ -45,7 +48,7 @@ QQC2.Popup {
             id: emojiModel
         }
         delegate: KEmoji.EmojiDelegate {
-            emojiPixelSize: root.emojiPixelSize
+            font: root.font
             showVariantEmojis: false
 
             onClicked: {
@@ -57,7 +60,7 @@ QQC2.Popup {
 
         FontMetrics {
             id: metrics
-            font.pixelSize: root.emojiPixelSize
+            font.pixelSize: root.font.pixelSize
         }
     }
 }

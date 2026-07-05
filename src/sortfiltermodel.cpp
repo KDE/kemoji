@@ -19,6 +19,11 @@ SortFilterModel::SortFilterModel(QObject *parent)
     , m_currentCategory(Categories::Category::All)
 {
     sort(0);
+    connect(&Dict::instance(), &Dict::categoriesChanged, this, [this]() {
+        if (!Dict::instance().categories().contains(m_currentCategory)) {
+            setCurrentCategory(Categories::All);
+        }
+    });
     connect(&Dict::instance(), &Dict::emojiHistoryChanged, this, [this]() {
         if (m_currentCategory == Categories::Favorite || m_currentCategory == Categories::Recent) {
             invalidate();

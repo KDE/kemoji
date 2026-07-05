@@ -110,7 +110,5 @@ int main(int argc, char **argv)
     });
 #endif
 
-    KEmoji::Dict::instance().registerCustomEmoji(QUrl::fromLocalFile(u"/home/jgraham/kde/src/kemoji/autotests/data/360px-Mascot_konqi.png"_s), u"Konqi"_s);
-
     return app.exec();
 }

@@ -39,6 +39,7 @@ constexpr QDataStream::Version VERSION1 = QDataStream::Qt_6_10;
 
 Dict::Dict(QObject *parent)
     : QObject(parent)
+    , m_categoryModelAdapter(CategoryAdapter(&m_categories))
 {
     initialize();
 }
@@ -51,12 +52,11 @@ Dict &Dict::instance()
 
 void Dict::initialize()
 {
-    m_emojis.clear();
-    m_categories.clear();
-    m_categories += Categories::Recent;
-    m_categories += Categories::Favorite;
-    m_categories += Categories::All;
-    m_categories += Categories::Custom;
+    m_categoryGroups[Categories::All] = Group();
+
+    m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), Categories::Recent);
+    m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), Categories::Favorite);
+    m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), Categories::All);
 
     connect(&Settings::instance(), &Settings::emojiHistoryChanged, this, &Dict::emojiHistoryChanged);
 
@@ -65,6 +65,8 @@ void Dict::initialize()
     QFuture<void> future = QtConcurrent::run(&Dict::load, this).then([this]() {
         m_loaded = true;
         Q_EMIT loadedChanged();
+        Q_EMIT emojisChanged(categories());
+        Q_EMIT categoriesChanged();
     });
 }
 
@@ -89,6 +91,11 @@ const Group &Dict::variantGroupForEmoji(const Emoji &emoji) const
 const QList<Categories::Category> &Dict::categories() const
 {
     return m_categories;
+}
+
+QRangeModel *Dict::categoryModel() const
+{
+    return m_categoryModelAdapter.model();
 }
 
 const Group &Dict::categoryGroup(Categories::Category category) const
@@ -149,18 +156,11 @@ void Dict::load()
         return;
     }
 
-    m_categoryGroups[Categories::All] = Group();
-
     // We load in reverse order, because we want to preserve the order in en.dict.
     // en.dict almost always gives complete set of data.
     std::ranges::for_each(dicts.crbegin(), dicts.crend(), [this](const QString &path) {
         loadDict(path);
     });
-    for (const auto &emoji : m_emojis) {
-        if (!m_categories.contains(emoji.category())) {
-            m_categories += emoji.category();
-        }
-    }
 }
 
 void Dict::loadDict(const QString &path)
@@ -192,7 +192,7 @@ void Dict::loadDict(const QString &path)
     std::ranges::for_each(emojis, [this](const Emoji &emoji) {
         Group::EmojiIt it;
         if (m_categoryGroups[Categories::All].contains(emoji)) {
-            it = *m_categoryGroups[Categories::All].m_emojiIts[emoji.id()];
+            it = m_categoryGroups[Categories::All].m_emojiRefs[m_categoryGroups[Categories::All].indexForEmoji(emoji)];
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
@@ -230,6 +230,12 @@ void Dict::loadDict(const QString &path)
 
 void Dict::loadEmojiToCategoryGroup(Group::EmojiIt it)
 {
+    if (!m_categories.contains(it->category())) {
+        m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), it->category());
+        if (m_loaded) {
+            Q_EMIT categoriesChanged();
+        }
+    }
     if (!m_categoryGroups.contains(it->category())) {
         m_categoryGroups[it->category()] = Group();
     }
@@ -238,12 +244,21 @@ void Dict::loadEmojiToCategoryGroup(Group::EmojiIt it)
 
 void Dict::loadCustom()
 {
-    const auto customEmojis = Settings::instance().customEmojis().keys();
-    std::ranges::for_each(customEmojis, [this](const QString &name) {
-        Group::EmojiIt it = m_emojis.insert(m_emojis.end(), name);
-        it->setCategory(Categories::Custom);
-        m_categoryGroups[Categories::All].add(it);
+    std::ranges::for_each(Settings::instance().customEmojis().keys(), [this](const QString &name) {
+        addCustom(name);
     });
+}
+
+void Dict::addCustom(const QString &name)
+{
+    auto it = std::ranges::find(m_emojis, name);
+    if (it != m_emojis.end()) {
+        return;
+    }
+    it = m_emojis.insert(m_emojis.end(), name);
+    it->setCategory(Categories::Custom);
+    m_categoryGroups[Categories::All].add(it);
+    loadEmojiToCategoryGroup(it);
 }
 
 QString Dict::qualify(QString emoji)
@@ -279,12 +294,39 @@ void Dict::emojiUsed(const Emoji &emoji)
 
 bool Dict::registerCustomEmoji(const QUrl &source, const QString &name)
 {
-    return Settings::instance().registerCustomEmoji(source, name);
+    if (!m_loaded) {
+        return false;
+    }
+    const auto registered = Settings::instance().registerCustomEmoji(source, name);
+    if (!registered) {
+        return false;
+    }
+    addCustom(name);
+    Q_EMIT emojisChanged({Categories::All, Categories::Custom});
+    return true;
 }
 
 bool Dict::unregisterCustomEmoji(const QString &name)
 {
-    return Settings::instance().unregisterCustomEmoji(name);
+    if (!m_loaded) {
+        return false;
+    }
+    const auto unregistered = Settings::instance().unregisterCustomEmoji(name);
+    if (!unregistered) {
+        return false;
+    }
+    auto it = std::ranges::find(m_emojis, name);
+    if (it == m_emojis.end()) {
+        return true;
+    }
+    m_categoryGroups[Categories::All].remove(it);
+    m_categoryGroups[Categories::Custom].remove(it);
+    if (m_categoryGroups[Categories::Custom].isEmpty() && m_categories.contains(Categories::Custom)) {
+        m_categoryModelAdapter.removeRow(m_categories.indexOf(Categories::Custom));
+        Q_EMIT categoriesChanged();
+    }
+    Q_EMIT emojisChanged({Categories::All, Categories::Custom});
+    return true;
 }
 
 void Dict::clearHistory()

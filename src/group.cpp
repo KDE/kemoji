@@ -10,8 +10,32 @@ using namespace KEmoji;
 
 void Group::add(EmojiIt it)
 {
+    bool atCpacity = m_emojiRefs.capacity() - m_emojiIts.size() <= 1;
     auto insertIt = m_emojiRefs.insert(m_emojiRefs.end(), it);
-    m_emojiIts[it->id()] = insertIt;
+    if (atCpacity) {
+        reindex();
+    } else {
+        m_emojiIts[it->id()] = insertIt;
+    }
+}
+
+void Group::remove(EmojiIt it)
+{
+    if (!m_emojiIts.contains(it->id())) {
+        return;
+    }
+    m_emojiRefs.erase(m_emojiIts[it->id()]);
+    reindex();
+}
+
+void Group::reindex()
+{
+    m_emojiIts.clear();
+    auto it = m_emojiRefs.begin();
+    while (it != m_emojiRefs.end()) {
+        m_emojiIts[(*it)->id()] = it;
+        ++it;
+    }
 }
 
 const Emoji &Group::at(qsizetype i) const

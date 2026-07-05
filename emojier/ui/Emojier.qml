@@ -80,7 +80,7 @@ Kirigami.ApplicationWindow {
 
         Instantiator {
             id: instantiator
-            model: KEmoji.Dict.categories
+            model: KEmoji.Dict.categoryModel
             delegate: QQC2.Action {
                 required property int modelData
                 KEmoji.Category.category: modelData

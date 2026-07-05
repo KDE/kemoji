@@ -48,6 +48,13 @@ public:
     void add(EmojiIt it);
 
     /*!
+     * \brief Add the given \c EmojiIt from the group.
+     *
+     * \sa EmojiIt
+     */
+    void remove(EmojiIt it);
+
+    /*!
      * \brief Return a reference to the \c KEmoji::Emoji at position i in the \c KEmoji::Group.
      *
      * i must be in range otherwise a \c std::out_of_range will be thrown.
@@ -90,10 +97,12 @@ public:
 
 private:
     friend class Dict;
-    using GroupIt = std::deque<EmojiIt>::const_iterator;
+    using GroupIt = std::vector<EmojiIt>::const_iterator;
 
-    std::deque<EmojiIt> m_emojiRefs;
+    std::vector<EmojiIt> m_emojiRefs;
     std::unordered_map<QString, GroupIt> m_emojiIts;
+
+    void reindex();
 };
 
 static Group emptyGroup;

@@ -8,6 +8,7 @@
 #pragma once
 
 #include <QObject>
+#include <QRangeModelAdapter>
 
 #include "category.h"
 #include "kemoji_export.h"
@@ -88,7 +89,16 @@ public:
      *
      * \sa KEmoji::Categories::Category
      */
-    const QList<Categories::Category> &categories() const;
+    [[nodiscard]] const QList<Categories::Category> &categories() const;
+
+    /*!
+     * \brief Return a \c QRangeModel containing all \c KEmoji::Categories::Category in use.
+     *
+     * The model represents all the categories currently available.
+     *
+     * \sa KEmoji::Categories::Category, QRangeModel
+     */
+    [[nodiscard]] QRangeModel *categoryModel() const;
 
     /*!
      * \brief Returns a \c KEmoji::EmojiGroup for the given \c KEmoji::Categories::Category.
@@ -172,6 +182,25 @@ Q_SIGNALS:
     void loadedChanged();
 
     /*!
+     * \brief Emitted whenever emojis are added or remove.
+     *
+     * The categories list contains all categories from which an emoji was added
+     * or removed.
+     *
+     * This signal will be emitted only once at the end of a load not for every added
+     * emoji.
+     */
+    void emojisChanged(QList<Categories::Category> categorys);
+
+    /*!
+     * \brief Emitted whenever the available categories are changed.
+     *
+     * This signal will be emitted only once at the end of a load not for every added
+     * category.
+     */
+    void categoriesChanged();
+
+    /*!
      * \brief Emitted whenever the emoji is history is changed.
      */
     void emojiHistoryChanged();
@@ -186,11 +215,14 @@ private:
     std::unordered_map<QString, Group> m_variantGroups;
     std::unordered_map<Categories::Category, Group> m_categoryGroups;
     QList<Categories::Category> m_categories;
+    using CategoryAdapter = decltype(QRangeModelAdapter(&m_categories));
+    CategoryAdapter m_categoryModelAdapter;
 
     void load();
     void loadDict(const QString &path);
     void loadEmojiToCategoryGroup(Group::EmojiIt it);
     void loadCustom();
+    void addCustom(const QString &name);
 
     QString qualify(QString emoji);
 };

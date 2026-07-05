@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
+#include "category.h"
 #include "dict.h"
 
 /*!
@@ -22,15 +23,22 @@ class QuickDict : public QObject
     QML_NAMED_ELEMENT(Dict)
     QML_SINGLETON
 
-    Q_PROPERTY(KEmoji::Group emojis READ emojis NOTIFY loaded)
+    Q_PROPERTY(KEmoji::Group emojis READ emojis NOTIFY emojisChanged)
 
-    Q_PROPERTY(QList<KEmoji::Categories::Category> categories READ categories NOTIFY loaded)
+    Q_PROPERTY(QList<KEmoji::Categories::Category> categories READ categories NOTIFY categoriesChanged)
+
+    Q_PROPERTY(QRangeModel *categoryModel READ categoryModel CONSTANT)
 
 public:
     QuickDict(QObject *parent = nullptr)
         : QObject(parent)
     {
-        connect(&KEmoji::Dict::instance(), &KEmoji::Dict::loadedChanged, this, &QuickDict::loaded);
+        connect(&KEmoji::Dict::instance(), &KEmoji::Dict::categoriesChanged, this, &QuickDict::categoriesChanged);
+        connect(&KEmoji::Dict::instance(), &KEmoji::Dict::emojisChanged, this, [this](QList<KEmoji::Categories::Category> categories) {
+            if (categories.contains(KEmoji::Categories::All)) {
+                Q_EMIT emojisChanged();
+            }
+        });
     }
 
     const KEmoji::Group &emojis() const
@@ -43,9 +51,19 @@ public:
         return KEmoji::Dict::instance().categories();
     }
 
+    QRangeModel *categoryModel() const
+    {
+        return KEmoji::Dict::instance().categoryModel();
+    }
+
     Q_INVOKABLE void emojiUsed(const KEmoji::Emoji &emoji)
     {
         KEmoji::Dict::instance().emojiUsed(emoji);
+    }
+
+    Q_INVOKABLE void unregisterCustomEmoji(const KEmoji::Emoji &emoji)
+    {
+        KEmoji::Dict::instance().unregisterCustomEmoji(emoji.name());
     }
 
     Q_INVOKABLE void clearHistory()
@@ -54,5 +72,6 @@ public:
     }
 
 Q_SIGNALS:
-    void loaded();
+    void emojisChanged();
+    void categoriesChanged();
 };

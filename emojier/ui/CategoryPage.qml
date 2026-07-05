@@ -215,6 +215,12 @@ Kirigami.ScrollablePage {
                     window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.emoji.name));
                 }
             }
+            QQC2.MenuItem {
+                visible: emojiMenu.emoji.category == KEmoji.Categories.Custom
+                icon.name: "delete"
+                text: i18nc("@item:inmenu", "Remove custom emoji")
+                onClicked: KEmoji.Dict.unregisterCustomEmoji(emojiMenu.emoji);
+            }
         }
     }
 

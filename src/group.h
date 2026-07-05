@@ -16,7 +16,8 @@
 namespace KEmoji
 {
 /**
- * \class Group
+ * \class KEmoji::Group
+ * \inmodule KEmoji
  *
  * \brief A class to hold a group of emojis.
  *
@@ -29,6 +30,7 @@ class KEMOJI_EXPORT Group
     QML_VALUE_TYPE(group)
 
     /*!
+     * \property KEmoji::Group::size
      * \brief Return a the number of \c KEmoji::Emoji in the group.
      *
      * \sa KEmoji::Emoji

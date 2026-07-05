@@ -17,7 +17,7 @@ import org.kde.kemoji as KEmoji
  \qmltype EmojiDelegate
  \inqmlmodule org.kde.kemoji
 
- \brief A delegate to visualize a \c KEmoji::Emoji
+ \brief A delegate to visualize a \c KEmoji::Emoji.
 
  The delegate can handle unicode and custom emojis, it grabs the correct parameters
  from the given \c KEmoji::Emoji automatically.

@@ -1,0 +1,8 @@
+/*!
+    \module KEmoji
+    \title KEmoji C++ Classes
+    \ingroup modules
+    \cmakecomponent KEmoji
+
+    \brief Library to provide applications with standardized emoji support.
+*/

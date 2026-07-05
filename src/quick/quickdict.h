@@ -11,6 +11,11 @@
 
 #include "dict.h"
 
+/*!
+ * \qmltype Dict
+ * \inqmlmodule org.kde.kemoji
+ * \nativetype KEmoji::Dict
+ */
 class QuickDict : public QObject
 {
     Q_OBJECT

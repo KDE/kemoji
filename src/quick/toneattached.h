@@ -13,6 +13,7 @@
 
 /*!
  * \class ToneAttached
+ * \inmodule KEmoji
  *
  * \brief An attached property to allow KEmoji::Tones::Tone data to be accessed
  * in QML.
@@ -58,6 +59,7 @@ class ToneAttached : public QObject
     QML_ATTACHED(ToneAttached)
 
     /*!
+     * \property ToneAttached::tone
      * \brief The \c KEmoji::Tones::Tone the attached property is for.
      *
      * \sa KEmoji::Tones::Tone
@@ -65,6 +67,7 @@ class ToneAttached : public QObject
     Q_PROPERTY(KEmoji::Tones::Tone tone READ tone WRITE setTone NOTIFY toneChanged)
 
     /*!
+     * \property ToneAttached::unicode
      * \brief The unicode code point of the \c KEmoji::Tones::Tone as a \c QString.
      *
      * \note Since \c KEmoji::Tones::Tone::Neutral has no code point (it's a lcak of tone)
@@ -73,6 +76,7 @@ class ToneAttached : public QObject
     Q_PROPERTY(QString unicode READ unicode NOTIFY toneChanged)
 
     /*!
+     * \property ToneAttached::exampleUnicode
      * \brief An example emoji for the \c KEmoji::Tones::Tone as a \c QString.
      *
      * Currently uses the "hand with fingers splayed emoji" as the example, 🖐️.
@@ -80,11 +84,13 @@ class ToneAttached : public QObject
     Q_PROPERTY(QString exampleUnicode READ exampleUnicode NOTIFY toneChanged)
 
     /*!
+     * \property ToneAttached::name
      * \brief The name of the \c KEmoji::Tones::Tone as a \c QString.
      */
     Q_PROPERTY(QString name READ name NOTIFY toneChanged)
 
     /*!
+     * \property ToneAttached::exampleUnicodeWithName
      * \brief An example emoji with the tone name for the \c KEmoji::Tones::Tone as a \c QString.
      *
      * Currently uses the "hand with fingers splayed emoji" as the example, 🖐️.

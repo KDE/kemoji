@@ -1,0 +1,6 @@
+/*!
+    \qmlmodule org.kde.kemoji
+    \title KEmoji QML Types
+
+    \brief QML components for KEmoji.
+*/

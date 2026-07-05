@@ -22,13 +22,17 @@ namespace KEmoji
 class Emoji;
 };
 
+/*!
+ * \namespace KEmoji::Tones
+ * \inmodule KEmoji
+ */
 namespace KEmoji::Tones
 {
 Q_NAMESPACE_EXPORT(KEMOJI_EXPORT)
 QML_ELEMENT
 
 /*!
- * \enum Tone
+ * \enum KEmoji::Tones::Tone
  *
  * Enumeration representing the available emoji tones:
  *

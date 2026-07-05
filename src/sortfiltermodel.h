@@ -19,7 +19,8 @@
 namespace KEmoji
 {
 /*!
- * \class SortFilterModel
+ * \class KEmoji::SortFilterModel
+ * \inmodule KEmoji
  *
  * \brief A proxy model to sort and filter a \c KEmoji::Model.
  *
@@ -53,11 +54,13 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     QML_ELEMENT
 
     /*!
+     * \property KEmoji::SortFilterModel::searchText
      * \brief The search text to filter and sort by.
      */
     Q_PROPERTY(QString searchText READ searchText WRITE setSearchText NOTIFY searchTextChanged)
 
     /*!
+     * \property KEmoji::SortFilterModel::currentCategory
      * \brief The \c KEmoji::Categories::Category to filter by.
      *
      * \sa KEmoji::Categories::Category
@@ -65,6 +68,7 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(KEmoji::Categories::Category currentCategory READ currentCategory WRITE setCurrentCategory NOTIFY categoryChanged)
 
     /*!
+     * \property KEmoji::SortFilterModel::toneFilter
      * \brief The \c KEmoji::Tones::Tone to filter by.
      *
      * This only applies to \c KEmoji::Emoji that have tone variants. If a
@@ -75,6 +79,7 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(KEmoji::Tones::Tone toneFilter READ toneFilter WRITE setToneFilter NOTIFY toneFilterChanged)
 
     /*!
+     * \property KEmoji::SortFilterModel::showUnsupportedEmojis
      * \brief Whether unicode sequences not supported by the current font should be shown.
      *
      * As new unicode code points are added not all fonts may support them and may be
@@ -83,6 +88,7 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(bool showUnsupportedEmojis READ showUnsupportedEmojis WRITE setShowUnsupportedEmojis NOTIFY showUnsupportedEmojisChanged)
 
     /*!
+     * \property KEmoji::SortFilterModel::currentFont
      * \brief The current font being used to visualize \c KEmoji::Emoji.
      *
      * This is used to check if the font has a glyph for an \c KEmoji::Emoji.

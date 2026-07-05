@@ -18,7 +18,8 @@
 namespace KEmoji
 {
 /*!
- * \class Dict
+ * \class KEmoji::Dict
+ * \inmodule KEmoji
  *
  * \brief A class to provide an emoji dictionary.
  *

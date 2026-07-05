@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(KEmoji VERSION 0.1)
 
-set(QT_MIN_VERSION 6.7.0)
+set(QT_MIN_VERSION 6.10.0)
 set(KF_MIN_VERSION 6.17.0)
 
 set(QT_QML_GENERATE_QMLLS_INI ON)
@@ -46,8 +46,8 @@ ecm_setup_version(PROJECT
 #
 # Dependencies
 #
-option(KEMOJI_USE_QML "Build components using Qt6Qml" ON)
-option(KEMOJI_BUILD_EMOJIER "Build components using Qt6Qml" ON)
+option(KEMOJI_USE_QML "Build QML components" ON)
+option(KEMOJI_BUILD_EMOJIER "Build example Emojier" ON)
 
 find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Concurrent)
 

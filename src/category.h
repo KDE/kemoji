@@ -16,13 +16,17 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+/*!
+ * \namespace KEmoji::Categories
+ * \inmodule KEmoji
+ */
 namespace KEmoji::Categories
 {
 Q_NAMESPACE_EXPORT(KEMOJI_EXPORT)
 QML_ELEMENT
 
 /*!
- * \enum Category
+ * \enum KEmoji::Categories::Category
  *
  * Enumeration representing the available emoji categories:
  *

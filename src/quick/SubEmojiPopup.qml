@@ -12,6 +12,14 @@ import org.kde.kemoji as KEmoji
 
 pragma ComponentBehavior: Bound
 
+/*!
+  \qmltype SubEmojiPopup
+  \inqmlmodule org.kde.kemoji
+
+  \brief A popup to visualize a \c KEmoji::Group of \c KEmoji::Emoji that are sub-emojis.
+
+  \sa KEmoji::Group, KEMoji::Emoji
+ */
 QQC2.Popup {
     id: root
 

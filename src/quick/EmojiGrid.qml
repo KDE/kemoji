@@ -12,6 +12,18 @@ import org.kde.kemoji as KEmoji
 
 pragma ComponentBehavior: Bound
 
+/*!
+  \qmltype EmojiGrid
+  \inqmlmodule org.kde.kemoji
+
+  \brief A view to visualize a \c KEmoji::Model as a grid.
+
+  By default the grid has a standard \c KEmoji::SortFilterModel with a \c KEmoji::Model
+  populated with all known emojis to the \c KEmoji::Dict. This can be replaced with
+  any \c KEmoji::Model populated with any \c KEmoji::Emoji the user desires.
+
+  \sa KEmoji::Model, KEmoji::SortFilterModel, KEmoji::Dict, KEmoji::Emoji
+ */
 GridView {
     id: root
 

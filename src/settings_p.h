@@ -15,8 +15,7 @@
 namespace KEmoji
 {
 /*!
- * \class Settings
- *
+ * \internal
  * \brief A class to manage the \c KEmoji settings.
  *
  * This currently supports recent, favorite and custom emojis.

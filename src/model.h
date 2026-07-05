@@ -15,7 +15,8 @@
 namespace KEmoji
 {
 /*!
- * \class Model
+ * \class KEmoji::Model
+ * \inmodule KEmoji
  *
  * \brief A model for a list of \c KEmoji::Emoji in a \c KEmoji::Group.
  *
@@ -30,6 +31,7 @@ class KEMOJI_EXPORT Model : public QAbstractListModel
     QML_ELEMENT
 
     /*!
+     * \property KEmoji::Model::emojis
      * \brief The \c KEmoji::Group contain the \c KEmoji::Emoji that the model is managing.
      *
      * \sa KEmoji::Emoji, KEmoji::Group
@@ -38,7 +40,7 @@ class KEMOJI_EXPORT Model : public QAbstractListModel
 
 public:
     /*!
-     * \enum RoleNames
+     * \enum KEmoji::Model::RoleNames
      *
      * Enumeration representing the available model roles:
      *

@@ -21,3 +21,5 @@ target_link_libraries(KEmojiPlugin PRIVATE
 qt_generate_foreign_qml_types(KEmoji KEmojiPlugin)
 
 ecm_finalize_qml_module(KEmojiPlugin DESTINATION ${KDE_INSTALL_QMLDIR})
+
+ecm_generate_qdoc(KEmojiPlugin kemojiquick.qdocconf)

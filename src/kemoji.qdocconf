@@ -1,0 +1,31 @@
+include($KDE_DOCS/global/qt-module-defaults.qdocconf)
+
+project = KEmoji
+description = Library to provide applications with standardized emoji support
+
+documentationinheaders = true
+
+headerdirs += .
+sourcedirs += .
+
+outputformats = HTML
+
+navigation.landingpage = "KEmoji"
+
+depends += kde qtcore qtgui qtconcurrent
+
+qhp.projects            = KEmoji
+
+qhp.KEmoji.file                = kemoji.qhp
+qhp.KEmoji.namespace           = org.kde.kemoji.$QT_VERSION_TAG
+qhp.KEmoji.virtualFolder       = kemoji
+qhp.KEmoji.indexTitle          = KEmoji
+qhp.KEmoji.indexRoot           =
+
+qhp.KEmoji.subprojects         = classes
+qhp.KEmoji.subprojects.classes.title = C++ Classes
+qhp.KEmoji.subprojects.classes.indexTitle = KEmoji C++ Classes
+qhp.KEmoji.subprojects.classes.selectors = class fake:headerfile
+qhp.KEmoji.subprojects.classes.sortPages = true
+
+tagfile = kemoji.tags

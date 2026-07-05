@@ -1,0 +1,34 @@
+include($KDE_DOCS/global/qt-module-defaults.qdocconf)
+
+project = KEmojiQuick
+description = QML components for KEmoji
+
+documentationinheaders = true
+
+headerdirs += .
+sourcedirs += .
+
+outputformats = HTML
+
+navigation.landingpage = "KEmoji"
+
+depends += \
+    kde \
+    qtcore \
+    kemoji
+
+qhp.projects            = KEmojiQuick
+
+qhp.KEmojiQuick.file                = kemojiquick.qhp
+qhp.KEmojiQuick.namespace           = org.kde.kemojiquick.$QT_VERSION_TAG
+qhp.KEmojiQuick.virtualFolder       = kemojiquick
+qhp.KEmojiQuick.indexTitle          = KEmojiQuick
+qhp.KEmojiQuick.indexRoot           =
+
+qhp.KEmojiQuick.subprojects         = qmltypes
+qhp.KEmojiQuick.subprojects.qmltypes.title = QML Types
+qhp.KEmojiQuick.subprojects.qmltypes.indexTitle = KEmoji QML Types
+qhp.KEmojiQuick.subprojects.qmltypes.selectors = qmltype
+qhp.KEmojiQuick.subprojects.qmltypes.sortPages = true
+
+tagfile = kemojiquick.tags

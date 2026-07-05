@@ -13,6 +13,7 @@
 
 /*!
  * \class CategoryAttached
+ * \inmodule KEmoji
  *
  * \brief An attached property to allow KEmoji::Categories::Category data to be accessed
  * in QML.
@@ -58,6 +59,7 @@ class CategoryAttached : public QObject
     QML_ATTACHED(CategoryAttached)
 
     /*!
+     * \property CategoryAttached::category
      * \brief The \c KEmoji::Categories::Category the attached property is for.
      *
      * \sa KEmoji::Categories::Category
@@ -65,11 +67,13 @@ class CategoryAttached : public QObject
     Q_PROPERTY(KEmoji::Categories::Category category READ category WRITE setCategory NOTIFY categoryChanged FINAL)
 
     /*!
+     * \property CategoryAttached::name
      * \brief The name of the \c KEmoji::Categories::Category as a \c QString.
      */
     Q_PROPERTY(QString name READ name NOTIFY categoryChanged FINAL)
 
     /*!
+     * \property CategoryAttached::iconName
      * \brief The icon name of the \c KEmoji::Categories::Category as a \c QString.
      */
     Q_PROPERTY(QString iconName READ iconName NOTIFY categoryChanged FINAL)

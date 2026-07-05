@@ -14,10 +14,15 @@
 #include "category.h"
 #include "kemoji_export.h"
 
+/*!
+ * \namespace KEmoji
+ * \inmodule KEmoji
+ */
 namespace KEmoji
 {
 /*!
- * \class Emoji
+ * \class KEmoji::Emoji
+ * \inmodule KEmoji
  *
  * \brief A class to represent a single emoji.
  *
@@ -41,6 +46,7 @@ class KEMOJI_EXPORT Emoji
     QML_VALUE_TYPE(emoji)
 
     /*!
+     * \property KEmoji::Emoji::unicode
      * \brief The unicode codepoints of the emoji in a \c QString.
      *
      * The string will be empty for an invalid or custom emoji.
@@ -50,6 +56,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QString unicode READ unicode)
 
     /*!
+     * \property KEmoji::Emoji::source
      * \brief The URL source of the emoji in a \c QUrl.
      *
      * The \c QUrl will be empty for an invalid or unicode emoji.
@@ -59,6 +66,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QUrl source READ source)
 
     /*!
+     * \property KEmoji::Emoji::name
      * \brief The name of the \c KEmoji::Emoji.
      *
      * Empty if \c KEmoji::Emoji::isValid() is \c false.
@@ -66,6 +74,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QString name READ name)
 
     /*!
+     * \property KEmoji::Emoji::fallbackName
      * \brief The fallback name of the \c KEmoji::Emoji.
      *
      * Empty if \c KEmoji::Emoji::isValid() is \c false.
@@ -73,6 +82,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QString fallbackName READ fallbackName)
 
     /*!
+     * \property KEmoji::Emoji::altNames
      * \brief The alternate names of the \c KEmoji::Emoji.
      *
      * Empty if \c KEmoji::Emoji::isValid() is \c false.
@@ -82,6 +92,7 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(QStringList altNames READ altNames)
 
     /*!
+     * \property KEmoji::Emoji::category
      * \brief The \c KEmoji::Category of the \c KEmoji::Emoji.
      *
      * Empty if \c KEmoji::Emoji::isValid() is \c false.

@@ -22,3 +22,9 @@ path = "autotests/data/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "none"
 SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = ["src/kemoji.qdocconf", "src/kemoji.qdoc", "src/kemoji-index.qdoc", "src/quick/kemojiquick.qdoc", "src/quick/kemojiquick.qdocconf"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "James Graham <james.h.graham@protonmail.com>"
+SPDX-License-Identifier = "FSFAP"

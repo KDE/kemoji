@@ -8,6 +8,8 @@ project(KEmoji VERSION 0.1)
 set(QT_MIN_VERSION 6.10.0)
 set(KF_MIN_VERSION 6.17.0)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QT_QML_GENERATE_QMLLS_INI ON)
 
 # ECM setup
@@ -40,7 +42,6 @@ ecm_setup_version(PROJECT
     VARIABLE_PREFIX KEMOJI
     VERSION_HEADER "${kemoji_version_header}"
     PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KEmojiConfigVersion.cmake"
-    SOVERSION 1
 )
 
 #

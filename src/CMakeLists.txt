@@ -29,7 +29,7 @@ endif()
 ecm_qt_declare_logging_category(KEmoji
     HEADER kemoji_logging.h
     IDENTIFIER KEMOJI
-    CATEGORY_NAME kf.emoji
+    CATEGORY_NAME kemoji
     DESCRIPTION "KEmoji"
     EXPORT KEMOJI
 )
@@ -41,7 +41,7 @@ generate_export_header(KEmoji
 
 ecm_generate_qdoc(KEmoji kemoji.qdocconf)
 
-target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KEmoji>")
+target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>/KEmoji")
 
 target_link_libraries(KEmoji PRIVATE
     Qt::Core
@@ -64,12 +64,12 @@ ecm_generate_headers(KEmoji_HEADERS
   SHARED_PREFIX KEmoji
 )
 
-install(TARGETS KEmoji EXPORT KEmojiTargets ${KF_INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KEmoji EXPORT KEmojiTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/kemoji_export.h
   ${KEmoji_HEADERS}
-  DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KEmoji COMPONENT Devel
+  DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji COMPONENT Devel
 )
 
 ecm_qt_install_logging_categories(

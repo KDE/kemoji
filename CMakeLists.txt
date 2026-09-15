@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
-include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
+include(KDECompilerSettings NO_POLICY_SCOPE)
 
 include(KDEGitCommitHooks)
 include(GenerateExportHeader)
@@ -104,11 +104,10 @@ install(FILES
 
 install(EXPORT KEmojiTargets
         DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        FILE KEmojiTargets.cmake
-        NAMESPACE KF6::)
+        FILE KEmojiTargets.cmake)
 
 install(FILES ${kemoji_version_header}
-        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KEmoji
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji
         COMPONENT Devel)
 
 include(ECMFeatureSummary)

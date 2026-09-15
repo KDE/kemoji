@@ -43,11 +43,12 @@ ecm_generate_qdoc(KEmoji kemoji.qdocconf)
 
 target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>/KEmoji")
 
-target_link_libraries(KEmoji PRIVATE
-    Qt::Core
-    Qt::Gui
-    Qt::Concurrent
-    KF6::I18n
+target_link_libraries(KEmoji
+    PUBLIC
+        Qt::Gui
+        KF6::I18n
+    PRIVATE
+        Qt::Concurrent
 )
 
 ecm_generate_headers(KEmoji_HEADERS

@@ -41,7 +41,7 @@ generate_export_header(KEmoji
 
 ecm_generate_qdoc(KEmoji kemoji.qdocconf)
 
-target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>/KEmoji")
+target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>")
 
 target_link_libraries(KEmoji
     PUBLIC

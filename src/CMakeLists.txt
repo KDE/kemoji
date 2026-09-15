@@ -43,6 +43,10 @@ ecm_generate_qdoc(KEmoji kemoji.qdocconf)
 
 target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>")
 
+# For the public interface require at least C++20 (e.g. std::ranges used in inline methods)
+# The CMake target features use a minimum concept, consumers can still use higher standardds.
+target_compile_features(KEmoji INTERFACE cxx_std_20)
+
 target_link_libraries(KEmoji
     PUBLIC
         Qt::Gui

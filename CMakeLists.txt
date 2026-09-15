@@ -56,7 +56,7 @@ find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS I18n)
 
 if(KEMOJI_USE_QML OR KEMOJI_BUILD_EMOJIER)
     include(ECMQmlModule)
-    find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Quick)
+    find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Quick)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami)
 endif()
 
@@ -71,12 +71,12 @@ add_subdirectory(data)
 add_subdirectory(src)
 
 if (BUILD_TESTING)
-    find_package(Qt6 ${REQUIRED_QT_VERSION} NO_MODULE COMPONENTS QuickTest)
+    find_package(Qt6 ${QT_MIN_VERSION} NO_MODULE COMPONENTS QuickTest)
     add_subdirectory(autotests)
 endif()
 
 if(KEMOJI_BUILD_EMOJIER)
-    find_package(Qt6 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Gui QuickControls2 Widgets)
+    find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Gui QuickControls2 Widgets)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons WindowSystem)
 
     if(NOT ANDROID AND NOT WIN32)

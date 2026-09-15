@@ -55,7 +55,7 @@ target_link_libraries(KEmoji
         Qt::Concurrent
 )
 
-ecm_generate_headers(KEmoji_HEADERS
+ecm_generate_headers(KEmoji_FORWARDING_HEADERS
   HEADER_NAMES
     Emoji
     Dict
@@ -74,6 +74,7 @@ install(TARGETS KEmoji EXPORT KEmojiTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/kemoji_export.h
   ${KEmoji_HEADERS}
+  ${KEmoji_FORWARDING_HEADERS}
   DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji COMPONENT Devel
 )
 
@@ -82,3 +83,17 @@ ecm_qt_install_logging_categories(
     FILE kemoji.categories
     DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR}
 )
+
+if(${ECM_VERSION} VERSION_GREATER_EQUAL 6.30)
+    include(ECMInstalledLibraryCheck)
+
+    ecm_add_installed_library_check(KEmoji
+        PACKAGE_NAME "KEmoji"
+        NO_PACKAGE_TARGET_NAMESPACE
+    )
+
+    ecm_installed_library_check_include_strings(KEmoji
+        HEADERS ${KEmoji_FORWARDING_HEADERS}
+        PREFIX KEmoji
+    )
+endif()

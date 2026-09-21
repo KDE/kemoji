@@ -42,6 +42,7 @@ ecm_setup_version(PROJECT
     VARIABLE_PREFIX KEMOJI
     VERSION_HEADER "${kemoji_version_header}"
     PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KEmojiConfigVersion.cmake"
+    SOVERSION 6
 )
 
 #

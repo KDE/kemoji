@@ -34,7 +34,3 @@ if(NOT ANDROID AND NOT WIN32)
 endif()
 
 target_include_directories(emojier PRIVATE ${CMAKE_BINARY_DIR})
-
-install(TARGETS emojier ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(PROGRAMS org.kde.emojier.desktop DESTINATION ${KDE_INSTALL_DATADIR}/kglobalaccel)
-install(PROGRAMS org.kde.emojier.desktop DESTINATION ${KDE_INSTALL_APPDIR})

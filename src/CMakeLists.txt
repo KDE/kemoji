@@ -41,7 +41,7 @@ generate_export_header(KEmoji
 
 ecm_generate_qdoc(KEmoji kemoji.qdocconf)
 
-target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}>")
+target_include_directories(KEmoji INTERFACE "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR}/KEmoji>")
 
 # For the public interface require at least C++20 (e.g. std::ranges used in inline methods)
 # The CMake target features use a minimum concept, consumers can still use higher standardds.
@@ -66,7 +66,7 @@ ecm_generate_headers(KEmoji_FORWARDING_HEADERS
     SortFilterModel
 
   REQUIRED_HEADERS KEmoji_HEADERS
-  SHARED_PREFIX KEmoji
+  PREFIX KEmoji
 )
 
 install(TARGETS KEmoji EXPORT KEmojiTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
@@ -74,8 +74,12 @@ install(TARGETS KEmoji EXPORT KEmojiTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES
   ${CMAKE_CURRENT_BINARY_DIR}/kemoji_export.h
   ${KEmoji_HEADERS}
+  DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji/kemoji COMPONENT Devel
+)
+
+install(FILES
   ${KEmoji_FORWARDING_HEADERS}
-  DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji COMPONENT Devel
+  DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji/KEmoji COMPONENT Devel
 )
 
 ecm_qt_install_logging_categories(

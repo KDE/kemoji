@@ -3,9 +3,8 @@
 
 add_executable(emojier emojier.cpp)
 
-ecm_add_qml_module(emojier GENERATE_PLUGIN_SOURCE
+ecm_add_qml_module(emojier
     URI org.kde.emojier
-    OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/src/org/kde/emojier
     QML_FILES
         ui/Emojier.qml
         ui/CategoryPage.qml

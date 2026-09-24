@@ -103,7 +103,8 @@ install(FILES
 
 install(EXPORT KEmojiTargets
         DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        FILE KEmojiTargets.cmake)
+        FILE KEmojiTargets.cmake
+        NAMESPACE KEmoji::)
 
 install(FILES ${kemoji_version_header}
         DESTINATION ${KDE_INSTALL_INCLUDEDIR}/KEmoji

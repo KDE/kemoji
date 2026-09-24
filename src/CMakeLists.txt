@@ -8,7 +8,7 @@ qt_extract_metatypes(KEmoji)
 set_target_properties(KEmoji PROPERTIES
     VERSION     ${KEMOJI_VERSION}
     SOVERSION   ${KEMOJI_SOVERSION}
-    EXPORT_NAME Emoji
+    EXPORT_NAME KEmoji
 )
 
 target_sources(KEmoji PRIVATE

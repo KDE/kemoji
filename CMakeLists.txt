@@ -48,7 +48,7 @@ ecm_setup_version(PROJECT
 # Dependencies
 #
 option(KEMOJI_USE_QML "Build QML components" ON)
-option(KEMOJI_BUILD_EMOJIER "Build example Emojier" ON)
+option(KEMOJI_BUILD_EMOJIER "Build example Emojier" OFF)
 
 find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Concurrent)
 

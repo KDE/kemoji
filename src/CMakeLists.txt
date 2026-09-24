@@ -13,11 +13,13 @@ set_target_properties(KEmoji PROPERTIES
 
 target_sources(KEmoji PRIVATE
     emoji.cpp
+    category.cpp
     dict.cpp
     settings.cpp
     group.cpp
     category.h
     tones.h
+    tones.cpp
     model.cpp
     sortfiltermodel.cpp
 )

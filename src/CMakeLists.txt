@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 # SPDX-License-Identifier: BSD-2-Clause
 
+add_definitions(-DTRANSLATION_DOMAIN=\"kemoji\")
+
 add_library(KEmoji)
 
 qt_extract_metatypes(KEmoji)

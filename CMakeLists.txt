@@ -117,3 +117,5 @@ kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES src/*.cpp src/*.h)
 kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
+
+ki18n_install(po)

@@ -97,7 +97,7 @@ if(${ECM_VERSION} VERSION_GREATER_EQUAL 6.30)
 
     ecm_add_installed_library_check(KEmoji
         PACKAGE_NAME "KEmoji"
-        NO_PACKAGE_TARGET_NAMESPACE
+        PACKAGE_TARGET_NAMESPACE KEmoji::
     )
 
     ecm_installed_library_check_include_strings(KEmoji

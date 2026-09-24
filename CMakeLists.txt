@@ -58,9 +58,8 @@ if(KEMOJI_USE_QML OR KEMOJI_BUILD_EMOJIER)
     include(ECMQmlModule)
     find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Quick)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami)
+    ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 endif()
-
-ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 
 #
 # Actually build the stuff

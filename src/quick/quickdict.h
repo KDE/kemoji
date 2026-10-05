@@ -41,7 +41,7 @@ public:
         });
     }
 
-    const KEmoji::Group &emojis() const
+    const KEmoji::Group emojis() const
     {
         return KEmoji::Dict::instance().emojis();
     }

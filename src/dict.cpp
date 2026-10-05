@@ -75,12 +75,12 @@ bool Dict::loaded() const
     return m_loaded;
 }
 
-const Group &Dict::emojis() const
+const Group Dict::emojis() const
 {
     return m_categoryGroups.at(Categories::All);
 }
 
-const Group &Dict::variantGroupForEmoji(const Emoji &emoji) const
+const Group Dict::variantGroupForEmoji(const Emoji &emoji) const
 {
     if (!m_variantGroups.contains(emoji.id())) {
         return emptyGroup;
@@ -98,7 +98,7 @@ QRangeModel *Dict::categoryModel() const
     return m_categoryModelAdapter.model();
 }
 
-const Group &Dict::categoryGroup(Categories::Category category) const
+const Group Dict::categoryGroup(Categories::Category category) const
 {
     if (!m_categoryGroups.contains(category)) {
         return emptyGroup;
@@ -190,9 +190,9 @@ void Dict::loadDict(const QString &path)
     stream >> emojis;
 
     std::ranges::for_each(emojis, [this](const Emoji &emoji) {
-        Group::EmojiIt it;
+        EmojiIt it;
         if (m_categoryGroups[Categories::All].contains(emoji)) {
-            it = m_categoryGroups[Categories::All].m_emojiRefs[m_categoryGroups[Categories::All].indexForEmoji(emoji)];
+            it = m_categoryGroups[Categories::All].emojiRefs()[m_categoryGroups[Categories::All].indexForEmoji(emoji)];
             // Overwrite with new data but keep previous name as fallback.
             auto &foundEmoji = *it;
             const QString fallbackName = foundEmoji.name();
@@ -228,7 +228,7 @@ void Dict::loadDict(const QString &path)
     });
 }
 
-void Dict::loadEmojiToCategoryGroup(Group::EmojiIt it)
+void Dict::loadEmojiToCategoryGroup(EmojiIt it)
 {
     if (!m_categories.contains(it->category())) {
         m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), it->category());

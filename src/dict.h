@@ -67,7 +67,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    const Group &emojis() const;
+    const Group emojis() const;
 
     /*!
      * \brief Return the \c KEmoji::EmojiGroup for the given \c KEmoji::Emoji.
@@ -80,7 +80,7 @@ public:
      *
      * \sa KEmoji::Emoji, KEmoji::EmojiGroup
      */
-    const Group &variantGroupForEmoji(const Emoji &emoji) const;
+    const Group variantGroupForEmoji(const Emoji &emoji) const;
 
     /*!
      * \brief Return the full list of \c KEmoji::Categories::Category in use.
@@ -105,7 +105,7 @@ public:
      *
      * \sa KEmoji::EmojiGroup, KEmoji::Categories::Category
      */
-    const Group &categoryGroup(Categories::Category category) const;
+    const Group categoryGroup(Categories::Category category) const;
 
     /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the recent emojis list.
@@ -220,7 +220,7 @@ private:
 
     void load();
     void loadDict(const QString &path);
-    void loadEmojiToCategoryGroup(Group::EmojiIt it);
+    void loadEmojiToCategoryGroup(EmojiIt it);
     void loadCustom();
     void addCustom(const QString &name);
 

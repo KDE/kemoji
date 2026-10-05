@@ -8,57 +8,117 @@
 
 using namespace KEmoji;
 
-void Group::add(EmojiIt it)
+class Group::GroupPrivate : public QSharedData
 {
-    bool atCpacity = m_emojiRefs.capacity() - m_emojiIts.size() <= 1;
-    auto insertIt = m_emojiRefs.insert(m_emojiRefs.end(), it);
+public:
+    using GroupIt = std::vector<std::list<KEmoji::Emoji>::iterator>::const_iterator;
+
+    GroupPrivate()
+    {
+    }
+
+    GroupPrivate(const GroupPrivate &other)
+        : QSharedData(other)
+        , emojiRefs(other.emojiRefs)
+        , emojiIts(other.emojiIts)
+    {
+    }
+
+    void add(std::list<KEmoji::Emoji>::iterator it);
+    void remove(std::list<KEmoji::Emoji>::iterator it);
+
+    std::vector<std::list<KEmoji::Emoji>::iterator> emojiRefs;
+    std::unordered_map<QString, GroupIt> emojiIts;
+
+    void reindex();
+};
+
+void Group::GroupPrivate::add(EmojiIt it)
+{
+    bool atCpacity = emojiRefs.capacity() - emojiIts.size() <= 1;
+    auto insertIt = emojiRefs.insert(emojiRefs.end(), it);
     if (atCpacity) {
         reindex();
     } else {
-        m_emojiIts[it->id()] = insertIt;
+        emojiIts[it->id()] = insertIt;
     }
 }
 
-void Group::remove(EmojiIt it)
+void Group::GroupPrivate::remove(EmojiIt it)
 {
-    if (!m_emojiIts.contains(it->id())) {
+    if (!emojiIts.contains(it->id())) {
         return;
     }
-    m_emojiRefs.erase(m_emojiIts[it->id()]);
+    emojiRefs.erase(emojiIts[it->id()]);
     reindex();
 }
 
-void Group::reindex()
+void Group::GroupPrivate::reindex()
 {
-    m_emojiIts.clear();
-    auto it = m_emojiRefs.begin();
-    while (it != m_emojiRefs.end()) {
-        m_emojiIts[(*it)->id()] = it;
+    emojiIts.clear();
+    auto it = emojiRefs.begin();
+    while (it != emojiRefs.end()) {
+        emojiIts[(*it)->id()] = it;
         ++it;
     }
 }
 
+Group::Group()
+    : d(new GroupPrivate)
+{
+}
+
+Group::Group(const Group &other)
+    : d(other.d)
+{
+}
+
+Group::~Group()
+{
+}
+
+Group &Group::operator=(const Group &other)
+{
+    d = other.d;
+    return *this;
+}
+
+std::vector<EmojiIt> &Group::emojiRefs()
+{
+    return d->emojiRefs;
+}
+
+void Group::add(EmojiIt it)
+{
+    d->add(it);
+}
+
+void Group::remove(EmojiIt it)
+{
+    d->remove(it);
+}
+
 const Emoji &Group::at(qsizetype i) const
 {
-    return *m_emojiRefs.at(i);
+    return *d->emojiRefs.at(i);
 }
 
 qsizetype Group::indexForEmoji(const Emoji &emoji) const
 {
-    if (!m_emojiIts.contains(emoji.id())) {
+    if (!d->emojiIts.contains(emoji.id())) {
         return -1;
     }
-    return std::distance(m_emojiRefs.begin(), m_emojiIts.at(emoji.id()));
+    return std::distance(d->emojiRefs.begin(), d->emojiIts.at(emoji.id()));
 }
 
 bool Group::contains(const Emoji &emoji) const
 {
-    return m_emojiIts.contains(emoji.id());
+    return d->emojiIts.contains(emoji.id());
 }
 
 qsizetype Group::size() const
 {
-    return m_emojiRefs.size();
+    return d->emojiRefs.size();
 }
 
 Group Group::filtered(std::function<bool(const Emoji &)> filter) const
@@ -69,7 +129,7 @@ Group Group::filtered(std::function<bool(const Emoji &)> filter) const
             return true;
         };
     }
-    std::ranges::for_each(m_emojiRefs, [&filteredGroup, filter](EmojiIt it) {
+    std::ranges::for_each(d->emojiRefs, [&filteredGroup, filter](EmojiIt it) {
         if (filter(*it)) {
             filteredGroup.add(it);
         }
@@ -79,12 +139,12 @@ Group Group::filtered(std::function<bool(const Emoji &)> filter) const
 
 bool Group::isEmpty() const
 {
-    return m_emojiRefs.empty();
+    return d->emojiRefs.empty();
 }
 
 bool Group::operator==(const Group &right) const
 {
-    return m_emojiRefs == right.m_emojiRefs;
+    return d->emojiRefs == right.d->emojiRefs;
 }
 
 #include "moc_group.cpp"

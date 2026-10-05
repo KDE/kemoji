@@ -6,8 +6,7 @@
 
 #pragma once
 
-#include <deque>
-
+#include <QSharedDataPointer>
 #include <QtQmlIntegration/qqmlintegration.h>
 
 #include "emoji.h"
@@ -15,14 +14,17 @@
 
 namespace KEmoji
 {
-/**
+using EmojiIt = std::list<Emoji>::iterator;
+
+/*!
  * \class KEmoji::Group
  * \inmodule KEmoji
  *
  * \brief A class to hold a group of emojis.
  *
- * Emojis can be grouped for any reason but a common example would be supporting the
- * relationship between an emoji and its tones.
+ * Emojis can be grouped for any reason but a common examples include:
+ *  - supporting the relationship between an emoji and its tones.
+ *  - grouping emojis by category.
  */
 class KEMOJI_EXPORT Group
 {
@@ -31,14 +33,18 @@ class KEMOJI_EXPORT Group
 
     /*!
      * \property KEmoji::Group::size
-     * \brief Return a the number of \c KEmoji::Emoji in the group.
+     * \brief Return the number of \c KEmoji::Emoji in the group.
      *
      * \sa KEmoji::Emoji
      */
     Q_PROPERTY(qsizetype size READ size)
 
 public:
-    using EmojiIt = std::list<Emoji>::iterator;
+    Group();
+    Group(const Group &other);
+    ~Group();
+
+    Group &operator=(const Group &);
 
     /*!
      * \brief Add the given \c EmojiIt to the group.
@@ -97,12 +103,14 @@ public:
 
 private:
     friend class Dict;
-    using GroupIt = std::vector<EmojiIt>::const_iterator;
+    class GroupPrivate;
+    friend class GroupPrivate;
+    QSharedDataPointer<GroupPrivate> d;
 
-    std::vector<EmojiIt> m_emojiRefs;
-    std::unordered_map<QString, GroupIt> m_emojiIts;
-
-    void reindex();
+    // TODO: this is only required to support multiple dictionaries and fallback
+    // as we need to edit the emojis. This should be reworked in the future to not
+    // use the groups as the primary storage, they should just have refs.
+    std::vector<EmojiIt> &emojiRefs();
 };
 
 static Group emptyGroup;

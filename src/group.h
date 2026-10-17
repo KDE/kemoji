@@ -14,8 +14,6 @@
 
 namespace KEmoji
 {
-using EmojiIt = std::list<Emoji>::iterator;
-
 /*!
  * \class KEmoji::Group
  * \inmodule KEmoji
@@ -47,18 +45,25 @@ public:
     Group &operator=(const Group &);
 
     /*!
-     * \brief Add the given \c EmojiIt to the group.
+     * \brief Add the given \c KEmoji::Emoji to the group.
      *
-     * \sa EmojiIt
+     * \sa KEmoji::Emoji
      */
-    void add(EmojiIt it);
+    void add(const Emoji &emoji);
 
     /*!
-     * \brief Add the given \c EmojiIt from the group.
+     * \brief Add the given \c KEmoji::Emoji from the group.
      *
-     * \sa EmojiIt
+     * \sa KEmoji::Emoji
      */
-    void remove(EmojiIt it);
+    void remove(const Emoji &emoji);
+
+    /*!
+     * \brief Add the given unicode or custom emoji from the group.
+     *
+     * \sa KEmoji::Emoji
+     */
+    void remove(const QString &unicodeOrCustomName);
 
     /*!
      * \brief Return a reference to the \c KEmoji::Emoji at position i in the \c KEmoji::Group.
@@ -67,7 +72,7 @@ public:
      *
      * \sa KEmoji::Emoji
      */
-    const Emoji &at(qsizetype i) const;
+    Emoji at(qsizetype i) const;
 
     /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the group.
@@ -102,15 +107,8 @@ public:
     bool operator==(const Group &right) const;
 
 private:
-    friend class Dict;
     class GroupPrivate;
-    friend class GroupPrivate;
     QSharedDataPointer<GroupPrivate> d;
-
-    // TODO: this is only required to support multiple dictionaries and fallback
-    // as we need to edit the emojis. This should be reworked in the future to not
-    // use the groups as the primary storage, they should just have refs.
-    std::vector<EmojiIt> &emojiRefs();
 };
 
 static Group emptyGroup;

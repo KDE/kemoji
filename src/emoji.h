@@ -20,6 +20,8 @@
  */
 namespace KEmoji
 {
+class EmojiPrivate;
+
 /*!
  * \class KEmoji::Emoji
  * \inmodule KEmoji
@@ -100,8 +102,10 @@ class KEMOJI_EXPORT Emoji
     Q_PROPERTY(KEmoji::Categories::Category category READ category)
 
 public:
-    Emoji() = default;
+    Emoji();
     Emoji(const QString &unicodeOrCustomName);
+    Emoji(const Emoji &other);
+    ~Emoji();
 
     /*!
      * \brief The ID to reference this \c KEmoji::Emoji by.
@@ -113,25 +117,10 @@ public:
      * container.
      */
     QString id() const;
-
     QString unicode() const;
 
-    /*!
-     * \brief Set the unicode codepoints for the emoji as a string.
-     *
-     * If this emoji was previously using a custom representation this will be overridden.
-     *
-     * If the given string is more than 1 unicode Grapheme the \c KEmoji::Emoji will
-     * be invalidated.
-     */
-    void setUnicode(const QString &unicode);
-
-    Q_INVOKABLE bool unicodeSupportedByFont(const QFont &font) const;
-
     QUrl source() const;
-
     QString unqualifiedUnicode() const;
-    void setUnqualifiedUnicode(const QString &unqualifiedUnicode);
 
     /*!
      * \brief Whether the \c KEmoji::Emoji is valid.
@@ -152,39 +141,9 @@ public:
     bool isCustom() const;
 
     QString name() const;
-
-    /*!
-     * \brief Set the name for the emoji.
-     *
-     * If this is the name of a custom emoji the emoji will converted to that custom
-     * emoji.
-     */
-    void setName(const QString &name);
-
     QString fallbackName() const;
-
-    /*!
-     * \brief Set the fallback name for the emoji.
-     */
-    void setFallbackName(const QString &fallbackName);
-
     QStringList altNames() const;
-
-    /*!
-     * \brief Set the alternative names for the emoji.
-     *
-     * Typically used to help with searching.
-     */
-    void setAltNames(const QStringList &altNames);
-
     Categories::Category category() const;
-
-    /*!
-     * \brief Set the \c Categories::Category for the emoji.
-     *
-     * \sa Categories::Category
-     */
-    void setCategory(Categories::Category category);
 
     /*!
      * \brief Return a string representation that can be added to a text component.
@@ -197,17 +156,12 @@ public:
      */
     Q_INVOKABLE QString toString(Qt::TextFormat textFormat = Qt::PlainText) const;
 
+    Emoji &operator=(const Emoji &);
     bool operator==(const Emoji &right) const;
     bool operator==(const QString &right) const;
 
 private:
-    QString m_unicode;
-    QUrl m_source;
-    QString m_unqualifiedUnicode;
-    QString m_name;
-    QString m_fallbackName;
-    QStringList m_altNames;
-    Categories::Category m_category;
+    QExplicitlySharedDataPointer<EmojiPrivate> d;
 };
 
 struct FavoriteEmoji {
@@ -218,8 +172,5 @@ struct FavoriteEmoji {
     bool operator==(const Emoji &right) const;
 };
 }
-
-KEMOJI_EXPORT QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji);
-KEMOJI_EXPORT QDataStream &operator>>(QDataStream &stream, KEmoji::Emoji &emoji);
 
 KEMOJI_EXPORT QDebug operator<<(QDebug debug, const KEmoji::Emoji &emoji);

@@ -6,26 +6,69 @@
 
 #pragma once
 
-#include <QHash>
-#include <QObject>
+#include <QSharedData>
+#include <QString>
 #include <QUrl>
 
+#include "kemoji/category.h"
 #include "kemoji_export.h"
 
 namespace KEmoji
 {
-/*!
- * \internal
- * \brief A class to manage the \c KEmoji settings.
- *
- * This currently supports recent, favorite and custom emojis.
- */
-class KEMOJI_EXPORT Settings : public QObject
+class EmojiPrivate : public QSharedData
+{
+public:
+    EmojiPrivate()
+    {
+    }
+
+    EmojiPrivate(const EmojiPrivate &other)
+        : QSharedData(other)
+        , unicode(other.unicode)
+        , source(other.source)
+        , unqualifiedUnicode(other.unqualifiedUnicode)
+        , name(other.name)
+        , fallbackName(other.fallbackName)
+        , altNames(other.altNames)
+        , category(other.category)
+    {
+    }
+
+    QString unicode;
+    QUrl source;
+    QString unqualifiedUnicode;
+    QString name;
+    QString fallbackName;
+    QStringList altNames;
+    Categories::Category category;
+};
+
+class EmojiData : public QObject
 {
     Q_OBJECT
 
 public:
-    static Settings &instance();
+    static EmojiData &instance();
+
+    /*!
+     * \brief Whether the unicode emoji data is being loaded.
+     */
+    bool loading() const;
+
+    /*!
+     * \brief Return the \c EmojiPrivate data for the given unicode emoji or custom name.
+     *
+     * If the unicode or name is valid a \c QExplicitlySharedDataPointer with the
+     * \c EmojiPrivate is returned so that all instances link to the same object.
+     *
+     * If the unicode or name is not vlaid \c std::nullopt is returned.
+     */
+    std::optional<QExplicitlySharedDataPointer<EmojiPrivate>> dataForEmoji(const QString &unicodeOrCustomName);
+
+    /*!
+     * \brief Whether data for the given emoji exists.
+     */
+    bool hasDataForEmoji(const QString &unicodeOrCustomName);
 
     /*!
      * \brief Tell the settings the emoji represented by the given string has been used.
@@ -83,8 +126,7 @@ public:
      * \param name The name of the custom emoji as a \c QString.
      *
      * \warning Custom Emojis must not share a name with any existing emoji. If they do
-     * there will be a clash and anytime the name is set of the unicode emoji it will
-     * be overridden by the custom version.
+     * there will be a clash.
      */
     bool registerCustomEmoji(const QUrl &source, const QString &name);
 
@@ -100,40 +142,41 @@ public:
      */
     bool unregisterCustomEmoji(const QString &name);
 
-    /*!
-     * \brief Return a list of registered custom emojis.
-     */
-    const QHash<QString, QUrl> &customEmojis() const;
-
-    /*!
-     * \brief Whether the given name is a registered custom emoji.
-     */
-    bool isCustomEmoji(const QString &name) const;
-
-    /*!
-     * \brief The source \c QUrl for the given name.
-     *
-     * Returns and invalid \c QUrl if the given name is not a custom emoji.
-     */
-    QUrl customEmojiSource(const QString &name) const;
-
 Q_SIGNALS:
+    /*!
+     * \brief Emitted whenever loading changes.
+     *
+     * \sa ::loading()
+     */
+    void loadingChanged();
+
+    /*!
+     * \brief Emitted whenever emoji data is added.
+     */
+    void emojisAdded(QStringList addedEmojis);
+
+    /*!
+     * \brief Emitted whenever emoji data is removed.
+     */
+    void emojisRemoved(QStringList removedEmojis);
+
     /*!
      * \brief Emitted whenever the emoji is history is changed.
      */
     void emojiHistoryChanged();
 
 private:
-    explicit Settings(QObject *parent = nullptr);
-    void initialize();
+    explicit EmojiData(QObject *parent = nullptr);
+    bool m_loading = false;
 
+    QHash<QString, QExplicitlySharedDataPointer<EmojiPrivate>> m_data;
     QStringList m_recent;
     QHash<QString, int> m_timesUsed;
 
-    QHash<QString, QUrl> m_customEmojis;
+    void load();
+    void loadDict(const QString &path);
+    void loadCustom();
 
-    bool validSource(const QUrl &source);
-    QHash<QString, QUrl> readCustomEmojis();
-    void writeCustomEmojis(const QHash<QString, QUrl> &customEmojis);
+    bool validCustomSource(const QUrl &source);
 };
 }

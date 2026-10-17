@@ -43,8 +43,10 @@ void SortFilterModelTest::initTestCase()
 {
     const auto &dict = Dict::instance();
 
-    QSignalSpy spy(&dict, &Dict::loadedChanged);
-    QVERIFY(spy.wait(5000));
+    QSignalSpy spy(&dict, &Dict::loadingChanged);
+    while (dict.loading()) {
+        QVERIFY(spy.wait(5000));
+    }
 
     model = new Model(this);
     sortFilterModel = new SortFilterModel(this);
@@ -125,5 +127,5 @@ void SortFilterModelTest::cleanup()
     sortFilterModel->setToneFilter(Tones::Neutral);
 }
 
-QTEST_GUILESS_MAIN(SortFilterModelTest)
+QTEST_MAIN(SortFilterModelTest)
 #include "sortfiltermodeltest.moc"

@@ -92,7 +92,7 @@ QQC2.ItemDelegate {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             font: root.font
-            text: root.emoji.unicodeSupportedByFont(font) ? root.emoji.unicode : "�"
+            text: KEmoji.Dict.emojiSupportedByFont(root.emoji, font) ? root.emoji.unicode : "�"
             textFormat: Text.PlainText
         }
     }

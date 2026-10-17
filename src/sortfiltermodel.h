@@ -126,7 +126,7 @@ private:
 
     Categories::Category m_currentCategory;
     Tones::Tone m_toneFilter = Tones::Neutral;
-    bool m_showUnsupportedEmojis = true;
+    bool m_showUnsupportedEmojis = false;
     QFont m_currentFont = {};
 
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
@@ -137,6 +137,5 @@ private:
     [[nodiscard]] int exactAltNameMatch(const Emoji &leftEmoji, const Emoji &rightEmoji) const;
     int isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
     int isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
-    [[nodiscard]] bool sourceIndexLessThan(const Emoji &leftEmoji, const Emoji &rightEmoji) const;
 };
 }

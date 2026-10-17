@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <QFont>
 #include <QObject>
 #include <QtQmlIntegration/qqmlintegration.h>
 
@@ -44,6 +45,11 @@ public:
     const KEmoji::Group emojis() const
     {
         return KEmoji::Dict::instance().emojis();
+    }
+
+    Q_INVOKABLE [[nodiscard]] bool emojiSupportedByFont(const KEmoji::Emoji &emoji, const QFont &font) const
+    {
+        return KEmoji::Dict::instance().emojiSupportedByFont(emoji, font);
     }
 
     const QList<KEmoji::Categories::Category> &categories() const

@@ -51,7 +51,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 1);
         compare(spyClicked.signalArguments[0][0].toString(), "😀")
-        compare(spyClicked.signalArguments[0][0].name, "Name 1")
+        compare(spyClicked.signalArguments[0][0].name, "grinning face")
         compare(spyClicked.signalArguments[0][0].category, KEmoji.Categories.Smileys)
 
         keyClick(Qt.Key_Right);
@@ -59,7 +59,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 2);
         compare(spyClicked.signalArguments[1][0].toString(), "😃")
-        compare(spyClicked.signalArguments[1][0].name, "Name 2")
+        compare(spyClicked.signalArguments[1][0].name, "grinning face with big eyes")
         compare(spyClicked.signalArguments[1][0].category, KEmoji.Categories.Smileys)
 
         keyClick(Qt.Key_Right);
@@ -67,7 +67,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 3);
         compare(spyClicked.signalArguments[2][0].toString(), "😄")
-        compare(spyClicked.signalArguments[2][0].name, "Name 3")
+        compare(spyClicked.signalArguments[2][0].name, "grinning face with smiling eyes")
         compare(spyClicked.signalArguments[2][0].category, KEmoji.Categories.Smileys)
 
         keyClick(Qt.Key_Right);
@@ -75,7 +75,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 4);
         compare(spyClicked.signalArguments[3][0].toString(), "😁")
-        compare(spyClicked.signalArguments[3][0].name, "Name 4")
+        compare(spyClicked.signalArguments[3][0].name, "beaming face with smiling eyes")
         compare(spyClicked.signalArguments[3][0].category, KEmoji.Categories.Smileys)
 
         keyClick(Qt.Key_Left);
@@ -83,7 +83,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 5);
         compare(spyClicked.signalArguments[4][0].toString(), "😄")
-        compare(spyClicked.signalArguments[4][0].name, "Name 3")
+        compare(spyClicked.signalArguments[4][0].name, "grinning face with smiling eyes")
         compare(spyClicked.signalArguments[4][0].category, KEmoji.Categories.Smileys)
 
         keyClick(Qt.Key_Up);
@@ -91,7 +91,7 @@ TestCase {
         keyClick(Qt.Key_Return);
         compare(spyClicked.count, 6);
         compare(spyClicked.signalArguments[5][0].toString(), "😀")
-        compare(spyClicked.signalArguments[5][0].name, "Name 1")
+        compare(spyClicked.signalArguments[5][0].name, "grinning face")
         compare(spyClicked.signalArguments[5][0].category, KEmoji.Categories.Smileys)
     }
 }

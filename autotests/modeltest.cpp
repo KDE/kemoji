@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModelTester>
 #include <QObject>
+#include <QSignalSpy>
 #include <QStandardPaths>
 #include <QTest>
 
@@ -24,6 +25,13 @@ private Q_SLOTS:
 void ModelTest::initTestCase()
 {
     QStandardPaths::setTestModeEnabled(true);
+
+    const auto &dict = Dict::instance();
+
+    QSignalSpy spy(&dict, &Dict::loadingChanged);
+    while (dict.loading()) {
+        QVERIFY(spy.wait(5000));
+    }
 }
 
 void ModelTest::populate()
@@ -38,7 +46,7 @@ void ModelTest::populate()
     Group group;
     auto it = emojis.begin();
     while (it != emojis.end()) {
-        group.add(it);
+        group.add(*it);
         ++it;
     }
 

@@ -21,7 +21,7 @@ TestCase {
         if (hasEmojiFont) {
             compare(delegate.contentItem.item.text, "😀");
         }
-        compare(delegate.text, "Name 1");
+        compare(delegate.text, "grinning face");
         compare(delegate.contentItem.item instanceof QQC2.Label, true)
     }
 }

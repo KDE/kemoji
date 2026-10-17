@@ -14,7 +14,7 @@
 #include <KLazyLocalizedString>
 
 #include "category.h"
-#include "settings_p.h"
+#include "emojidata_p.h"
 
 using namespace KEmoji;
 
@@ -23,166 +23,80 @@ namespace
 const QString _invalidUnicode = u"�"_s;
 };
 
-Emoji::Emoji(const QString &unicodeOrCustomName)
-    : m_category(Categories::None)
+Emoji::Emoji()
 {
-    setUnicode(unicodeOrCustomName);
+}
 
-    if (!isValid() && Settings::instance().isCustomEmoji(unicodeOrCustomName)) {
-        m_name = unicodeOrCustomName;
-        m_source = Settings::instance().customEmojiSource(unicodeOrCustomName);
+Emoji::Emoji(const QString &unicodeOrCustomName)
+{
+    const auto ePrivate = EmojiData::instance().dataForEmoji(unicodeOrCustomName);
+    if (ePrivate) {
+        d = *ePrivate;
     }
+}
+
+Emoji::Emoji(const Emoji &other)
+    : d(other.d)
+{
+}
+
+Emoji::~Emoji()
+{
 }
 
 QString Emoji::id() const
 {
-    return isCustom() ? m_name : m_unicode;
+    return isCustom() ? name() : unicode();
 }
 
 QString Emoji::unicode() const
 {
-    if (!isValid() || !isUnicode()) {
-        return _invalidUnicode;
-    }
-    return m_unicode;
-}
-
-void Emoji::setUnicode(const QString &unicode)
-{
-    if (!m_source.isEmpty()) {
-        m_source.clear();
-    }
-
-    // If the QString is not a single unicode emoji invalidate the Emoji.
-    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, unicode);
-    qsizetype nextBoundary = finder.toNextBoundary();
-    if (nextBoundary == -1) {
-        // If here the string is empty.
-        m_unicode.clear();
-        m_source.clear();
-        return;
-    }
-    nextBoundary = finder.toNextBoundary();
-    if (nextBoundary != -1) {
-        // If here there is more than 1 Grapheme.
-        m_unicode.clear();
-        m_source.clear();
-        return;
-    }
-
-    m_unicode = unicode;
-}
-
-bool Emoji::unicodeSupportedByFont(const QFont &font) const
-{
-    // Check if the unicode produces a single glyph when rendered. This shows that
-    // the font supports any variation sequences.
-    QTextLayout textLayout(m_unicode);
-    textLayout.setFont(font);
-    textLayout.beginLayout();
-    QTextLine line = textLayout.createLine();
-    textLayout.endLayout();
-    if (!line.isValid()) {
-        return false;
-    }
-    if (line.glyphRuns().at(0).glyphIndexes().size() > 1) {
-        return false;
-    }
-
-    // Check that all character are supported. This is to handle a font not supporting
-    // new code point gracefully.
-    const auto rawFont = QRawFont::fromFont(font);
-    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, m_unicode);
-    int from = 0;
-    while (finder.toNextBoundary() != -1) {
-        auto to = finder.position();
-
-        auto character = m_unicode.mid(from, to - from).toUcs4()[0];
-        if (!rawFont.supportsCharacter(character)) {
-            return false;
-        }
-        from = to;
-    }
-    return true;
+    return isValid() && isUnicode() ? d->unicode : _invalidUnicode;
 }
 
 QUrl Emoji::source() const
 {
-    return m_source;
+    return isValid() ? d->source : QUrl();
 }
 
 QString Emoji::unqualifiedUnicode() const
 {
-    return m_unqualifiedUnicode;
-}
-
-void Emoji::setUnqualifiedUnicode(const QString &unqualifiedUnicode)
-{
-    m_unqualifiedUnicode = unqualifiedUnicode;
+    return isValid() ? d->unqualifiedUnicode : QString();
 }
 
 bool Emoji::isValid() const
 {
-    return isUnicode() || isCustom();
+    return d != nullptr && (isUnicode() || isCustom());
 }
 
 bool Emoji::isUnicode() const
 {
-    return !m_unicode.isEmpty();
+    return d != nullptr && !d->unicode.isEmpty();
 }
 
 bool Emoji::isCustom() const
 {
-    return m_source.isValid();
+    return d != nullptr && d->source.isValid();
 }
 
 QString Emoji::name() const
 {
-    return m_name;
-}
-
-void Emoji::setName(const QString &name)
-{
-    if (name == m_name) {
-        return;
-    }
-    // If this is a custom emoji name set the source and clear any unicode out.
-    if (Settings::instance().isCustomEmoji(name)) {
-        m_source = Settings::instance().customEmojiSource(name);
-        m_unicode.clear();
-    }
-    m_name = name;
-    return;
+    return isValid() ? d->name : QString();
 }
 
 QString Emoji::fallbackName() const
 {
-    return m_fallbackName;
-}
-
-void Emoji::setFallbackName(const QString &fallbackName)
-{
-    m_fallbackName = fallbackName;
+    return isValid() ? d->fallbackName : QString();
 }
 
 QStringList Emoji::altNames() const
 {
-    return m_altNames;
-}
-
-void Emoji::setAltNames(const QStringList &altNames)
-{
-    m_altNames = altNames;
+    return isValid() ? d->altNames : QStringList();
 }
 
 Categories::Category Emoji::category() const
 {
-    return m_category;
-}
-
-void Emoji::setCategory(Categories::Category category)
-{
-    m_category = category;
+    return isValid() ? d->category : Categories::None;
 }
 
 QString Emoji::toString(Qt::TextFormat textFormat) const
@@ -190,20 +104,26 @@ QString Emoji::toString(Qt::TextFormat textFormat) const
     if (!isValid() || (textFormat == Qt::PlainText && isCustom())) {
         return _invalidUnicode;
     }
-    if (!m_unicode.isEmpty() || textFormat == Qt::PlainText) {
-        return m_unicode;
+    if (!d->unicode.isEmpty() || textFormat == Qt::PlainText) {
+        return d->unicode;
     }
-    return u"<img title=\"%2\" src=\"%1\" />"_s.arg(m_source.toString(), m_name);
+    return u"<img title=\"%2\" src=\"%1\" />"_s.arg(d->source.toString(), d->name);
+}
+
+Emoji &Emoji::operator=(const Emoji &other)
+{
+    d = other.d;
+    return *this;
 }
 
 bool Emoji::operator==(const Emoji &right) const
 {
-    return isCustom() ? m_name == right.name() : m_unicode == right.unicode() || m_unqualifiedUnicode == right.unicode();
+    return isCustom() ? name() == right.name() : unicode() == right.unicode() || unqualifiedUnicode() == right.unicode();
 }
 
 bool Emoji::operator==(const QString &right) const
 {
-    return isCustom() ? m_name == right : m_unicode == right || m_unqualifiedUnicode == right;
+    return isCustom() ? name() == right : unicode() == right || unqualifiedUnicode() == right;
 }
 
 bool FavoriteEmoji::operator==(const FavoriteEmoji &right) const
@@ -214,38 +134,6 @@ bool FavoriteEmoji::operator==(const FavoriteEmoji &right) const
 bool FavoriteEmoji::operator==(const Emoji &right) const
 {
     return emoji == right;
-}
-
-QDataStream &operator<<(QDataStream &stream, const KEmoji::Emoji &emoji)
-{
-    stream << emoji.unicode() << emoji.unqualifiedUnicode() << emoji.name() << (qint32)emoji.category();
-    for (const auto &name : emoji.altNames()) {
-        stream << name;
-    }
-    return stream;
-}
-
-QDataStream &operator>>(QDataStream &stream, Emoji &emoji)
-{
-    QString unicode;
-    QString unqualifiedUnicode;
-    QString name;
-    qint32 categoryInt;
-    stream >> unicode >> unqualifiedUnicode >> name >> categoryInt;
-    const auto category = static_cast<Categories::Category>(categoryInt);
-    QStringList altNames;
-    stream >> altNames;
-
-    emoji = Emoji(unicode);
-    if (!emoji.isValid()) {
-        return stream;
-    }
-
-    emoji.setUnqualifiedUnicode(unqualifiedUnicode);
-    emoji.setName(name);
-    emoji.setAltNames(altNames);
-    emoji.setCategory(category);
-    return stream;
 }
 
 QDebug operator<<(QDebug debug, const KEmoji::Emoji &emoji)

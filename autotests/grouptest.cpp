@@ -3,8 +3,10 @@
 
 #include <QAbstractItemModelTester>
 #include <QObject>
+#include <QSignalSpy>
 #include <QTest>
 
+#include "dict.h"
 #include "group.h"
 
 using namespace KEmoji;
@@ -14,8 +16,20 @@ class GroupTest : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
+
     void populate();
 };
+
+void GroupTest::initTestCase()
+{
+    const auto &dict = Dict::instance();
+
+    QSignalSpy spy(&dict, &Dict::loadingChanged);
+    while (dict.loading()) {
+        QVERIFY(spy.wait(5000));
+    }
+}
 
 void GroupTest::populate()
 {
@@ -27,7 +41,7 @@ void GroupTest::populate()
 
     auto it = emojis.begin();
     while (it != emojis.end()) {
-        group.add(it);
+        group.add(*it);
         ++it;
     }
 

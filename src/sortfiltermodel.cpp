@@ -10,6 +10,7 @@
 #include "dict.h"
 #include "model.h"
 #include "tones.h"
+#include "unicodeUtils_p.h"
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -160,7 +161,8 @@ bool SortFilterModel::lessThan(const QModelIndex &source_left, const QModelIndex
         return result > 0;
     }
 
-    return sourceIndexLessThan(leftEmoji, rightEmoji);
+    // Make sure they get put back in the base order after sorting;
+    return source_left.row() < source_right.row();
 }
 
 bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const
@@ -181,7 +183,7 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     }
 
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
-    if (!m_showUnsupportedEmojis && !emoji.unicodeSupportedByFont(m_currentFont) && m_currentFont != QFont()) {
+    if (!m_showUnsupportedEmojis && !KUnicode::unicodeSupportedByFont(emoji.unicode(), m_currentFont) && m_currentFont != QFont()) {
         return false;
     }
     searchFilter = nameContainsSearch(emoji);
@@ -245,16 +247,6 @@ int SortFilterModel::isFavoriteMatch(const QModelIndex &source_left, const QMode
     const auto leftMatch = source_left.data(Model::TimesUsedRole).toInt();
     const auto rightMatch = source_right.data(Model::TimesUsedRole).toInt();
     return leftMatch == rightMatch ? 0 : leftMatch > rightMatch ? 1 : -1;
-}
-
-bool SortFilterModel::sourceIndexLessThan(const Emoji &leftEmoji, const Emoji &rightEmoji) const
-{
-    const auto source = dynamic_cast<Model *>(sourceModel());
-    if (!source) {
-        return false;
-    }
-    const auto &group = source->emojis();
-    return group.indexForEmoji(leftEmoji) < group.indexForEmoji(rightEmoji);
 }
 
 #include "moc_sortfiltermodel.cpp"

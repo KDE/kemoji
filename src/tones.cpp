@@ -6,6 +6,9 @@
 
 #include "tones.h"
 
+#include "emojidata_p.h"
+#include "unicodeUtils_p.h"
+
 QString KEmoji::Tones::nameStringForTone(Tone tone)
 {
     switch (tone) {
@@ -176,6 +179,5 @@ KEmoji::Emoji KEmoji::Tones::removeTonesFromEmoji(Emoji emoji)
     if (_specialBaseCases.contains(unicode)) {
         unicode = _specialBaseCases[unicode];
     }
-    emoji.setUnicode(unicode);
-    return emoji;
+    return Emoji(EmojiData::instance().hasDataForEmoji(unicode) ? unicode : KUnicode::qualify(unicode));
 }

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 
 #include <QObject>
+#include <QSignalSpy>
 #include <QTest>
 
+#include "dict.h"
 #include "emoji.h"
 #include "tones.h"
 
@@ -15,10 +17,22 @@ class TonesTest : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
+
     void codePoints();
     void names();
     void emojiTones();
 };
+
+void TonesTest::initTestCase()
+{
+    const auto &dict = Dict::instance();
+
+    QSignalSpy spy(&dict, &Dict::loadingChanged);
+    while (dict.loading()) {
+        QVERIFY(spy.wait(5000));
+    }
+}
 
 void TonesTest::codePoints()
 {

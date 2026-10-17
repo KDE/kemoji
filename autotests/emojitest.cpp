@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 
-#include <QFont>
-#include <QFontDatabase>
 #include <QObject>
+#include <QSignalSpy>
 #include <QTest>
 
 #include "emoji.h"
 
 #include "category.h"
-#include "settings_p.h"
+#include "dict.h"
 
+using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
 
 class EmojiTest : public QObject
@@ -23,14 +23,25 @@ private:
     QUrl localTextFile = QUrl::fromLocalFile(u"%1/text_file.txt"_s.arg(DATA_DIR));
 
 private Q_SLOTS:
+    void initTestCase();
+
     void empty();
     void unicodeTest();
     void customTest();
     void equalityTest();
-    void glyphAvailableTest();
 
     void cleanupTestCase();
 };
+
+void EmojiTest::initTestCase()
+{
+    const auto &dict = Dict::instance();
+
+    QSignalSpy spy(&dict, &Dict::loadingChanged);
+    while (dict.loading()) {
+        QVERIFY(spy.wait(5000));
+    }
+}
 
 void EmojiTest::empty()
 {
@@ -39,7 +50,7 @@ void EmojiTest::empty()
     QCOMPARE(emoji.isValid(), false);
     QCOMPARE(emoji.isUnicode(), false);
     QCOMPARE(emoji.isCustom(), false);
-    QCOMPARE(emoji.id(), QString());
+    QCOMPARE(emoji.id(), u"�"_s);
     QCOMPARE(emoji.unicode(), u"�"_s);
     QCOMPARE(emoji.source(), QUrl());
     QCOMPARE(emoji.unqualifiedUnicode(), QString());
@@ -62,10 +73,23 @@ void EmojiTest::unicodeTest()
     QCOMPARE(emoji.unicode(), u"😀"_s);
     QCOMPARE(emoji.source(), QUrl());
     QCOMPARE(emoji.unqualifiedUnicode(), QString());
-    QCOMPARE(emoji.name(), QString());
+    QCOMPARE(emoji.name(), u"grinning face"_s);
     QCOMPARE(emoji.fallbackName(), QString());
-    QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Categories::None);
+    const QStringList altNames = QStringList{
+        u"cheerful"_s,
+        u"cheery"_s,
+        u"face"_s,
+        u"grin"_s,
+        u"grinning"_s,
+        u"happy"_s,
+        u"laugh"_s,
+        u"nice"_s,
+        u"smile"_s,
+        u"smiling"_s,
+        u"teeth"_s,
+    };
+    QCOMPARE(emoji.altNames(), altNames);
+    QCOMPARE(emoji.category(), Categories::Smileys);
     QCOMPARE(emoji.toString(), u"😀"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"😀"_s);
 
@@ -74,7 +98,7 @@ void EmojiTest::unicodeTest()
     QCOMPARE(emoji.isValid(), false);
     QCOMPARE(emoji.isUnicode(), false);
     QCOMPARE(emoji.isCustom(), false);
-    QCOMPARE(emoji.id(), QString());
+    QCOMPARE(emoji.id(), u"�"_s);
     QCOMPARE(emoji.unicode(), u"�"_s);
     QCOMPARE(emoji.source(), QUrl());
     QCOMPARE(emoji.unqualifiedUnicode(), QString());
@@ -94,7 +118,7 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.isValid(), false);
     QCOMPARE(emoji.isUnicode(), false);
     QCOMPARE(emoji.isCustom(), false);
-    QCOMPARE(emoji.id(), QString());
+    QCOMPARE(emoji.id(), u"�"_s);
     QCOMPARE(emoji.unicode(), u"�"_s);
     QCOMPARE(emoji.source(), QUrl());
     QCOMPARE(emoji.unqualifiedUnicode(), QString());
@@ -105,9 +129,9 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"�"_s);
 
-    const auto registered = Settings::instance().registerCustomEmoji(customImageFile, customEmojiName);
+    const auto registered = Dict::instance().registerCustomEmoji(customImageFile, customEmojiName);
     QCOMPARE(registered, true);
-    emoji.setName(customEmojiName);
+    emoji = Emoji(customEmojiName);
 
     QCOMPARE(emoji.isValid(), true);
     QCOMPARE(emoji.isUnicode(), false);
@@ -119,11 +143,11 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.name(), customEmojiName);
     QCOMPARE(emoji.fallbackName(), QString());
     QCOMPARE(emoji.altNames(), QStringList());
-    QCOMPARE(emoji.category(), Categories::None);
+    QCOMPARE(emoji.category(), Categories::Custom);
     QCOMPARE(emoji.toString(), u"�"_s);
     QCOMPARE(emoji.toString(Qt::RichText), u"<img title=\"Konqi\" src=\"%1\" />"_s.arg(customImageFile.toString()));
 
-    const auto unregistered = Settings::instance().unregisterCustomEmoji(customEmojiName);
+    const auto unregistered = Dict::instance().unregisterCustomEmoji(customEmojiName);
     QCOMPARE(unregistered, true);
 
     // The unregistered emoji should now be invalid.
@@ -140,38 +164,18 @@ void EmojiTest::equalityTest()
     emoji2 = Emoji(u"🤠"_s);
     QCOMPARE(emoji1 == emoji2, false);
 
-    const auto registered = Settings::instance().registerCustomEmoji(customImageFile, customEmojiName);
+    const auto registered = Dict::instance().registerCustomEmoji(customImageFile, customEmojiName);
     QCOMPARE(registered, true);
     emoji1 = Emoji(customEmojiName);
     emoji2 = Emoji(customEmojiName);
     QCOMPARE(emoji1 == emoji2, true);
 }
 
-void EmojiTest::glyphAvailableTest()
-{
-    auto emoji = Emoji(u"😀"_s);
-    bool hasEmojiFont = std::ranges::any_of(QFontDatabase::families(), [](const QString &family) {
-        return family.contains(u"emoji", Qt::CaseInsensitive);
-    });
-
-    if (hasEmojiFont) {
-#ifdef Q_OS_WINDOWS
-        QFont emojiFont(u"Segoe UI Emoji"_s);
-#else
-        QFont emojiFont(u"emoji"_s);
-#endif
-        QCOMPARE(emoji.unicodeSupportedByFont(emojiFont), true);
-    }
-
-    auto noFont = QFont();
-    QCOMPARE(emoji.unicodeSupportedByFont(noFont), false);
-}
-
 void EmojiTest::cleanupTestCase()
 {
     // If a test fails the custom emoji may end up still registered.
-    Settings::instance().unregisterCustomEmoji(customEmojiName);
+    Dict::instance().unregisterCustomEmoji(customEmojiName);
 }
 
-QTEST_MAIN(EmojiTest)
+QTEST_GUILESS_MAIN(EmojiTest)
 #include "emojitest.moc"

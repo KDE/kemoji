@@ -45,12 +45,6 @@ ecm_add_test(
     TEST_NAME tonestest
 )
 
-ecm_add_test(
-    settingstest.cpp
-    LINK_LIBRARIES KEmoji Qt::Test KF6::I18n
-    TEST_NAME settingstest
-)
-
 macro(add_qml_tests)
     if (WIN32)
         set(_extra_args -platform offscreen)

@@ -14,10 +14,10 @@ set_target_properties(KEmoji PROPERTIES
 )
 
 target_sources(KEmoji PRIVATE
+    emojidata.cpp
     emoji.cpp
     category.cpp
     dict.cpp
-    settings.cpp
     group.cpp
     category.h
     tones.h

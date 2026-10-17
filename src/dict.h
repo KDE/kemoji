@@ -36,8 +36,8 @@ namespace KEmoji
  * auto emojis = dict.emojis();
  * \endcode
  *
- * The dictionary also provides families of related \c KEmoji::Emoji as \c KEmoji::EmojiGroup.
- * Currently the families group an emoji and all its tones.
+ * The dictionary also provides groups of related \c KEmoji::Emoji as \c KEmoji::EmojiGroup.
+ * Currently groups exist for categories and an emoji with all its tones.
  *
  * The dictionary also facilitates the tracking of recent and favorite emojis. By
  * calling \c ::emojiUsed() whenever a \c KEmoji::Emoji is used the dict track both
@@ -54,9 +54,9 @@ public:
     static Dict &instance();
 
     /*!
-     * \brief Whether the dictionary data has been loaded.
+     * \brief Whether the base unicode data is being loaded.
      */
-    bool loaded() const;
+    bool loading() const;
 
     /*!
      * \brief Return the full list of \c KEmoji::Emoji.
@@ -83,6 +83,13 @@ public:
     const Group variantGroupForEmoji(const Emoji &emoji) const;
 
     /*!
+     * \brief Whether the given \c KEmoji::Emoji is supported by the given \c QFont.
+     *
+     * \sa KEmoji::Emoji, QFont
+     */
+    Q_INVOKABLE [[nodiscard]] bool emojiSupportedByFont(const Emoji &emoji, const QFont &font) const;
+
+    /*!
      * \brief Return the full list of \c KEmoji::Categories::Category in use.
      *
      * The list represents all the categories currently available.
@@ -106,6 +113,15 @@ public:
      * \sa KEmoji::EmojiGroup, KEmoji::Categories::Category
      */
     const Group categoryGroup(Categories::Category category) const;
+
+    /*!
+     * \brief Whether the emoji represented by the given string is a recent emoji.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    bool isRecentEmoji(const QString &emoji) const;
 
     /*!
      * \brief Return the index of the given \c KEmoji::Emoji in the recent emojis list.
@@ -175,11 +191,11 @@ public:
 
 Q_SIGNALS:
     /*!
-     * \brief Emitted whenever loaded changes.
+     * \brief Emitted whenever loading changes.
      *
-     * \sa ::loaded()
+     * \sa ::loading()
      */
-    void loadedChanged();
+    void loadingChanged();
 
     /*!
      * \brief Emitted whenever emojis are added or remove.
@@ -208,23 +224,12 @@ Q_SIGNALS:
 private:
     explicit Dict(QObject *parent = nullptr);
 
-    void initialize();
-    bool m_loaded = false;
-
-    std::list<Emoji> m_emojis;
+    void addEmojisToCategories(QStringList emojis);
     std::unordered_map<QString, Group> m_variantGroups;
     std::unordered_map<Categories::Category, Group> m_categoryGroups;
     QList<Categories::Category> m_categories;
     using CategoryAdapter = decltype(QRangeModelAdapter(&m_categories));
     CategoryAdapter m_categoryModelAdapter;
-
-    void load();
-    void loadDict(const QString &path);
-    void loadEmojiToCategoryGroup(EmojiIt it);
-    void loadCustom();
-    void addCustom(const QString &name);
-
-    QString qualify(QString emoji);
 };
 
 }

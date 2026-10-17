@@ -13,6 +13,8 @@
 #include <KEmoji/Emoji>
 #include <KEmoji/Group>
 
+#include "dict.h"
+
 using namespace Qt::Literals::StringLiterals;
 
 class Setup : public QObject
@@ -31,34 +33,28 @@ public Q_SLOTS:
     }
 
 private:
-    std::list<KEmoji::Emoji> m_emojis;
     KEmoji::Group m_testGroup;
 
     void setTestEmojis(QQmlEngine *engine)
     {
+        const auto &dict = KEmoji::Dict::instance();
+
+        QSignalSpy spy(&dict, &KEmoji::Dict::loadingChanged);
+        while (dict.loading()) {
+            QVERIFY(spy.wait(5000));
+        }
+
         auto emoji = KEmoji::Emoji(u"😀"_s);
-        emoji.setName(u"Name 1"_s);
-        emoji.setCategory(KEmoji::Categories::Smileys);
-        auto it = m_emojis.insert(m_emojis.end(), emoji);
-        m_testGroup.add(it);
+        m_testGroup.add(emoji);
         engine->rootContext()->setContextProperty(u"emoji1"_s, QVariant::fromValue(emoji));
         emoji = KEmoji::Emoji(u"😃"_s);
-        emoji.setName(u"Name 2"_s);
-        emoji.setCategory(KEmoji::Categories::Smileys);
-        it = m_emojis.insert(m_emojis.end(), emoji);
-        m_testGroup.add(it);
+        m_testGroup.add(emoji);
         engine->rootContext()->setContextProperty(u"emoji2"_s, QVariant::fromValue(emoji));
         emoji = KEmoji::Emoji(u"😄"_s);
-        emoji.setName(u"Name 3"_s);
-        emoji.setCategory(KEmoji::Categories::Smileys);
-        it = m_emojis.insert(m_emojis.end(), emoji);
-        m_testGroup.add(it);
+        m_testGroup.add(emoji);
         engine->rootContext()->setContextProperty(u"emoji3"_s, QVariant::fromValue(emoji));
         emoji = KEmoji::Emoji(u"😁"_s);
-        emoji.setName(u"Name 4"_s);
-        emoji.setCategory(KEmoji::Categories::Smileys);
-        it = m_emojis.insert(m_emojis.end(), emoji);
-        m_testGroup.add(it);
+        m_testGroup.add(emoji);
         engine->rootContext()->setContextProperty(u"emoji4"_s, QVariant::fromValue(emoji));
 
         engine->rootContext()->setContextProperty(u"testGroup"_s, QVariant::fromValue(m_testGroup));

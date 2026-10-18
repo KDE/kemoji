@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(KEmoji VERSION 0.1)
+project(KEmoji VERSION 0.2)
 
 set(QT_MIN_VERSION 6.10.0)
 set(KF_MIN_VERSION 6.17.0)

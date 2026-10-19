@@ -11,7 +11,6 @@
 #include <QUrl>
 
 #include "kemoji/category.h"
-#include "kemoji_export.h"
 
 namespace KEmoji
 {

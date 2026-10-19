@@ -48,13 +48,13 @@ ecm_setup_version(PROJECT
 # Dependencies
 #
 option(KEMOJI_USE_QML "Build QML components" ON)
-option(KEMOJI_BUILD_EMOJIER "Build example Emojier" OFF)
+option(KEMOJI_BUILD_EXAMPLES "Build examples" OFF)
 
 find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED COMPONENTS Core Gui Concurrent)
 
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS I18n)
 
-if(KEMOJI_USE_QML OR KEMOJI_BUILD_EMOJIER)
+if(KEMOJI_USE_QML OR KEMOJI_BUILD_EXAMPLES)
     include(ECMQmlModule)
     find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Quick)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami)
@@ -74,7 +74,7 @@ if (BUILD_TESTING)
     add_subdirectory(autotests)
 endif()
 
-if(KEMOJI_BUILD_EMOJIER)
+if(KEMOJI_BUILD_EXAMPLES)
     find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Gui QuickControls2 Widgets)
     find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons WindowSystem)
 
@@ -82,7 +82,7 @@ if(KEMOJI_BUILD_EMOJIER)
         find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS DBusAddons Crash)
     endif()
 
-    add_subdirectory(emojier)
+    add_subdirectory(examples)
 endif()
 
 #

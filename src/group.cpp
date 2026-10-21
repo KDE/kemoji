@@ -24,8 +24,54 @@ public:
     {
     }
 
-    QList<Emoji> emojis;
+    void add(const Emoji &emoji);
+    void remove(const Emoji &emoji);
+    void remove(const QString &unicodeOrCustomName);
+
+    std::vector<Emoji> emojis;
+    std::unordered_map<QString, GroupIt> emojiIts;
+
+    void reindex();
 };
+
+void Group::GroupPrivate::add(const Emoji &emoji)
+{
+    bool atCpacity = emojis.capacity() - emojiIts.size() <= 1;
+    auto insertIt = emojis.insert(emojis.end(), emoji);
+    if (atCpacity) {
+        reindex();
+    } else {
+        emojiIts[emoji.id()] = insertIt;
+    }
+}
+
+void Group::GroupPrivate::remove(const Emoji &emoji)
+{
+    if (!emojiIts.contains(emoji.id())) {
+        return;
+    }
+    emojis.erase(emojiIts[emoji.id()]);
+    reindex();
+}
+
+void Group::GroupPrivate::remove(const QString &unicodeOrCustomName)
+{
+    if (!emojiIts.contains(unicodeOrCustomName)) {
+        return;
+    }
+    emojis.erase(emojiIts[unicodeOrCustomName]);
+    reindex();
+}
+
+void Group::GroupPrivate::reindex()
+{
+    emojiIts.clear();
+    auto it = emojis.begin();
+    while (it != emojis.end()) {
+        emojiIts[(*it).id()] = it;
+        ++it;
+    }
+}
 
 Group::Group()
     : d(new GroupPrivate)
@@ -49,17 +95,17 @@ Group &Group::operator=(const Group &other)
 
 void Group::add(const Emoji &emoji)
 {
-    d->emojis += emoji;
+    d->add(emoji);
 }
 
 void Group::remove(const Emoji &emoji)
 {
-    d->emojis.removeAll(emoji);
+    d->remove(emoji);
 }
 
 void Group::remove(const QString &unicodeOrCustomName)
 {
-    d->emojis.removeAll(unicodeOrCustomName);
+    d->remove(unicodeOrCustomName);
 }
 
 Emoji Group::at(qsizetype i) const
@@ -69,12 +115,15 @@ Emoji Group::at(qsizetype i) const
 
 qsizetype Group::indexForEmoji(const Emoji &emoji) const
 {
-    return d->emojis.indexOf(emoji);
+    if (!d->emojiIts.contains(emoji.id())) {
+        return -1;
+    }
+    return std::distance(d->emojis.begin(), d->emojiIts.at(emoji.id()));
 }
 
 bool Group::contains(const Emoji &emoji) const
 {
-    return d->emojis.contains(emoji.id());
+    return d->emojiIts.contains(emoji.id());
 }
 
 qsizetype Group::size() const
@@ -100,7 +149,7 @@ Group Group::filtered(std::function<bool(const Emoji &)> filter) const
 
 bool Group::isEmpty() const
 {
-    return d->emojis.isEmpty();
+    return d->emojis.empty();
 }
 
 bool Group::operator==(const Group &right) const

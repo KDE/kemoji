@@ -183,7 +183,8 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     }
 
     const auto emoji = idx.data(Model::EmojiRole).view<Emoji>();
-    if (!m_showUnsupportedEmojis && !KUnicode::unicodeSupportedByFont(emoji.unicode(), m_currentFont) && m_currentFont != QFont()) {
+    if (emoji.category() != Categories::Custom && !m_showUnsupportedEmojis && !KUnicode::unicodeSupportedByFont(emoji.unicode(), m_currentFont)
+        && m_currentFont != QFont()) {
         return false;
     }
     searchFilter = nameContainsSearch(emoji);

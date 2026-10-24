@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSignalSpy>
 #include <QTest>
+#include <qfontinfo.h>
 
 #include "emoji.h"
 
@@ -145,7 +146,9 @@ void EmojiTest::customTest()
     QCOMPARE(emoji.altNames(), QStringList());
     QCOMPARE(emoji.category(), Categories::Custom);
     QCOMPARE(emoji.toString(), u"�"_s);
-    QCOMPARE(emoji.toString(Qt::RichText), u"<img title=\"Konqi\" src=\"%1\" />"_s.arg(customImageFile.toString()));
+    const auto fontInfo = QFontInfo(QFont());
+    QCOMPARE(emoji.toString(Qt::RichText),
+             u"<img title=\"Konqi\" src=\"%1\" height=\"%2\" />"_s.arg(customImageFile.toString(), QString::number(fontInfo.pixelSize())));
 
     const auto unregistered = Dict::instance().unregisterCustomEmoji(customEmojiName);
     QCOMPARE(unregistered, true);
@@ -177,5 +180,5 @@ void EmojiTest::cleanupTestCase()
     Dict::instance().unregisterCustomEmoji(customEmojiName);
 }
 
-QTEST_GUILESS_MAIN(EmojiTest)
+QTEST_MAIN(EmojiTest)
 #include "emojitest.moc"

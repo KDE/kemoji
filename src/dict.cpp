@@ -31,6 +31,8 @@ Dict::Dict(QObject *parent)
     connect(&EmojiData::instance(), &EmojiData::emojisAdded, this, &Dict::addEmojisToCategories);
     connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::emojiHistoryChanged);
     connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::addEmojiToRecentFavorite);
+
+    addEmojisToCategories(EmojiData::instance().emojiIds());
 }
 
 Dict &Dict::instance()

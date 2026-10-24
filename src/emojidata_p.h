@@ -54,6 +54,8 @@ public:
      */
     bool loading() const;
 
+    QStringList emojiIds() const;
+
     /*!
      * \brief Return the \c EmojiPrivate data for the given unicode emoji or custom name.
      *

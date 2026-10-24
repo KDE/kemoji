@@ -67,6 +67,11 @@ bool EmojiData::loading() const
     return m_loading;
 }
 
+QStringList EmojiData::emojiIds() const
+{
+    return m_data.keys();
+}
+
 std::optional<QExplicitlySharedDataPointer<EmojiPrivate>> EmojiData::dataForEmoji(const QString &unicodeOrCustomName)
 {
     if (!m_data.contains(unicodeOrCustomName)) {
@@ -227,7 +232,9 @@ void EmojiData::loadCustom()
         settings.setArrayIndex(i);
         const auto name = settings.value("name").toString();
         auto newEmoji = m_data.insert(name, QExplicitlySharedDataPointer(new EmojiPrivate));
+        newEmoji->data()->name = name;
         newEmoji->data()->source = settings.value("source").toUrl();
+        newEmoji->data()->category = Categories::Custom;
         addedEmojis += name;
     }
     settings.endArray();

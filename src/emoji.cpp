@@ -6,12 +6,13 @@
 
 #include "emoji.h"
 
-#include <QFont>
 #include <QRawFont>
 #include <QTextBoundaryFinder>
 #include <QTextLayout>
 
 #include <KLazyLocalizedString>
+#include <qfontinfo.h>
+#include <qkeysequence.h>
 
 #include "category.h"
 #include "emojidata_p.h"
@@ -99,7 +100,7 @@ Categories::Category Emoji::category() const
     return isValid() ? d->category : Categories::None;
 }
 
-QString Emoji::toString(Qt::TextFormat textFormat) const
+QString Emoji::toString(Qt::TextFormat textFormat, const QFont &font) const
 {
     if (!isValid() || (textFormat == Qt::PlainText && isCustom())) {
         return _invalidUnicode;
@@ -107,7 +108,7 @@ QString Emoji::toString(Qt::TextFormat textFormat) const
     if (!d->unicode.isEmpty() || textFormat == Qt::PlainText) {
         return d->unicode;
     }
-    return u"<img title=\"%2\" src=\"%1\" />"_s.arg(d->source.toString(), d->name);
+    return u"<img title=\"%2\" src=\"%1\" height=\"%3\" />"_s.arg(d->source.toString(), d->name, QString::number(QFontInfo(font).pixelSize()));
 }
 
 Emoji &Emoji::operator=(const Emoji &other)

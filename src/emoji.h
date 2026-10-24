@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <QFont>
 #include <QString>
 #include <QStringList>
 #include <QUrl>
@@ -151,10 +152,12 @@ public:
      * \param textFormat The \c Qt::TextFormat of the output. Custom emojis are represented
      * by \c <img> html tags so can only be rendered in text components that support
      * \c Qt::RichText.
+     * \param font The font to use. This is only required for custom emojis to ensure
+     * the correct height.
      *
      * \sa Qt::TextFormat
      */
-    Q_INVOKABLE QString toString(Qt::TextFormat textFormat = Qt::PlainText) const;
+    Q_INVOKABLE QString toString(Qt::TextFormat textFormat = Qt::PlainText, const QFont &font = {}) const;
 
     Emoji &operator=(const Emoji &);
     bool operator==(const Emoji &right) const;

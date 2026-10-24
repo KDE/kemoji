@@ -42,6 +42,7 @@ Kirigami.ApplicationWindow {
         if (!visible) {
             return;
         }
+        console.warn("clicked", emoji.toString(Qt.RichText))
         CopyHelper.copyTextToClipboard(emoji.toString(Qt.RichText))
         window.showPassiveNotification(KI18n.i18n("%1 copied to the clipboard", emoji.toString(Qt.RichText)))
     }

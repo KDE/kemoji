@@ -7,6 +7,7 @@
 
 import QtQuick
 
+import org.kde.ki18n
 import org.kde.kirigami as Kirigami
 import org.kde.kemoji as KEmoji
 
@@ -98,7 +99,7 @@ GridView {
     Kirigami.PlaceholderMessage {
         anchors.centerIn: parent
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
-        text: categoryFilterModel.currentCategory === KEmoji.Categories.Recent ? i18n("No recent Emojis") : i18n("No favorite Emojis")
+        text: categoryFilterModel.currentCategory === KEmoji.Categories.Recent ? KI18n.i18n("No recent Emojis") : KI18n.i18n("No favorite Emojis")
         visible: root.count === 0 && (categoryFilterModel.currentCategory === KEmoji.Categories.Recent || categoryFilterModel.currentCategory === KEmoji.Categories.Favorite)
     }
 }

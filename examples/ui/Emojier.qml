@@ -8,6 +8,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 
+import org.kde.ki18n
 import org.kde.kirigami as Kirigami
 import org.kde.config as KConfig
 
@@ -42,7 +43,7 @@ Kirigami.ApplicationWindow {
             return;
         }
         CopyHelper.copyTextToClipboard(emoji.toString(Qt.RichText))
-        window.showPassiveNotification(i18n("%1 copied to the clipboard", emoji.toString(Qt.RichText)))
+        window.showPassiveNotification(KI18n.i18n("%1 copied to the clipboard", emoji.toString(Qt.RichText)))
     }
 
     globalDrawer: Kirigami.GlobalDrawer {

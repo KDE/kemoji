@@ -8,6 +8,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 
+import org.kde.ki18n
 import org.kde.kirigami as Kirigami
 import org.kde.kemoji as KEmoji
 
@@ -108,7 +109,7 @@ Kirigami.ScrollablePage {
 
             visible: emojiGrid.model.currentCategory === KEmoji.Categories.Recent || emojiGrid.model.currentCategory === KEmoji.Categories.Favorite
             enabled: emojiGrid.count > 0
-            text: i18n("Clear History")
+            text: KI18n.i18n("Clear History")
             icon.name: "edit-clear-history"
             onClicked: KEmoji.Dict.clearHistory();
         }
@@ -116,7 +117,7 @@ Kirigami.ScrollablePage {
             id: skinToneButton
 
             readonly property int effectiveWidth: !visible ? 0 : implicitWidth + titleRowLayout.spacing
-            readonly property string label: i18nc("@action:button Button to open a menu that lets you choose a skin tone", "Skin tone:")
+            readonly property string label: KI18n.i18nc("@action:button Button to open a menu that lets you choose a skin tone", "Skin tone:")
 
             function openMenu() {
                 if (!skinToneMenu.visible) {
@@ -204,21 +205,21 @@ Kirigami.ScrollablePage {
 
             QQC2.MenuItem {
                 icon.name: "edit-copy"
-                text: i18nc("@item:inmenu", "Copy Emoji")
+                text: KI18n.i18nc("@item:inmenu", "Copy Emoji")
                 onClicked: Window.window.report(emoji)
             }
             QQC2.MenuItem {
                 icon.name: "edit-copy"
-                text: i18nc("@item:inmenu", "Copy Name")
+                text: KI18n.i18nc("@item:inmenu", "Copy Name")
                 onClicked: {
                     CopyHelper.copyTextToClipboard(emojiMenu.emoji.name);
-                    window.showPassiveNotification(i18n("%1 copied to the clipboard", emojiMenu.emoji.name));
+                    window.showPassiveNotification(KI18n.i18n("%1 copied to the clipboard", emojiMenu.emoji.name));
                 }
             }
             QQC2.MenuItem {
                 visible: emojiMenu.emoji.category == KEmoji.Categories.Custom
                 icon.name: "delete"
-                text: i18nc("@item:inmenu", "Remove custom emoji")
+                text: KI18n.i18nc("@item:inmenu", "Remove custom emoji")
                 onClicked: KEmoji.Dict.unregisterCustomEmoji(emojiMenu.emoji);
             }
         }

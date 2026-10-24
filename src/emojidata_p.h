@@ -162,7 +162,7 @@ Q_SIGNALS:
     /*!
      * \brief Emitted whenever the emoji is history is changed.
      */
-    void emojiHistoryChanged();
+    void emojiHistoryChanged(QStringList emojisChanged);
 
 private:
     explicit EmojiData(QObject *parent = nullptr);

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 James Graham <james.h.graham@protonmail.com>
 // SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 
+#include "category.h"
 #include <QFont>
 #include <QFontDatabase>
 #include <QObject>
@@ -77,43 +78,73 @@ void DictTest::emojiUsedTest()
     QCOMPARE(dict.isRecentEmoji(emoji1), false);
     QCOMPARE(dict.recentEmojiIndex(emoji1), -1);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), false);
     QCOMPARE(dict.isRecentEmoji(emoji2), false);
     QCOMPARE(dict.recentEmojiIndex(emoji2), -1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
 
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 1);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), false);
     QCOMPARE(dict.recentEmojiIndex(emoji2), -1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
 
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 2);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), false);
     QCOMPARE(dict.recentEmojiIndex(emoji2), -1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
 
     dict.emojiUsed(emoji2);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 1);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 2);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), true);
     QCOMPARE(dict.recentEmojiIndex(emoji2), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 1);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), true);
 
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 3);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), true);
     QCOMPARE(dict.recentEmojiIndex(emoji2), 1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 1);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), true);
 
     dict.clearHistory();
+    QCOMPARE(dict.isRecentEmoji(emoji1), false);
+    QCOMPARE(dict.recentEmojiIndex(emoji1), -1);
+    QCOMPARE(dict.timesEmojiUsed(emoji1), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), false);
+    QCOMPARE(dict.isRecentEmoji(emoji2), false);
+    QCOMPARE(dict.recentEmojiIndex(emoji2), -1);
+    QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
 }
 
 void DictTest::customTest()
@@ -197,8 +228,9 @@ void DictTest::glyphAvailableTest()
 
 void DictTest::cleanupTestCase()
 {
-    // If a test fails the custom emoji may end up still registered.
+    // If a test fails make sure all settings data is removed.
     Dict::instance().unregisterCustomEmoji(customEmojiName);
+    Dict::instance().clearHistory();
 }
 
 QTEST_MAIN(DictTest)

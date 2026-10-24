@@ -36,17 +36,8 @@ constexpr inline auto CustomEmojiKey = "customEmojis"_L1;
 EmojiData::EmojiData(QObject *parent)
     : QObject(parent)
 {
-    loadCustom();
-    m_loading = true;
-    Q_EMIT loadingChanged();
-    QFuture<void> future = QtConcurrent::run(&EmojiData::load, this).then([this]() {
-        m_loading = false;
-        Q_EMIT loadingChanged();
-    });
-
     QSettings settings(OrganizationKey, KEmojiKey);
     m_recent = settings.value(RecentEmojiKey).toStringList();
-
     std::ranges::for_each(m_recent, [this](const QString &emoji) {
         if (m_timesUsed.contains(emoji)) {
             ++m_timesUsed[emoji];
@@ -54,8 +45,15 @@ EmojiData::EmojiData(QObject *parent)
         }
         m_timesUsed[emoji] = 1;
     });
+    Q_EMIT emojiHistoryChanged(m_recent);
 
-    Q_EMIT emojiHistoryChanged();
+    loadCustom();
+    m_loading = true;
+    Q_EMIT loadingChanged();
+    QFuture<void> future = QtConcurrent::run(&EmojiData::load, this).then([this]() {
+        m_loading = false;
+        Q_EMIT loadingChanged();
+    });
 }
 
 EmojiData &EmojiData::instance()
@@ -95,18 +93,19 @@ void EmojiData::emojiUsed(const QString &emoji)
         m_timesUsed[emoji] = 1;
     }
 
-    Q_EMIT emojiHistoryChanged();
+    Q_EMIT emojiHistoryChanged({emoji});
 }
 
 void EmojiData::clearHistory()
 {
     QSettings settings(OrganizationKey, KEmojiKey);
+    const auto clearedEmojis = m_recent;
     m_recent.clear();
     m_timesUsed.clear();
     settings.remove(RecentEmojiKey);
     settings.sync();
 
-    Q_EMIT emojiHistoryChanged();
+    Q_EMIT emojiHistoryChanged(clearedEmojis);
 }
 
 bool EmojiData::isRecent(const QString &emoji) const

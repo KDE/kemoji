@@ -30,6 +30,7 @@ Dict::Dict(QObject *parent)
     connect(&EmojiData::instance(), &EmojiData::loadingChanged, this, &Dict::loadingChanged);
     connect(&EmojiData::instance(), &EmojiData::emojisAdded, this, &Dict::addEmojisToCategories);
     connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::emojiHistoryChanged);
+    connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::addEmojiToRecentFavorite);
 }
 
 Dict &Dict::instance()
@@ -68,6 +69,7 @@ void Dict::addEmojisToCategories(QStringList emojis)
         if (!updatedCategories.contains(emoji.category())) {
             updatedCategories += emoji.category();
         }
+        addEmojiToRecentFavorite({unicodeOrCustomName});
 
         const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
         if (!m_categoryGroups[Categories::All].contains(tonelessEmoji)) {
@@ -88,6 +90,28 @@ void Dict::addEmojisToCategories(QStringList emojis)
     });
 
     Q_EMIT emojisChanged(updatedCategories);
+}
+
+void Dict::addEmojiToRecentFavorite(QStringList emojis)
+{
+    std::ranges::for_each(emojis, [this](const QString &unicodeOrCustomName) {
+        const auto emoji = Emoji(unicodeOrCustomName);
+        if (!emoji.isValid()) {
+            return;
+        }
+
+        const auto recentIndex = EmojiData::instance().recentIndex(emoji.id());
+        if (recentIndex != -1 && !m_categoryGroups[Categories::Recent].contains(emoji)) {
+            m_categoryGroups[Categories::Recent].add(emoji);
+        } else if (recentIndex == -1 && m_categoryGroups[Categories::Recent].contains(emoji)) {
+            m_categoryGroups[Categories::Recent].remove(emoji);
+        }
+        if (EmojiData::instance().timesUsed(emoji.id()) > 0 && !m_categoryGroups[Categories::Favorite].contains(emoji)) {
+            m_categoryGroups[Categories::Favorite].add(emoji);
+        } else if (EmojiData::instance().timesUsed(emoji.id()) == 0 && m_categoryGroups[Categories::Favorite].contains(emoji)) {
+            m_categoryGroups[Categories::Favorite].remove(emoji);
+        }
+    });
 }
 
 const Group Dict::emojis() const

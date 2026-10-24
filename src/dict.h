@@ -225,6 +225,7 @@ private:
     explicit Dict(QObject *parent = nullptr);
 
     void addEmojisToCategories(QStringList emojis);
+    void addEmojiToRecentFavorite(QStringList emojis);
     std::unordered_map<QString, Group> m_variantGroups;
     std::unordered_map<Categories::Category, Group> m_categoryGroups;
     QList<Categories::Category> m_categories;

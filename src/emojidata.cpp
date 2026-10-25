@@ -27,10 +27,12 @@ constexpr quint32 MINBINARYVER = 001;
 constexpr quint32 MAXBINARYVER = 001;
 constexpr QDataStream::Version VERSION1 = QDataStream::Qt_6_10;
 
-constexpr inline auto OrganizationKey = "KDE"_L1;
-constexpr inline auto KEmojiKey = "KEmoji"_L1;
-constexpr inline auto RecentEmojiKey = "recentEmojis"_L1;
-constexpr inline auto CustomEmojiKey = "customEmojis"_L1;
+constexpr auto OrganizationKey = "KDE"_L1;
+constexpr auto KEmojiKey = "KEmoji"_L1;
+constexpr auto RecentEmojiKey = "recentEmojis"_L1;
+constexpr auto CustomEmojiKey = "customEmojis"_L1;
+
+constexpr int MinFavorite = 5;
 }
 
 EmojiData::EmojiData(QObject *parent)
@@ -97,7 +99,6 @@ void EmojiData::emojiUsed(const QString &emoji)
     } else {
         m_timesUsed[emoji] = 1;
     }
-
     Q_EMIT emojiHistoryChanged({emoji});
 }
 
@@ -113,6 +114,11 @@ void EmojiData::clearHistory()
     Q_EMIT emojiHistoryChanged(clearedEmojis);
 }
 
+QStringList EmojiData::recentEmojis() const
+{
+    return m_recent;
+}
+
 bool EmojiData::isRecent(const QString &emoji) const
 {
     return m_recent.contains(emoji);
@@ -121,6 +127,11 @@ bool EmojiData::isRecent(const QString &emoji) const
 int EmojiData::recentIndex(const QString &emoji) const
 {
     return m_recent.indexOf(emoji);
+}
+
+bool EmojiData::isFavorite(const QString &emoji) const
+{
+    return timesUsed(emoji) >= MinFavorite;
 }
 
 int EmojiData::timesUsed(const QString &emoji) const

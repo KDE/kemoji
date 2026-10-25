@@ -19,6 +19,7 @@ private Q_SLOTS:
     void initTestCase();
 
     void populate();
+    void sort();
 };
 
 void GroupTest::initTestCase()
@@ -87,6 +88,48 @@ void GroupTest::populate()
     QCOMPARE(filteredGroup.contains(u"⚽"_s), true);
     QCOMPARE(filteredGroup.contains(u"👶"_s), false);
     QCOMPARE(filteredGroup.contains(u"🇧🇿"_s), false);
+}
+
+void GroupTest::sort()
+{
+    std::list<Emoji> emojis{u"😀"_s, u"🤚🏿"_s, u"🧠"_s, u"🫱🏼‍🫲🏿"_s, u"⚽"_s};
+    QHash<QString, int> timesUsed{
+        {u"😀"_s, 1},
+        {u"🤚🏿"_s, 5},
+        {u"🧠"_s, 3},
+        {u"🫱🏼‍🫲🏿"_s, 4},
+        {u"⚽"_s, 2},
+    };
+    Group group;
+
+    QCOMPARE(group.size(), 0);
+    QCOMPARE(group.isEmpty(), true);
+
+    auto it = emojis.begin();
+    while (it != emojis.end()) {
+        group.add(*it);
+        ++it;
+    }
+
+    QCOMPARE(group.size(), 5);
+    QCOMPARE(group.isEmpty(), false);
+    QCOMPARE(group.at(0), u"😀"_s);
+    QCOMPARE(group.at(1), u"🤚🏿"_s);
+    QCOMPARE(group.at(2), u"🧠"_s);
+    QCOMPARE(group.at(3), u"🫱🏼‍🫲🏿"_s);
+    QCOMPARE(group.at(4), u"⚽"_s);
+
+    group.sort([timesUsed](const Emoji &leftEmoji, const Emoji &rightEmoji) {
+        return timesUsed[leftEmoji.id()] < timesUsed[rightEmoji.id()];
+    });
+
+    QCOMPARE(group.size(), 5);
+    QCOMPARE(group.isEmpty(), false);
+    QCOMPARE(group.at(0), u"🤚🏿"_s);
+    QCOMPARE(group.at(1), u"🫱🏼‍🫲🏿"_s);
+    QCOMPARE(group.at(2), u"🧠"_s);
+    QCOMPARE(group.at(3), u"⚽"_s);
+    QCOMPARE(group.at(4), u"😀"_s);
 }
 
 QTEST_GUILESS_MAIN(GroupTest)

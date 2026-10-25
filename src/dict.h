@@ -87,7 +87,7 @@ public:
      *
      * \sa KEmoji::Emoji, QFont
      */
-    Q_INVOKABLE [[nodiscard]] bool emojiSupportedByFont(const Emoji &emoji, const QFont &font) const;
+    [[nodiscard]] bool emojiSupportedByFont(const Emoji &emoji, const QFont &font) const;
 
     /*!
      * \brief Return the full list of \c KEmoji::Categories::Category in use.
@@ -115,7 +115,7 @@ public:
     const Group categoryGroup(Categories::Category category) const;
 
     /*!
-     * \brief Whether the emoji represented by the given string is a recent emoji.
+     * \brief Whether the given \c KEmoji::Emoji is a recent emoji.
      *
      * The string should be the unicode representation of the emoji for a standard
      * unicode emoji. For a custom emoji the name string the emoji is registered
@@ -131,6 +131,15 @@ public:
      * \sa KEmoji::Emoji
      */
     int recentEmojiIndex(const Emoji &emoji) const;
+
+    /*!
+     * \brief Whether the given \c KEmoji::Emoji is a favorite emoji.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    bool isFavoriteEmoji(const Emoji &emoji) const;
 
     /*!
      * \brief Return the number of times the given \c KEmoji::Emoji has been used.
@@ -198,13 +207,10 @@ Q_SIGNALS:
     void loadingChanged();
 
     /*!
-     * \brief Emitted whenever emojis are added or remove.
+     * \brief Emitted whenever emojis are added or removed from categories.
      *
      * The categories list contains all categories from which an emoji was added
      * or removed.
-     *
-     * This signal will be emitted only once at the end of a load not for every added
-     * emoji.
      */
     void emojisChanged(QList<Categories::Category> categorys);
 

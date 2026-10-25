@@ -85,23 +85,30 @@ void DictTest::emojiUsedTest()
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 5);
 
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji1), 1);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
-    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), false);
     QCOMPARE(dict.isRecentEmoji(emoji2), false);
     QCOMPARE(dict.recentEmojiIndex(emoji2), -1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 1);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 5);
 
+    dict.emojiUsed(emoji1);
+    dict.emojiUsed(emoji1);
+    dict.emojiUsed(emoji1);
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
-    QCOMPARE(dict.timesEmojiUsed(emoji1), 2);
+    QCOMPARE(dict.timesEmojiUsed(emoji1), 5);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), false);
@@ -109,30 +116,36 @@ void DictTest::emojiUsedTest()
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 1);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 6);
 
     dict.emojiUsed(emoji2);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 1);
-    QCOMPARE(dict.timesEmojiUsed(emoji1), 2);
+    QCOMPARE(dict.timesEmojiUsed(emoji1), 5);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), true);
     QCOMPARE(dict.recentEmojiIndex(emoji2), 0);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 1);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), true);
-    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 2);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 6);
 
     dict.emojiUsed(emoji1);
     QCOMPARE(dict.isRecentEmoji(emoji1), true);
     QCOMPARE(dict.recentEmojiIndex(emoji1), 0);
-    QCOMPARE(dict.timesEmojiUsed(emoji1), 3);
+    QCOMPARE(dict.timesEmojiUsed(emoji1), 6);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji1), true);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji1), true);
     QCOMPARE(dict.isRecentEmoji(emoji2), true);
     QCOMPARE(dict.recentEmojiIndex(emoji2), 1);
     QCOMPARE(dict.timesEmojiUsed(emoji2), 1);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), true);
-    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), true);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 2);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 6);
 
     dict.clearHistory();
     QCOMPARE(dict.isRecentEmoji(emoji1), false);
@@ -145,6 +158,8 @@ void DictTest::emojiUsedTest()
     QCOMPARE(dict.timesEmojiUsed(emoji2), 0);
     QCOMPARE(dict.categoryGroup(Categories::Recent).contains(emoji2), false);
     QCOMPARE(dict.categoryGroup(Categories::Favorite).contains(emoji2), false);
+    QCOMPARE(dict.categoryGroup(Categories::Recent).size(), 0);
+    QCOMPARE(dict.categoryGroup(Categories::Favorite).size(), 5);
 }
 
 void DictTest::customTest()

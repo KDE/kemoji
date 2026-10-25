@@ -177,7 +177,7 @@ bool SortFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
     if (m_currentCategory == Categories::Recent) {
         categoryFilter = idx.data(Model::RecentIndexRole).toInt() >= 0;
     } else if (m_currentCategory == Categories::Favorite) {
-        categoryFilter = idx.data(Model::TimesUsedRole).toInt() > 0;
+        categoryFilter = idx.data(Model::IsFavoriteRole).toBool();
     } else {
         categoryFilter = m_currentCategory == Categories::All || idx.data(Model::EmojiRole).view<Emoji>().category() == m_currentCategory;
     }

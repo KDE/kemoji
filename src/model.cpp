@@ -49,6 +49,8 @@ QVariant Model::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(emoji);
     case RecentIndexRole:
         return Dict::instance().recentEmojiIndex(emoji);
+    case IsFavoriteRole:
+        return Dict::instance().isFavoriteEmoji(emoji);
     case TimesUsedRole:
         return Dict::instance().timesEmojiUsed(emoji);
     case VariantEmojisRole: {
@@ -79,6 +81,7 @@ QHash<int, QByteArray> Model::roleNames() const
         {EmojiRole, "emoji"},
         {VariantEmojisRole, "variantEmojis"},
         {RecentIndexRole, "recentIndex"},
+        {IsFavoriteRole, "isFavorite"},
         {TimesUsedRole, "timesUsed"},
     };
 }

@@ -58,6 +58,7 @@ public:
         EmojiRole = Qt::UserRole + 1,
         VariantEmojisRole,
         RecentIndexRole,
+        IsFavoriteRole,
         TimesUsedRole,
     };
 

@@ -88,6 +88,14 @@ public:
     void clearHistory();
 
     /*!
+     * \brief Return the list of recent emojis.
+     *
+     * \note This is every emoji for which \c emojiUsed() was called in order. I.e.
+     * it can include multiple uses of the same emoji if it was called multiple times.
+     */
+    QStringList recentEmojis() const;
+
+    /*!
      * \brief Whether the emoji represented by the given string is a recent emoji.
      *
      * The string should be the unicode representation of the emoji for a standard
@@ -107,6 +115,15 @@ public:
      * under should be passed.
      */
     int recentIndex(const QString &emoji) const;
+
+    /*!
+     * \brief Whether the emoji represented by the given string is a favorite emoji.
+     *
+     * The string should be the unicode representation of the emoji for a standard
+     * unicode emoji. For a custom emoji the name string the emoji is registered
+     * under should be passed.
+     */
+    bool isFavorite(const QString &emoji) const;
 
     /*!
      * \brief The number of times the emoji represented by the given string has been used.

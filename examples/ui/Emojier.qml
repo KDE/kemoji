@@ -100,6 +100,15 @@ Kirigami.ApplicationWindow {
                 drawer.actions.splice(idx, 1);
             }
         }
+
+        actions: [QQC2.Action {
+            id: categoryMenuAction
+            text: "Category Emoji Menu Example"
+            icon.name: "smiley"
+            onTriggered: {
+                categoryMenu.createObject(window).open();
+            }
+        }]
     }
 
     Component.onCompleted: {
@@ -112,5 +121,20 @@ Kirigami.ApplicationWindow {
             return;
         }
         categoryPage.model.currentCategory = KEmoji.Categories.All;
+    }
+
+    Component {
+        id: categoryMenu
+        QQC2.Menu {
+            QQC2.MenuItem {
+                text: "Menu Item Before"
+            }
+            KEmoji.CategoryMenuItem {
+                category: KEmoji.Categories.Favorite
+            }
+            QQC2.MenuItem {
+                text: "Menu Item After"
+            }
+        }
     }
 }

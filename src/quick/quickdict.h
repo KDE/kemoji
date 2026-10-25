@@ -24,7 +24,7 @@ class QuickDict : public QObject
     QML_NAMED_ELEMENT(Dict)
     QML_SINGLETON
 
-    Q_PROPERTY(KEmoji::Group emojis READ emojis NOTIFY emojisChanged)
+    Q_PROPERTY(KEmoji::Group emojis READ emojis NOTIFY allEmojisChanged)
 
     Q_PROPERTY(QList<KEmoji::Categories::Category> categories READ categories NOTIFY categoriesChanged)
 
@@ -35,9 +35,16 @@ public:
         : QObject(parent)
     {
         connect(&KEmoji::Dict::instance(), &KEmoji::Dict::categoriesChanged, this, &QuickDict::categoriesChanged);
+        connect(&KEmoji::Dict::instance(), &KEmoji::Dict::emojisChanged, this, [this](const QList<KEmoji::Categories::Category> &categories) {
+            QVariantList varCategories;
+            std::ranges::for_each(categories, [&varCategories](KEmoji::Categories::Category category) {
+                varCategories.append(int(category));
+            });
+            Q_EMIT emojisChanged(varCategories);
+        });
         connect(&KEmoji::Dict::instance(), &KEmoji::Dict::emojisChanged, this, [this](QList<KEmoji::Categories::Category> categories) {
             if (categories.contains(KEmoji::Categories::All)) {
-                Q_EMIT emojisChanged();
+                Q_EMIT allEmojisChanged();
             }
         });
     }
@@ -62,6 +69,11 @@ public:
         return KEmoji::Dict::instance().categoryModel();
     }
 
+    Q_INVOKABLE const KEmoji::Group categoryGroup(KEmoji::Categories::Category category) const
+    {
+        return KEmoji::Dict::instance().categoryGroup(category);
+    }
+
     Q_INVOKABLE void emojiUsed(const KEmoji::Emoji &emoji)
     {
         KEmoji::Dict::instance().emojiUsed(emoji);
@@ -78,6 +90,7 @@ public:
     }
 
 Q_SIGNALS:
-    void emojisChanged();
+    void emojisChanged(QVariantList categorys);
+    void allEmojisChanged();
     void categoriesChanged();
 };

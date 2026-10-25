@@ -29,7 +29,7 @@ GridView {
     id: root
 
     /*!
-     \brief The font to use
+     \brief The font to use.
 
      The default uses the "emoji" family and a pixelSize of  \c Kirigami.Units.iconSizes.small.
      The font family should always be one that supports color emojis.

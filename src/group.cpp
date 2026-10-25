@@ -12,8 +12,6 @@ using namespace KEmoji;
 class Group::GroupPrivate : public QSharedData
 {
 public:
-    using GroupIt = std::vector<Emoji>::const_iterator;
-
     GroupPrivate()
     {
     }
@@ -29,7 +27,7 @@ public:
     void remove(const QString &unicodeOrCustomName);
 
     std::vector<Emoji> emojis;
-    std::unordered_map<QString, GroupIt> emojiIts;
+    std::unordered_map<QString, std::vector<Emoji>::const_iterator> emojiIts;
 
     void reindex();
 };
@@ -41,7 +39,7 @@ void Group::GroupPrivate::add(const Emoji &emoji)
     if (atCpacity) {
         reindex();
     } else {
-        emojiIts[emoji.id()] = insertIt;
+        emojiIts.insert({emoji.id(), insertIt});
     }
 }
 
@@ -50,7 +48,7 @@ void Group::GroupPrivate::remove(const Emoji &emoji)
     if (!emojiIts.contains(emoji.id())) {
         return;
     }
-    emojis.erase(emojiIts[emoji.id()]);
+    emojis.erase(emojiIts.at(emoji.id()));
     reindex();
 }
 
@@ -59,7 +57,7 @@ void Group::GroupPrivate::remove(const QString &unicodeOrCustomName)
     if (!emojiIts.contains(unicodeOrCustomName)) {
         return;
     }
-    emojis.erase(emojiIts[unicodeOrCustomName]);
+    emojis.erase(emojiIts.at(unicodeOrCustomName));
     reindex();
 }
 
@@ -68,7 +66,7 @@ void Group::GroupPrivate::reindex()
     emojiIts.clear();
     auto it = emojis.begin();
     while (it != emojis.end()) {
-        emojiIts[(*it).id()] = it;
+        emojiIts.insert({(*it).id(), it});
         ++it;
     }
 }
@@ -118,7 +116,7 @@ qsizetype Group::indexForEmoji(const Emoji &emoji) const
     if (!d->emojiIts.contains(emoji.id())) {
         return -1;
     }
-    return std::distance(d->emojis.begin(), d->emojiIts.at(emoji.id()));
+    return std::distance(d->emojis.cbegin(), d->emojiIts.at(emoji.id()));
 }
 
 bool Group::contains(const Emoji &emoji) const
@@ -145,6 +143,15 @@ Group Group::filtered(std::function<bool(const Emoji &)> filter) const
         }
     });
     return filteredGroup;
+}
+
+void Group::sort(std::function<bool(const Emoji &, const Emoji &)> comp)
+{
+    if (!comp) {
+        return;
+    }
+    std::sort(d->emojis.rbegin(), d->emojis.rend(), comp);
+    d->reindex();
 }
 
 bool Group::isEmpty() const

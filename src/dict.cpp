@@ -13,6 +13,7 @@
 #include "group.h"
 #include "tones.h"
 #include "unicodeUtils_p.h"
+#include <qloggingcategory.h>
 
 using namespace Qt::Literals::StringLiterals;
 using namespace KEmoji;
@@ -27,12 +28,22 @@ Dict::Dict(QObject *parent)
     m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), Categories::Favorite);
     m_categoryModelAdapter.insertRow(m_categoryModelAdapter.rowCount(), Categories::All);
 
-    connect(&EmojiData::instance(), &EmojiData::loadingChanged, this, &Dict::loadingChanged);
+    connect(&EmojiData::instance(), &EmojiData::loadingChanged, this, [this]() {
+        if (!EmojiData::instance().loading()) {
+            addEmojiToRecentFavorite(EmojiData::instance().recentEmojis());
+            // Add some default favorite emojis for someone who doesn't have any yet
+            auto &favoriteGroup = m_categoryGroups[Categories::Favorite];
+            favoriteGroup.add(Emoji(u"👍"_s));
+            favoriteGroup.add(Emoji(u"👎"_s));
+            favoriteGroup.add(Emoji(u"😄"_s));
+            favoriteGroup.add(Emoji(u"🎉"_s));
+            favoriteGroup.add(Emoji(u"❤️"_s));
+        }
+        Q_EMIT loadingChanged();
+    });
     connect(&EmojiData::instance(), &EmojiData::emojisAdded, this, &Dict::addEmojisToCategories);
     connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::emojiHistoryChanged);
     connect(&EmojiData::instance(), &EmojiData::emojiHistoryChanged, this, &Dict::addEmojiToRecentFavorite);
-
-    addEmojisToCategories(EmojiData::instance().emojiIds());
 }
 
 Dict &Dict::instance()
@@ -71,7 +82,6 @@ void Dict::addEmojisToCategories(QStringList emojis)
         if (!updatedCategories.contains(emoji.category())) {
             updatedCategories += emoji.category();
         }
-        addEmojiToRecentFavorite({unicodeOrCustomName});
 
         const auto tonelessEmoji = Tones::removeTonesFromEmoji(emoji);
         if (!m_categoryGroups[Categories::All].contains(tonelessEmoji)) {
@@ -90,13 +100,15 @@ void Dict::addEmojisToCategories(QStringList emojis)
             m_variantGroups[tonelessEmoji.id()] = group;
         }
     });
-
     Q_EMIT emojisChanged(updatedCategories);
 }
 
 void Dict::addEmojiToRecentFavorite(QStringList emojis)
 {
-    std::ranges::for_each(emojis, [this](const QString &unicodeOrCustomName) {
+    QList<Categories::Category> changed;
+    bool resortFavorites = false;
+
+    std::ranges::for_each(emojis, [this, &changed, &resortFavorites](const QString &unicodeOrCustomName) {
         const auto emoji = Emoji(unicodeOrCustomName);
         if (!emoji.isValid()) {
             return;
@@ -105,15 +117,31 @@ void Dict::addEmojiToRecentFavorite(QStringList emojis)
         const auto recentIndex = EmojiData::instance().recentIndex(emoji.id());
         if (recentIndex != -1 && !m_categoryGroups[Categories::Recent].contains(emoji)) {
             m_categoryGroups[Categories::Recent].add(emoji);
+            changed += Categories::Recent;
         } else if (recentIndex == -1 && m_categoryGroups[Categories::Recent].contains(emoji)) {
             m_categoryGroups[Categories::Recent].remove(emoji);
+            changed += Categories::Recent;
         }
-        if (EmojiData::instance().timesUsed(emoji.id()) > 0 && !m_categoryGroups[Categories::Favorite].contains(emoji)) {
+        if (EmojiData::instance().isFavorite(emoji.id()) && !m_categoryGroups[Categories::Favorite].contains(emoji)) {
             m_categoryGroups[Categories::Favorite].add(emoji);
-        } else if (EmojiData::instance().timesUsed(emoji.id()) == 0 && m_categoryGroups[Categories::Favorite].contains(emoji)) {
+            changed += Categories::Favorite;
+        } else if (!EmojiData::instance().isFavorite(emoji.id()) && m_categoryGroups[Categories::Favorite].contains(emoji)) {
             m_categoryGroups[Categories::Favorite].remove(emoji);
+            changed += Categories::Favorite;
+        }
+        if (!resortFavorites && (m_categoryGroups[Categories::Favorite].contains(emoji) || changed.contains(Categories::Favorite))) {
+            resortFavorites = true;
         }
     });
+
+    if (resortFavorites) {
+        m_categoryGroups[Categories::Favorite].sort([this](const Emoji &leftEmoji, const Emoji &rightEmoji) {
+            return timesEmojiUsed(leftEmoji) < timesEmojiUsed(rightEmoji);
+        });
+    }
+    if (!changed.isEmpty()) {
+        Q_EMIT emojisChanged(changed);
+    }
 }
 
 const Group Dict::emojis() const
@@ -160,6 +188,11 @@ bool Dict::isRecentEmoji(const QString &emoji) const
 int Dict::recentEmojiIndex(const KEmoji::Emoji &emoji) const
 {
     return EmojiData::instance().recentIndex(emoji.id());
+}
+
+bool Dict::isFavoriteEmoji(const Emoji &emoji) const
+{
+    return EmojiData::instance().isFavorite(emoji.id());
 }
 
 int Dict::timesEmojiUsed(const KEmoji::Emoji &emoji) const

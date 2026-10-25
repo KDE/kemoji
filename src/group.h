@@ -6,14 +6,16 @@
 
 #pragma once
 
+#include <QMetaObject>
 #include <QSharedDataPointer>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-#include "emoji.h"
 #include "kemoji_export.h"
 
 namespace KEmoji
 {
+class Emoji;
+
 /*!
  * \class KEmoji::Group
  * \inmodule KEmoji
@@ -100,6 +102,16 @@ public:
     Group filtered(std::function<bool(const Emoji &)> filter = {}) const;
 
     /*!
+     * \brief Sort the emojis in the \c KEmoji::Group using the comparison function \c comp.
+     *
+     * The function should return \c true if the first \c KEmoji::Emoji is less than
+     * the second \c KEmoji::Emoji.
+     *
+     * If no valid function is set nothing happens.
+     */
+    void sort(std::function<bool(const Emoji &, const Emoji &)> comp = {});
+
+    /*!
      * \brief Whether the \c KEmoji::EmojiGroup is empty.
      */
     bool isEmpty() const;
@@ -108,7 +120,7 @@ public:
 
 private:
     class GroupPrivate;
-    QSharedDataPointer<GroupPrivate> d;
+    QExplicitlySharedDataPointer<GroupPrivate> d;
 };
 
 static Group emptyGroup;

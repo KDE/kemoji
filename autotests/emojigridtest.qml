@@ -4,6 +4,7 @@
 import QtQuick
 import QtTest
 import QtQuick.Controls as QQC2
+import org.kde.kirigami as Kirigami
 
 import org.kde.kemoji as KEmoji
 
@@ -34,6 +35,21 @@ TestCase {
 
     SignalSpy {
         id: spyClicked
+    }
+
+    function test_placeholderCustomModel(): void {
+        KEmoji.Dict.clearHistory();
+        const grid = createTemporaryObject(testGrid, root);
+        const placeholder = Array.from(grid.children).find(child => child instanceof Kirigami.PlaceholderMessage);
+        verify(!placeholder.visible);
+
+        grid.model.currentCategory = KEmoji.Categories.Recent;
+        verify(placeholder.visible);
+        compare(placeholder.text, "No recent Emojis");
+
+        grid.model.currentCategory = KEmoji.Categories.Favorite;
+        verify(placeholder.visible);
+        compare(placeholder.text, "No favorite Emojis");
     }
 
     function test_limitedDataSet(): void {

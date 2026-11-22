@@ -7,11 +7,13 @@
 #include <QFontDatabase>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QStandardPaths>
 #include <QtQuickTest>
 
 #include <KEmoji/Category>
 #include <KEmoji/Emoji>
 #include <KEmoji/Group>
+#include <KLocalizedQmlContext>
 
 #include "dict.h"
 
@@ -24,11 +26,13 @@ class Setup : public QObject
 public:
     Setup()
     {
+        QStandardPaths::setTestModeEnabled(true);
     }
 
 public Q_SLOTS:
     void qmlEngineAvailable(QQmlEngine *engine)
     {
+        KLocalization::setupLocalizedContext(engine);
         setTestEmojis(engine);
     }
 

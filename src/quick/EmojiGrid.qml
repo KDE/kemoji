@@ -97,9 +97,13 @@ GridView {
     }
 
     Kirigami.PlaceholderMessage {
+        // Use the model actually set on the view which may not be the default one
+        readonly property KEmoji.SortFilterModel filterModel: root.model as KEmoji.SortFilterModel
+        readonly property int currentCategory: filterModel ? filterModel.currentCategory : KEmoji.Categories.All
+
         anchors.centerIn: parent
         width: parent.width - (Kirigami.Units.largeSpacing * 8)
-        text: categoryFilterModel.currentCategory === KEmoji.Categories.Recent ? KI18n.i18n("No recent Emojis") : KI18n.i18n("No favorite Emojis")
-        visible: root.count === 0 && (categoryFilterModel.currentCategory === KEmoji.Categories.Recent || categoryFilterModel.currentCategory === KEmoji.Categories.Favorite)
+        text: currentCategory === KEmoji.Categories.Recent ? KI18n.i18n("No recent Emojis") : KI18n.i18n("No favorite Emojis")
+        visible: root.count === 0 && (currentCategory === KEmoji.Categories.Recent || currentCategory === KEmoji.Categories.Favorite)
     }
 }

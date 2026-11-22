@@ -68,6 +68,7 @@ target_link_libraries(qmltest PRIVATE
     Qt6::Gui
     Qt6::QuickTest
     KF6::I18n
+    KF6::I18nQml
     KEmoji
 )
 

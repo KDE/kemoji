@@ -11,6 +11,7 @@
 #include <KEmoji/Dict>
 #include <KEmoji/Model>
 #include <KEmoji/SortFilterModel>
+#include <qtestcase.h>
 
 #include "category.h"
 #include "group.h"
@@ -35,6 +36,7 @@ private Q_SLOTS:
     void categoryTest();
     void toneFilterTest();
     void searchFilterTest();
+    void sortTest();
 
     void cleanup();
 };
@@ -118,6 +120,43 @@ void SortFilterModelTest::searchFilterTest()
     // Perfect match should be first.
     auto firstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
     QCOMPARE(firstEmoji, u"✋"_s);
+}
+
+void SortFilterModelTest::sortTest()
+{
+    // Make sure there is at least one recent emoji.
+    sortFilterModel->setCurrentCategory(Categories::Recent);
+    if (sortFilterModel->rowCount() == 0) {
+        Dict::instance().emojiUsed(u"😀"_s);
+    }
+    sortFilterModel->setCurrentCategory(Categories::All);
+
+    // Check that switched off for all changes.
+    sortFilterModel->setSortConditions(SortFilterModel::SortCondition::SourceModel);
+    auto firstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    sortFilterModel->setCurrentCategory(Categories::Smileys);
+    auto newFirstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    QCOMPARE(newFirstEmoji, firstEmoji);
+    sortFilterModel->setCurrentCategory(Categories::All);
+    Dict::instance().emojiUsed(u"🤯"_s);
+    newFirstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    QCOMPARE(newFirstEmoji, firstEmoji);
+
+    // Check default no change when emoji history changes.
+    sortFilterModel->setCurrentCategory(Categories::Recent);
+    sortFilterModel->setSortConditions(SortFilterModel::SortCondition::NewRow | SortFilterModel::SortCondition::PropertyChange);
+    firstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    QVERIFY(firstEmoji.isValid());
+    Dict::instance().emojiUsed(u"😝"_s);
+    newFirstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    QCOMPARE(newFirstEmoji, firstEmoji);
+
+    // Now switch on re-sort for any change.
+    sortFilterModel->setSortConditions(SortFilterModel::SortCondition::AnyChange);
+    auto nextEmoji = u"😇"_s;
+    Dict::instance().emojiUsed(nextEmoji);
+    newFirstEmoji = sortFilterModel->index(0, 0).data(Model::EmojiRole).value<Emoji>();
+    QCOMPARE(newFirstEmoji, nextEmoji);
 }
 
 void SortFilterModelTest::cleanup()

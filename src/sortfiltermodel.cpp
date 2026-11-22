@@ -17,6 +17,7 @@ using namespace KEmoji;
 
 SortFilterModel::SortFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
+    , m_sortConditions(SortCondition::NewRow | SortCondition::PropertyChange)
     , m_currentCategory(Categories::Category::All)
 {
     sort(0);
@@ -26,23 +27,37 @@ SortFilterModel::SortFilterModel(QObject *parent)
         }
     });
     connect(&Dict::instance(), &Dict::emojiHistoryChanged, this, [this]() {
-        if (m_currentCategory == Categories::Favorite || m_currentCategory == Categories::Recent) {
+        if (m_sortConditions.testFlag(SortCondition::EmojiHistory) && (m_currentCategory == Categories::Favorite || m_currentCategory == Categories::Recent)) {
             invalidate();
             return;
         }
-#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
         beginFilterChange();
         endFilterChange(QSortFilterProxyModel::Direction::Rows);
-#else
-        invalidateRowsFilter();
-#endif
     });
     connect(this, &SortFilterModel::sourceModelChanged, this, &SortFilterModel::invalidate);
     connect(this, &SortFilterModel::sourceModelChanged, this, [this]() {
         if (sourceModel()) {
-            connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, &SortFilterModel::invalidate);
+            connect(sourceModel(), &QAbstractItemModel::rowsInserted, this, [this]() {
+                if (m_sortConditions.testFlag(SortCondition::NewRow)) {
+                    invalidate();
+                }
+            });
         }
     });
+}
+
+SortFilterModel::SortConditions SortFilterModel::sortConditions() const
+{
+    return m_sortConditions;
+}
+
+void SortFilterModel::setSortConditions(SortConditions sortConditions)
+{
+    if (sortConditions == m_sortConditions) {
+        return;
+    }
+    m_sortConditions = sortConditions;
+    Q_EMIT sortConditionsChanged();
 }
 
 QString SortFilterModel::searchText() const
@@ -58,7 +73,9 @@ void SortFilterModel::setSearchText(const QString &searchText)
     m_searchText = searchText.trimmed();
     m_searchTextParts.clear();
     std::ranges::copy(QStringTokenizer(m_searchText, ' '_L1, Qt::SkipEmptyParts), std::back_inserter(m_searchTextParts));
-    invalidate();
+    if (m_sortConditions.testFlag(SortCondition::SearchChange)) {
+        invalidate();
+    }
     Q_EMIT searchTextChanged();
 }
 
@@ -73,7 +90,9 @@ void SortFilterModel::setCurrentCategory(Categories::Category category)
         return;
     }
     m_currentCategory = category;
-    invalidate();
+    if (m_sortConditions.testFlag(SortCondition::CategoryChange)) {
+        invalidate();
+    }
     Q_EMIT categoryChanged();
 }
 
@@ -88,12 +107,8 @@ void SortFilterModel::setToneFilter(Tones::Tone toneFilter)
         return;
     }
     m_toneFilter = toneFilter;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
-#else
-    invalidateRowsFilter();
-#endif
     Q_EMIT toneFilterChanged();
 }
 
@@ -108,12 +123,8 @@ void SortFilterModel::setShowUnsupportedEmojis(bool showUnsupportedEmojis)
         return;
     }
     m_showUnsupportedEmojis = showUnsupportedEmojis;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
-#else
-    invalidateRowsFilter();
-#endif
     Q_EMIT showUnsupportedEmojisChanged();
 }
 
@@ -128,12 +139,8 @@ void SortFilterModel::setCurrentFont(const QFont &currentFont)
         return;
     }
     m_currentFont = currentFont;
-#if QT_VERSION >= QT_VERSION_CHECK(6, 10, 0)
     beginFilterChange();
     endFilterChange(QSortFilterProxyModel::Direction::Rows);
-#else
-    invalidateRowsFilter();
-#endif
     Q_EMIT currentFontChanged();
 }
 

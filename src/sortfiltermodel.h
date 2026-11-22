@@ -54,6 +54,15 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     QML_ELEMENT
 
     /*!
+     * \property KEmoji::SortFilterModel::SortConditions
+     * \brief The \c KEmoji::SortFilterModel::SortConditions that will trigger a re-sort of the filter items.
+     *
+     * The default value is \c NewRow | \c PropertyChange, i.e. when
+     * category or search text properties are changed but not when the underlying data changes.
+     */
+    Q_PROPERTY(SortConditions sortConditions READ sortConditions WRITE setSortConditions NOTIFY sortConditionsChanged)
+
+    /*!
      * \property KEmoji::SortFilterModel::searchText
      * \brief The search text to filter and sort by.
      */
@@ -96,7 +105,43 @@ class KEMOJI_EXPORT SortFilterModel : public QSortFilterProxyModel
     Q_PROPERTY(QFont currentFont READ currentFont WRITE setCurrentFont NOTIFY currentFontChanged)
 
 public:
+    /*!
+     * \enum KEmoji::SortFilterModel::SortCondition
+     *
+     * Flags representing the conditions under which the \c QSortFilterProxyModel::sourceModel
+     * should be re-sorted:
+     *
+     * \value SourceModel
+     *        The model will only re-sort when the \c QSortFilterProxyModel::sourceModel is changed.
+     * \value NewRow
+     *        Re-sort when new rows are added to the \c QSortFilterProxyModel::sourceModel.
+     * \value EmojiHistory
+     *        Re-sort when the emoji history (recent emojis, favorite emojis) data changes.
+     * \value CategoryChange
+     *        Re-sort when the \c SortFilterModel::currentCategory changes.
+     * \value SearchChange
+     *        Re-sort when the \c SortFilterModel::searchText changes.
+     * \value PropertyChange
+     *        Helper for \c CategoryChange and \c SearchChange.
+     * \value AnyChange
+     *        Helper for \c NewRow, \c EmojiHistory, \c CategoryChange and \c SearchChange.
+     */
+    enum class SortCondition {
+        SourceModel = 0x0,
+        NewRow = 0x1,
+        EmojiHistory = 0x2,
+        CategoryChange = 0x4,
+        SearchChange = 0x8,
+        PropertyChange = CategoryChange | SearchChange,
+        AnyChange = NewRow | EmojiHistory | CategoryChange | SearchChange,
+    };
+    Q_DECLARE_FLAGS(SortConditions, SortCondition)
+    Q_FLAG(SortConditions)
+
     explicit SortFilterModel(QObject *parent = nullptr);
+
+    SortConditions sortConditions() const;
+    void setSortConditions(SortConditions sortConditions);
 
     QString searchText() const;
     void setSearchText(const QString &searchText);
@@ -114,6 +159,7 @@ public:
     void setCurrentFont(const QFont &currentFont);
 
 Q_SIGNALS:
+    void sortConditionsChanged();
     void searchTextChanged();
     void categoryChanged();
     void toneFilterChanged();
@@ -121,6 +167,7 @@ Q_SIGNALS:
     void currentFontChanged();
 
 private:
+    SortConditions m_sortConditions;
     QString m_searchText;
     std::vector<QStringView> m_searchTextParts;
 
@@ -138,4 +185,6 @@ private:
     int isRecentMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
     int isFavoriteMatch(const QModelIndex &source_left, const QModelIndex &source_right) const;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(SortFilterModel::SortConditions)
 }

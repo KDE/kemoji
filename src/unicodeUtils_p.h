@@ -7,6 +7,7 @@
 #pragma once
 
 #include <QFont>
+#include <QHash>
 #include <QRawFont>
 #include <QString>
 #include <QTextBoundaryFinder>
@@ -40,34 +41,48 @@ inline QString qualify(QString unicode)
 
 inline bool unicodeSupportedByFont(const QString &unicode, const QFont &font)
 {
-    // Check if the unicode produces a single glyph when rendered. This shows that
-    // the font supports any variation sequences.
-    QTextLayout textLayout(unicode);
-    textLayout.setFont(font);
-    textLayout.beginLayout();
-    QTextLine line = textLayout.createLine();
-    textLayout.endLayout();
-    if (!line.isValid()) {
-        return false;
-    }
-    if (line.glyphRuns().at(0).glyphIndexes().size() > 1) {
-        return false;
+    // Text layout and font fallback are expensive, and both model filtering and
+    // delegate creation repeatedly check the same emoji and font combination.
+    static thread_local QHash<QFont, QHash<QString, bool>> cache;
+    auto &fontCache = cache[font];
+    const auto cached = fontCache.constFind(unicode);
+    if (cached != fontCache.cend()) {
+        return cached.value();
     }
 
-    // Check that all character are supported. This is to handle a font not supporting
-    // new code point gracefully.
-    const auto rawFont = QRawFont::fromFont(font);
-    QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, unicode);
-    int from = 0;
-    while (finder.toNextBoundary() != -1) {
-        auto to = finder.position();
-
-        auto character = unicode.mid(from, to - from).toUcs4()[0];
-        if (!rawFont.supportsCharacter(character)) {
+    const bool supported = [&] {
+        // Check if the unicode produces a single glyph when rendered. This shows that
+        // the font supports any variation sequences.
+        QTextLayout textLayout(unicode);
+        textLayout.setFont(font);
+        textLayout.beginLayout();
+        QTextLine line = textLayout.createLine();
+        textLayout.endLayout();
+        if (!line.isValid()) {
             return false;
         }
-        from = to;
-    }
-    return true;
+        if (line.glyphRuns().at(0).glyphIndexes().size() > 1) {
+            return false;
+        }
+
+        // Check that all character are supported. This is to handle a font not supporting
+        // new code point gracefully.
+        const auto rawFont = QRawFont::fromFont(font);
+        QTextBoundaryFinder finder(QTextBoundaryFinder::Grapheme, unicode);
+        int from = 0;
+        while (finder.toNextBoundary() != -1) {
+            auto to = finder.position();
+
+            auto character = unicode.mid(from, to - from).toUcs4()[0];
+            if (!rawFont.supportsCharacter(character)) {
+                return false;
+            }
+            from = to;
+        }
+        return true;
+    }();
+
+    fontCache.insert(unicode, supported);
+    return supported;
 }
 }
